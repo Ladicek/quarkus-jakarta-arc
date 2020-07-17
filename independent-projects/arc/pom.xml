@@ -52,6 +52,8 @@
     </properties>
 
     <modules>
+        <module>cdi-lite-ext-api</module>
+
         <module>runtime</module>
         <module>processor</module>
         <module>tests</module>

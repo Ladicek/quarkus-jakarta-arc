@@ -7,6 +7,7 @@ import io.quarkus.arc.processor.BuildExtension.BuildContext;
 import io.quarkus.arc.processor.BuildExtension.Key;
 import io.quarkus.arc.processor.ResourceOutput.Resource;
 import io.quarkus.arc.processor.ResourceOutput.Resource.SpecialType;
+import io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtProcessor;
 import io.quarkus.gizmo.BytecodeCreator;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -79,6 +80,8 @@ public class BeanProcessor {
     protected final Predicate<DotName> injectionPointAnnotationsPredicate;
 
     private BeanProcessor(Builder builder) {
+        new CdiLiteExtProcessor(builder.beanArchiveIndex, builder).run();
+
         this.reflectionRegistration = builder.reflectionRegistration;
         this.applicationClassPredicate = builder.applicationClassPredicate;
         this.name = builder.name;

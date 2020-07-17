@@ -113,6 +113,8 @@ public class BeanArchiveProcessor {
         // Also include archives that are not bean archives but contain qualifiers or interceptor bindings
         beanDefiningAnnotations.add(DotNames.QUALIFIER);
         beanDefiningAnnotations.add(DotNames.INTERCEPTOR_BINDING);
+        // TODO or LiteExtensions?
+        //beanDefiningAnnotations.add(DotNames.LITE_EXTENSION);
 
         List<IndexView> indexes = new ArrayList<>();
 

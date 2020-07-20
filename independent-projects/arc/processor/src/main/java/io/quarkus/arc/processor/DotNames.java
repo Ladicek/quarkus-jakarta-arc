@@ -1,7 +1,5 @@
 package io.quarkus.arc.processor;
 
-import cdi.lite.extension.LiteExtension;
-import cdi.lite.extension.TypeConfigurator;
 import io.quarkus.arc.All;
 import io.quarkus.arc.AlternativePriority;
 import io.quarkus.arc.ArcInvocationContext;
@@ -17,7 +15,6 @@ import io.quarkus.arc.impl.Identified;
 import java.io.Serializable;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Repeatable;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -131,10 +128,6 @@ public final class DotNames {
     public static final DotName IDENTIFIED = create(Identified.class);
     public static final DotName INSTANCE_HANDLE = create(InstanceHandle.class);
     public static final DotName NO_CLASS_INTERCEPTORS = create(NoClassInterceptors.class);
-
-    public static final DotName LITE_EXTENSION = create(LiteExtension.class);
-    public static final DotName COLLECTION = create(Collection.class);
-    public static final DotName TYPE_CONFIGURATOR = create(TypeConfigurator.class);
 
     public static final DotName BOOLEAN = create(Boolean.class);
     public static final DotName BYTE = create(Byte.class);

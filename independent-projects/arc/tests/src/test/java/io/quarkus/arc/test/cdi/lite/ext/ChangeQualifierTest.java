@@ -4,7 +4,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import cdi.lite.extension.LiteExtension;
-import cdi.lite.extension.TypeConfigurator;
+import cdi.lite.extension.model.configs.ClassConfig;
+import cdi.lite.extension.model.declarations.ClassInfo;
+import cdi.lite.extension.model.declarations.FieldInfo;
+import cdi.lite.extension.model.declarations.MethodInfo;
+import cdi.lite.extension.model.declarations.ParameterInfo;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.test.ArcTestContainer;
 import java.lang.annotation.Retention;
@@ -19,41 +23,68 @@ public class ChangeQualifierTest {
     @RegisterExtension
     public ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyExtension.class, MyQualifier.class, MyService.class, MyFooService.class, MyBarService.class,
-                    MyServiceConsumer.class)
+                    MyServiceConsumer.class,
+                    LiteExtension.class)
             .build();
 
     @Test
-    public void testObserved() {
+    public void test() {
         MyServiceConsumer myServiceConsumer = Arc.container().select(MyServiceConsumer.class).get();
         assertTrue(myServiceConsumer.myService instanceof MyBarService);
     }
 
     public static class MyExtension {
         @LiteExtension
-        public void configureAnnotations(TypeConfigurator<MyFooService> foo,
-                TypeConfigurator<MyBarService> bar) {
-
-            foo.removeAnnotation(ann -> ann.name().toString().equals(MyQualifier.class.getName()));
+        public void configureAnnotations(ClassConfig<MyFooService> foo, ClassConfig<MyBarService> bar) {
+            foo.removeAnnotation(ann -> ann.declaration().name().equals(MyQualifier.class.getName()));
             bar.addAnnotation(MyQualifier.class);
         }
 
         @LiteExtension
-        public void test(Collection<TypeConfigurator<? extends MyService>> upperBound,
-                Collection<TypeConfigurator<? super MyService>> lowerBound,
-                Collection<TypeConfigurator<MyService>> single,
-                Collection<TypeConfigurator<?>> all) {
+        public void test(Collection<ClassConfig<? extends MyService>> upperBound,
+                Collection<ClassConfig<? super MyService>> lowerBound,
+                Collection<ClassConfig<MyService>> single,
+                Collection<ClassConfig<?>> all,
+                Collection<ClassInfo<?>> allAgain,
+                Collection<MethodInfo<? super MyService>> methods,
+                Collection<FieldInfo<? extends MyService>> fields,
+                Collection<ParameterInfo<MyExtension>> parameters,
+                ClassInfo<MyFooService> singleAgain) {
 
             System.out.println("!!! upper bound");
-            upperBound.stream().map(TypeConfigurator::type).forEach(System.out::println);
+            upperBound.forEach(System.out::println);
 
             System.out.println("!!! lower bound");
-            lowerBound.stream().map(TypeConfigurator::type).forEach(System.out::println);
+            lowerBound.forEach(System.out::println);
 
             System.out.println("!!! single");
-            single.stream().map(TypeConfigurator::type).forEach(System.out::println);
+            single.forEach(System.out::println);
 
             System.out.println("!!! all");
-            all.stream().map(TypeConfigurator::type).forEach(System.out::println);
+            all.forEach(System.out::println);
+
+            System.out.println("!!! all again");
+            allAgain.forEach(System.out::println);
+
+            System.out.println("!!! methods");
+            methods.forEach(System.out::println);
+
+            System.out.println("!!! fields");
+            fields.forEach(System.out::println);
+
+            System.out.println("!!! parameters");
+            parameters.forEach(System.out::println);
+
+            System.out.println("!!! single again");
+            System.out.println(singleAgain);
+            System.out.println(singleAgain.name());
+            System.out.println(singleAgain.simpleName());
+            System.out.println(singleAgain.packageInfo());
+            System.out.println(singleAgain.superClass());
+            singleAgain.superInterfaces().forEach(System.out::println);
+            singleAgain.constructors().forEach(System.out::println);
+            singleAgain.methods().forEach(System.out::println);
+            singleAgain.fields().forEach(System.out::println);
         }
     }
 
@@ -65,15 +96,28 @@ public class ChangeQualifierTest {
     }
 
     interface MyService {
+        String hello();
     }
 
     @Singleton
     @MyQualifier
     static class MyFooService implements MyService {
+        private final String value = "foo";
+
+        @Override
+        public String hello() {
+            return value;
+        }
     }
 
     @Singleton
     static class MyBarService implements MyService {
+        private static final String VALUE = "bar";
+
+        @Override
+        public String hello() {
+            return VALUE;
+        }
     }
 
     @Singleton

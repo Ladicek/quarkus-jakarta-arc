@@ -6,6 +6,7 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.jboss.jandex.DotName;
 
@@ -71,6 +72,21 @@ abstract class TypeImpl<JandexType extends org.jboss.jandex.Type> implements Typ
     @Override
     public String toString() {
         return jandexType.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof TypeImpl))
+            return false;
+        TypeImpl<?> type = (TypeImpl<?>) o;
+        return Objects.equals(jandexType, type.jandexType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(jandexType);
     }
 
     // ---

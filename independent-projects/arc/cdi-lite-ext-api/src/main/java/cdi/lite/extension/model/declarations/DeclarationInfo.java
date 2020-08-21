@@ -1,9 +1,31 @@
 package cdi.lite.extension.model.declarations;
 
 import cdi.lite.extension.model.AnnotationTarget;
+import cdi.lite.extension.model.types.Type;
 
 public interface DeclarationInfo extends AnnotationTarget {
+    @Override
+    default boolean isDeclaration() {
+        return true;
+    }
+
+    @Override
+    default boolean isType() {
+        return false;
+    }
+
+    @Override
+    default DeclarationInfo asDeclaration() {
+        return this;
+    }
+
+    @Override
+    default Type asType() {
+        throw new IllegalStateException("Not a type");
+    }
+
     enum Kind {
+        /** Packages can be annotated in {@code package-info.java}. */
         PACKAGE,
         CLASS,
         METHOD,

@@ -10,14 +10,22 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.DotName;
 
 class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> implements MethodInfo<Object> {
+    // only for equals/hashCode
+    private final DotName className;
+    private final String name;
+    private final List<org.jboss.jandex.Type> parameterTypes;
+
     MethodInfoImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.MethodInfo jandexDeclaration) {
         super(jandexIndex, jandexDeclaration);
+        this.className = jandexDeclaration.declaringClass().name();
+        this.name = jandexDeclaration.name();
+        this.parameterTypes = jandexDeclaration.parameters();
     }
 
     @Override
@@ -44,7 +52,6 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
 
     @Override
     public Optional<Type> receiverType() {
-        // TODO Jandex never returns `null`, so there's no way to distinguish if a receiver parameter was declared
         return Optional.of(TypeImpl.fromJandexType(jandexIndex, jandexDeclaration.receiverType()));
     }
 
@@ -90,24 +97,24 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
     public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
         return jandexDeclaration.annotations(DotName.createSimple(annotationType.getName()))
                 .stream()
-                .anyMatch(it -> it.target().kind() == AnnotationTarget.Kind.METHOD);
+                .anyMatch(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD);
     }
 
     @Override
     public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
         return jandexDeclaration.annotations(DotName.createSimple(annotationType.getName()))
                 .stream()
-                .filter(it -> it.target().kind() == AnnotationTarget.Kind.METHOD)
+                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD)
                 .findFirst()
                 .map(it -> new AnnotationInfoImpl(jandexIndex, it))
-                .get(); // TODO
+                .get();
     }
 
     @Override
     public Collection<AnnotationInfo> repeatableAnnotation(Class<? extends Annotation> annotationType) {
         return jandexDeclaration.annotationsWithRepeatable(DotName.createSimple(annotationType.getName()), jandexIndex)
                 .stream()
-                .filter(it -> it.target().kind() == AnnotationTarget.Kind.METHOD)
+                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD)
                 .map(it -> new AnnotationInfoImpl(jandexIndex, it))
                 .collect(Collectors.toList());
     }
@@ -116,8 +123,25 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
     public Collection<AnnotationInfo> annotations() {
         return jandexDeclaration.annotations()
                 .stream()
-                .filter(it -> it.target().kind() == AnnotationTarget.Kind.METHOD)
+                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD)
                 .map(it -> new AnnotationInfoImpl(jandexIndex, it))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        MethodInfoImpl that = (MethodInfoImpl) o;
+        return Objects.equals(className, that.className) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(parameterTypes, that.parameterTypes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(className, name, parameterTypes);
     }
 }

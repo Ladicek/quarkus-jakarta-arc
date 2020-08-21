@@ -1,21 +1,25 @@
 package cdi.lite.extension.model;
 
 import cdi.lite.extension.model.declarations.ClassInfo;
-import cdi.lite.extension.model.declarations.DeclarationInfo;
+import java.lang.annotation.Repeatable;
 import java.util.Collection;
 
 public interface AnnotationInfo {
     /**
      * Target of this annotation.
-     * That is, the declaration on which this annotation is present.
+     * That is, the declaration, the type parameter or the type use on which this annotation is present.
      * TODO what if this annotation is a nested annotation?
      */
-    DeclarationInfo target();
+    AnnotationTarget target();
 
     /**
      * Declaration of the annotation itself.
      */
     ClassInfo<?> declaration();
+
+    default boolean isRepeatable() {
+        return declaration().hasAnnotation(Repeatable.class);
+    }
 
     /**
      * Whether the annotation has an attribute with given {@code name}.

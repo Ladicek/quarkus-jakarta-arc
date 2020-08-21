@@ -3,9 +3,10 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 import cdi.lite.extension.model.AnnotationAttribute;
 import cdi.lite.extension.model.AnnotationAttributeValue;
 import cdi.lite.extension.model.AnnotationInfo;
+import cdi.lite.extension.model.AnnotationTarget;
 import cdi.lite.extension.model.declarations.ClassInfo;
-import cdi.lite.extension.model.declarations.DeclarationInfo;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.jboss.jandex.DotName;
 
@@ -19,8 +20,16 @@ class AnnotationInfoImpl implements AnnotationInfo {
     }
 
     @Override
-    public DeclarationInfo target() {
-        return DeclarationInfoImpl.fromJandexDeclaration(jandexIndex, jandexAnnotation.target());
+    public AnnotationTarget target() {
+        org.jboss.jandex.AnnotationTarget jandexAnnotationTarget = jandexAnnotation.target();
+        if (jandexAnnotationTarget == null) {
+            // TODO
+            return null;
+        } else if (jandexAnnotationTarget.kind() == org.jboss.jandex.AnnotationTarget.Kind.TYPE) {
+            return TypeImpl.fromJandexType(jandexIndex, jandexAnnotationTarget.asType().target());
+        } else {
+            return DeclarationInfoImpl.fromJandexDeclaration(jandexIndex, jandexAnnotation.target());
+        }
     }
 
     @Override
@@ -49,5 +58,20 @@ class AnnotationInfoImpl implements AnnotationInfo {
                 .stream()
                 .map(it -> new AnnotationAttributeImpl(jandexIndex, it))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        AnnotationInfoImpl that = (AnnotationInfoImpl) o;
+        return Objects.equals(jandexAnnotation, that.jandexAnnotation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(jandexAnnotation);
     }
 }

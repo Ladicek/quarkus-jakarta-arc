@@ -5,6 +5,7 @@ import cdi.lite.extension.model.declarations.PackageInfo;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 class PackageInfoImpl implements PackageInfo {
     private final String name;
@@ -43,5 +44,20 @@ class PackageInfoImpl implements PackageInfo {
     @Override
     public List<AnnotationInfo> annotations() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        PackageInfoImpl that = (PackageInfoImpl) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

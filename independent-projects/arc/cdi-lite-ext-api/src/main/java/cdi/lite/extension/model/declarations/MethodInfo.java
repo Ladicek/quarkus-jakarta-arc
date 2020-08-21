@@ -15,6 +15,8 @@ public interface MethodInfo<T> extends DeclarationInfo {
 
     Type returnType();
 
+    // TODO return Optional<Type> and only return non-empty if receiver parameter is declared,
+    //  or return Type and always return a receiver type, even if not declared (and hence not annotated)?
     Optional<Type> receiverType();
 
     List<Type> throwsTypes();

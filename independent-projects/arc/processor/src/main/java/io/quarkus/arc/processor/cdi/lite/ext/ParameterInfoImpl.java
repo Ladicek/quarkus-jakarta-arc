@@ -5,15 +5,18 @@ import cdi.lite.extension.model.declarations.ParameterInfo;
 import cdi.lite.extension.model.types.Type;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.DotName;
 
 class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> implements ParameterInfo<Object> {
+    // only for equals/hashCode
+    private final MethodInfoImpl method;
     private final int position;
 
     ParameterInfoImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.MethodInfo jandexDeclaration, int position) {
         super(jandexIndex, jandexDeclaration);
+        this.method = new MethodInfoImpl(jandexIndex, jandexDeclaration);
         this.position = position;
     }
 
@@ -37,7 +40,7 @@ class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo>
     public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
         return jandexDeclaration.annotations(DotName.createSimple(annotationType.getName()))
                 .stream()
-                .anyMatch(it -> it.target().kind() == AnnotationTarget.Kind.METHOD_PARAMETER
+                .anyMatch(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD_PARAMETER
                         && it.target().asMethodParameter().position() == position);
     }
 
@@ -46,18 +49,18 @@ class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo>
         return jandexDeclaration
                 .annotations(DotName.createSimple(annotationType.getName()))
                 .stream()
-                .filter(it -> it.target().kind() == AnnotationTarget.Kind.METHOD_PARAMETER
+                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD_PARAMETER
                         && it.target().asMethodParameter().position() == position)
                 .findFirst()
                 .map(it -> new AnnotationInfoImpl(jandexIndex, it))
-                .get(); // TODO
+                .get();
     }
 
     @Override
     public Collection<AnnotationInfo> repeatableAnnotation(Class<? extends Annotation> annotationType) {
         return jandexDeclaration.annotationsWithRepeatable(DotName.createSimple(annotationType.getName()), jandexIndex)
                 .stream()
-                .filter(it -> it.target().kind() == AnnotationTarget.Kind.METHOD_PARAMETER
+                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD_PARAMETER
                         && it.target().asMethodParameter().position() == position)
                 .map(it -> new AnnotationInfoImpl(jandexIndex, it))
                 .collect(Collectors.toList());
@@ -68,9 +71,25 @@ class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo>
         return jandexDeclaration
                 .annotations()
                 .stream()
-                .filter(it -> it.target().kind() == AnnotationTarget.Kind.METHOD_PARAMETER
+                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD_PARAMETER
                         && it.target().asMethodParameter().position() == position)
                 .map(it -> new AnnotationInfoImpl(jandexIndex, it))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ParameterInfoImpl that = (ParameterInfoImpl) o;
+        return position == that.position &&
+                Objects.equals(method, that.method);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(method, position);
     }
 }

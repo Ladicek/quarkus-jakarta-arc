@@ -2,7 +2,7 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 
 import cdi.lite.extension.model.declarations.DeclarationInfo;
 
-// TODO all subclasses must have equals, hashCode and perhaps also their own toString (though the current one is fine)
+// TODO all *Info subclasses have equals/hashCode, but *Config do not, and that's probably correct?
 abstract class DeclarationInfoImpl<JandexDeclaration extends org.jboss.jandex.AnnotationTarget> implements DeclarationInfo {
     final org.jboss.jandex.IndexView jandexIndex;
     final JandexDeclaration jandexDeclaration;

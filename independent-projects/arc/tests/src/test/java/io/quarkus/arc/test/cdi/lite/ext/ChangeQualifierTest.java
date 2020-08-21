@@ -3,8 +3,10 @@ package io.quarkus.arc.test.cdi.lite.ext;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import cdi.lite.extension.LiteExtension;
+import cdi.lite.extension.Extension;
+import cdi.lite.extension.World;
 import cdi.lite.extension.model.configs.ClassConfig;
+import cdi.lite.extension.model.configs.FieldConfig;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
@@ -24,7 +26,7 @@ public class ChangeQualifierTest {
     public ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyExtension.class, MyQualifier.class, MyService.class, MyFooService.class, MyBarService.class,
                     MyServiceConsumer.class,
-                    LiteExtension.class)
+                    Extension.class)
             .build();
 
     @Test
@@ -34,13 +36,19 @@ public class ChangeQualifierTest {
     }
 
     public static class MyExtension {
-        @LiteExtension
-        public void configureAnnotations(ClassConfig<MyFooService> foo, ClassConfig<MyBarService> bar) {
+        @Extension
+        public void configure(ClassConfig<MyFooService> foo, ClassConfig<MyBarService> bar,
+                Collection<FieldConfig<MyServiceConsumer>> service) {
             foo.removeAnnotation(ann -> ann.declaration().name().equals(MyQualifier.class.getName()));
             bar.addAnnotation(MyQualifier.class);
+            service.stream()
+                    .filter(it -> "myService".equals(it.name()))
+                    .forEach(it -> {
+                        it.addAnnotation(MyQualifier.class);
+                    });
         }
 
-        @LiteExtension
+        @Extension
         public void test(Collection<ClassConfig<? extends MyService>> upperBound,
                 Collection<ClassConfig<? super MyService>> lowerBound,
                 Collection<ClassConfig<MyService>> single,
@@ -49,7 +57,8 @@ public class ChangeQualifierTest {
                 Collection<MethodInfo<? super MyService>> methods,
                 Collection<FieldInfo<? extends MyService>> fields,
                 Collection<ParameterInfo<MyExtension>> parameters,
-                ClassInfo<MyFooService> singleAgain) {
+                ClassInfo<MyFooService> singleAgain,
+                World world) {
 
             System.out.println("!!! upper bound");
             upperBound.forEach(System.out::println);
@@ -85,6 +94,13 @@ public class ChangeQualifierTest {
             singleAgain.constructors().forEach(System.out::println);
             singleAgain.methods().forEach(System.out::println);
             singleAgain.fields().forEach(System.out::println);
+
+            System.out.println("!!! world");
+            world.classes()
+                    .subtypeOf(MyService.class)
+                    .annotatedWith(Singleton.class)
+                    .stream()
+                    .forEach(System.out::println);
         }
     }
 
@@ -123,7 +139,6 @@ public class ChangeQualifierTest {
     @Singleton
     static class MyServiceConsumer {
         @Inject
-        @MyQualifier
         MyService myService;
     }
 

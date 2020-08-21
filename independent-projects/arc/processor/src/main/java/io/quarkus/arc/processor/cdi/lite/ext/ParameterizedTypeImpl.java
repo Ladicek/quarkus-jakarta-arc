@@ -5,10 +5,9 @@ import cdi.lite.extension.model.types.ParameterizedType;
 import cdi.lite.extension.model.types.Type;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.jboss.jandex.IndexView;
 
 class ParameterizedTypeImpl extends TypeImpl<org.jboss.jandex.ParameterizedType> implements ParameterizedType {
-    ParameterizedTypeImpl(IndexView jandexIndex, org.jboss.jandex.ParameterizedType jandexType) {
+    ParameterizedTypeImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.ParameterizedType jandexType) {
         super(jandexIndex, jandexType);
     }
 

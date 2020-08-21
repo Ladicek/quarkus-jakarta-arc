@@ -4,10 +4,9 @@ import cdi.lite.extension.model.types.Type;
 import cdi.lite.extension.model.types.TypeVariable;
 import java.util.Collections;
 import java.util.List;
-import org.jboss.jandex.IndexView;
 
 class UnresolvedTypeVariableImpl extends TypeImpl<org.jboss.jandex.UnresolvedTypeVariable> implements TypeVariable {
-    UnresolvedTypeVariableImpl(IndexView jandexIndex, org.jboss.jandex.UnresolvedTypeVariable jandexType) {
+    UnresolvedTypeVariableImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.UnresolvedTypeVariable jandexType) {
         super(jandexIndex, jandexType);
     }
 

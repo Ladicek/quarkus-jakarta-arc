@@ -11,12 +11,17 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.jboss.jandex.DotName;
 
 class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> implements ClassInfo<Object> {
+    // only for equals/hashCode
+    private final DotName name;
+
     ClassInfoImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.ClassInfo jandexDeclaration) {
         super(jandexIndex, jandexDeclaration);
+        this.name = jandexDeclaration.name();
     }
 
     @Override
@@ -112,7 +117,7 @@ class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> impl
     public Collection<MethodInfo<Object>> constructors() {
         return jandexDeclaration.methods()
                 .stream()
-                .filter(it -> "<init>".equals(it.name())) // only constructors
+                .filter(MethodPredicates.IS_CONSTRUCTOR_JANDEX)
                 .map(it -> new MethodInfoImpl(jandexIndex, it))
                 .collect(Collectors.toList());
     }
@@ -121,7 +126,7 @@ class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> impl
     public Collection<MethodInfo<Object>> methods() {
         return jandexDeclaration.methods()
                 .stream()
-                .filter(it -> !it.name().startsWith("<")) // no <init> nor <clinit>
+                .filter(MethodPredicates.IS_METHOD_JANDEX)
                 .map(it -> new MethodInfoImpl(jandexIndex, it))
                 .collect(Collectors.toList());
     }
@@ -141,7 +146,6 @@ class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> impl
 
     @Override
     public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
-        // TODO null
         return new AnnotationInfoImpl(jandexIndex,
                 jandexDeclaration.classAnnotation(DotName.createSimple(annotationType.getName())));
     }
@@ -160,5 +164,20 @@ class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> impl
                 .stream()
                 .map(it -> new AnnotationInfoImpl(jandexIndex, it))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ClassInfoImpl classInfo = (ClassInfoImpl) o;
+        return Objects.equals(name, classInfo.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

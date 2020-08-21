@@ -1,8 +1,29 @@
 package cdi.lite.extension.model.types;
 
 import cdi.lite.extension.model.AnnotationTarget;
+import cdi.lite.extension.model.declarations.DeclarationInfo;
 
 public interface Type extends AnnotationTarget {
+    @Override
+    default boolean isDeclaration() {
+        return false;
+    }
+
+    @Override
+    default boolean isType() {
+        return true;
+    }
+
+    @Override
+    default DeclarationInfo asDeclaration() {
+        throw new IllegalStateException("Not a declaration");
+    }
+
+    @Override
+    default Type asType() {
+        return this;
+    }
+
     enum Kind {
         /** E.g. when method returns {@code void}. */
         VOID,

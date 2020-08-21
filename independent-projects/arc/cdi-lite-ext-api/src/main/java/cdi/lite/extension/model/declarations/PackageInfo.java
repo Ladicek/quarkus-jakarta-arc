@@ -1,6 +1,6 @@
 package cdi.lite.extension.model.declarations;
 
-// TODO Jandex doesn't seem to index packages and their annotations
+// TODO Jandex doesn't seem to index package annotations
 public interface PackageInfo extends DeclarationInfo {
     String name();
 

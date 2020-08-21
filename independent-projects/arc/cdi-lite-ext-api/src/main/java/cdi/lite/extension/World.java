@@ -1,94 +1,78 @@
 package cdi.lite.extension;
 
-import cdi.lite.extension.model.AnnotationInfo;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
+import cdi.lite.extension.model.types.Type;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-// TODO better name, e.g. BeanDeployment?
+// TODO better name, e.g. BeanArchive or BeanDeployment?
 public interface World {
     ClassQuery classes();
 
-    MethodQuery methods();
+    MethodQuery constructors(); // no static initializers
+
+    MethodQuery methods(); // no constructors nor static initializers
 
     FieldQuery fields();
 
-    AnnotationQuery annotations();
+    interface ClassQuery {
+        ClassQuery exactly(Class<?> clazz);
 
-    interface BaseClassQuery<Q> {
-        BaseClassQuery<Q> exactType(Class<?> clazz);
+        ClassQuery exactly(ClassInfo<?> clazz);
 
-        BaseClassQuery<Q> exactType(ClassInfo<?> clazz);
+        ClassQuery subtypeOf(Class<?> clazz);
 
-        BaseClassQuery<Q> subtypeOf(Class<?> clazz);
+        ClassQuery subtypeOf(ClassInfo<?> clazz);
 
-        BaseClassQuery<Q> subtypeOf(ClassInfo<?> clazz);
+        ClassQuery supertypeOf(Class<?> clazz);
 
-        BaseClassQuery<Q> supertypeOf(Class<?> clazz);
+        ClassQuery supertypeOf(ClassInfo<?> clazz);
 
-        BaseClassQuery<Q> supertypeOf(ClassInfo<?> clazz);
-
-        Q andThen();
-    }
-
-    interface ClassQuery extends BaseClassQuery<ClassQuery> {
         ClassQuery annotatedWith(Class<? extends Annotation> annotationType);
 
         ClassQuery annotatedWith(ClassInfo<?> annotationType);
 
         Collection<ClassInfo<?>> find();
 
-        default Stream<ClassInfo<?>> stream() {
-            return find().stream();
-        };
+        Stream<ClassInfo<?>> stream();
+
+        // TODO also return ClassConfig<?> somehow
     }
 
     interface MethodQuery {
+        MethodQuery declaredOn(ClassQuery classes);
+
+        MethodQuery withReturnType(Type type);
+
+        // TODO parameters?
+
         MethodQuery annotatedWith(Class<? extends Annotation> annotationType);
 
         MethodQuery annotatedWith(ClassInfo<?> annotationType);
 
-        BaseClassQuery<MethodQuery> declaredOn();
+        Collection<? extends MethodInfo<?>> find();
 
-        BaseClassQuery<MethodQuery> withReturnType();
+        Stream<? extends MethodInfo<?>> stream();
 
-        // TODO parameters?
-
-        Collection<MethodInfo<?>> find();
-
-        default Stream<MethodInfo<?>> stream() {
-            return find().stream();
-        };
+        // TODO also return MethodConfig<?> somehow
     }
 
     interface FieldQuery {
+        FieldQuery declaredOn(ClassQuery classes);
+
+        FieldQuery ofType(Type type);
+
         FieldQuery annotatedWith(Class<? extends Annotation> annotationType);
 
         FieldQuery annotatedWith(ClassInfo<?> annotationType);
 
-        BaseClassQuery<FieldQuery> declaredOn();
-
-        BaseClassQuery<FieldQuery> ofType();
-
         Collection<FieldInfo<?>> find();
 
-        default Stream<FieldInfo<?>> stream() {
-            return find().stream();
-        };
-    }
+        Stream<FieldInfo<?>> stream();
 
-    interface AnnotationQuery {
-        AnnotationQuery of(Class<? extends Annotation> annotationType);
-
-        AnnotationQuery of(ClassInfo<?> annotationType);
-
-        Collection<AnnotationInfo> find();
-
-        default Stream<AnnotationInfo> stream() {
-            return find().stream();
-        };
+        // TODO also return FieldConfig<?> somehow
     }
 }

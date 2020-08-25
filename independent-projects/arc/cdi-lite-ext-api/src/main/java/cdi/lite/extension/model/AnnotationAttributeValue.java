@@ -93,9 +93,12 @@ public interface AnnotationAttributeValue {
 
     String asString();
 
-    String asEnumValue();
+    // TODO should this be present?
+    <E extends Enum<E>> E asEnum();
 
     ClassInfo<?> asEnumClass();
+
+    String asEnumValue();
 
     Type asClass(); // can be a VoidType, PrimitiveType or ClassType
 

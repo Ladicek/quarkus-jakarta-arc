@@ -17,7 +17,7 @@ class ParameterizedTypeImpl extends TypeImpl<org.jboss.jandex.ParameterizedType>
     }
 
     @Override
-    public List<Type> typeParameters() {
+    public List<Type> typeArguments() {
         return jandexType.arguments()
                 .stream()
                 .map(it -> TypeImpl.fromJandexType(jandexIndex, it))

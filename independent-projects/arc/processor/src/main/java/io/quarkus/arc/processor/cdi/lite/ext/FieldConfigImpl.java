@@ -18,14 +18,9 @@ class FieldConfigImpl extends FieldInfoImpl implements FieldConfig<Object> {
         this.transformations = transformations;
     }
 
-    private FieldAnnotationTransformations.Key key() {
-        return new FieldAnnotationTransformations.Key(jandexDeclaration.declaringClass().name(),
-                jandexDeclaration.name());
-    }
-
     @Override
     public void addAnnotation(Class<? extends Annotation> clazz, AnnotationAttribute... attributes) {
-        transformations.add(key(), ctx -> {
+        transformations.add(jandexDeclaration, ctx -> {
             org.jboss.jandex.AnnotationValue[] jandexAnnotationAttributes = Arrays.stream(attributes)
                     .map(it -> ((AnnotationAttributeImpl) it).jandexAnnotationAttribute)
                     .toArray(org.jboss.jandex.AnnotationValue[]::new);
@@ -35,7 +30,7 @@ class FieldConfigImpl extends FieldInfoImpl implements FieldConfig<Object> {
 
     @Override
     public void addAnnotation(ClassInfo<?> clazz, AnnotationAttribute... attributes) {
-        transformations.add(key(), ctx -> {
+        transformations.add(jandexDeclaration, ctx -> {
             DotName jandexName = ((ClassInfoImpl) clazz).jandexDeclaration.name();
             org.jboss.jandex.AnnotationValue[] jandexAnnotationAttributes = Arrays.stream(attributes)
                     .map(it -> ((AnnotationAttributeImpl) it).jandexAnnotationAttribute)
@@ -46,14 +41,23 @@ class FieldConfigImpl extends FieldInfoImpl implements FieldConfig<Object> {
 
     @Override
     public void addAnnotation(AnnotationInfo annotation) {
-        transformations.add(key(), ctx -> {
+        transformations.add(jandexDeclaration, ctx -> {
             ctx.transform().add(((AnnotationInfoImpl) annotation).jandexAnnotation).done();
         });
     }
 
     @Override
+    public void addAnnotation(Annotation annotation) {
+        AnnotationsReflection.with(annotation, (jandexName, jandexAnnotationAttributes) -> {
+            transformations.add(jandexDeclaration, ctx -> {
+                ctx.transform().add(jandexName, jandexAnnotationAttributes).done();
+            });
+        });
+    }
+
+    @Override
     public void removeAnnotation(Predicate<AnnotationInfo> predicate) {
-        transformations.add(key(), ctx -> {
+        transformations.add(jandexDeclaration, ctx -> {
             ctx.transform().remove(new Predicate<org.jboss.jandex.AnnotationInstance>() {
                 @Override
                 public boolean test(org.jboss.jandex.AnnotationInstance annotationInstance) {
@@ -65,7 +69,7 @@ class FieldConfigImpl extends FieldInfoImpl implements FieldConfig<Object> {
 
     @Override
     public void removeAllAnnotations() {
-        transformations.add(key(), ctx -> {
+        transformations.add(jandexDeclaration, ctx -> {
             ctx.transform().removeAll().done();
         });
     }

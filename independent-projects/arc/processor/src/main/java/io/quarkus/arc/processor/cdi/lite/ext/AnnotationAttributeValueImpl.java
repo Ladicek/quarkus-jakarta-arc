@@ -4,12 +4,13 @@ import cdi.lite.extension.model.AnnotationAttributeValue;
 import cdi.lite.extension.model.AnnotationInfo;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.types.Type;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class AnnotationAttributeValueImpl implements AnnotationAttributeValue {
-    private final org.jboss.jandex.IndexView jandexIndex;
-    private final org.jboss.jandex.AnnotationValue jandexAnnotationAttribute;
+    final org.jboss.jandex.IndexView jandexIndex;
+    final org.jboss.jandex.AnnotationValue jandexAnnotationAttribute;
 
     AnnotationAttributeValueImpl(org.jboss.jandex.IndexView jandexIndex,
             org.jboss.jandex.AnnotationValue jandexAnnotationAttribute) {
@@ -96,7 +97,7 @@ class AnnotationAttributeValueImpl implements AnnotationAttributeValue {
         return jandexAnnotationAttribute.asString();
     }
 
-    // TODO make this part of public API?
+    @Override
     public <T extends Enum<T>> T asEnum() {
         try {
             @SuppressWarnings("unchecked")
@@ -127,11 +128,9 @@ class AnnotationAttributeValueImpl implements AnnotationAttributeValue {
     public List<AnnotationAttributeValue> asArray() {
         org.jboss.jandex.AnnotationValue[] array = new org.jboss.jandex.HackAnnotationValue(jandexAnnotationAttribute)
                 .asArray();
-        List<AnnotationAttributeValue> result = new ArrayList<>(array.length);
-        for (org.jboss.jandex.AnnotationValue value : array) {
-            result.add(new AnnotationAttributeValueImpl(jandexIndex, value));
-        }
-        return result;
+        return Arrays.stream(array)
+                .map(it -> new AnnotationAttributeValueImpl(jandexIndex, it))
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -4,14 +4,19 @@ import java.util.List;
 import java.util.Objects;
 import org.jboss.jandex.DotName;
 
-class MethodAnnotationTransformations extends AbstractAnnotationTransformations<MethodAnnotationTransformations.Key> {
+class MethodAnnotationTransformations
+        extends AbstractAnnotationTransformations<MethodAnnotationTransformations.Key, org.jboss.jandex.MethodInfo> {
     MethodAnnotationTransformations() {
         super(org.jboss.jandex.AnnotationTarget.Kind.METHOD);
     }
 
     @Override
-    protected Key extractKey(TransformationContext ctx) {
-        org.jboss.jandex.MethodInfo method = ctx.getTarget().asMethod();
+    protected org.jboss.jandex.MethodInfo extractJandexDeclaration(TransformationContext ctx) {
+        return ctx.getTarget().asMethod();
+    }
+
+    @Override
+    protected Key extractKey(org.jboss.jandex.MethodInfo method) {
         return new Key(method.declaringClass().name(), method.name(), method.parameters());
     }
 

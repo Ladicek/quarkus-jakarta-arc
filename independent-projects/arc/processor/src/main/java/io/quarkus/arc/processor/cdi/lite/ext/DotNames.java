@@ -1,5 +1,6 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import cdi.lite.extension.Annotations;
 import cdi.lite.extension.Extension;
 import cdi.lite.extension.Types;
 import cdi.lite.extension.World;
@@ -26,6 +27,7 @@ class DotNames {
     static final DotName METHOD_CONFIG = DotName.createSimple(MethodConfig.class.getName());
     static final DotName FIELD_CONFIG = DotName.createSimple(FieldConfig.class.getName());
 
+    static final DotName ANNOTATIONS = DotName.createSimple(Annotations.class.getName());
     static final DotName TYPES = DotName.createSimple(Types.class.getName());
     static final DotName WORLD = DotName.createSimple(World.class.getName());
 }

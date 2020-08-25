@@ -39,7 +39,7 @@ abstract class TypeImpl<JandexType extends org.jboss.jandex.Type> implements Typ
             case WILDCARD_TYPE:
                 return new WildcardTypeImpl(jandexIndex, jandexType.asWildcardType());
             default:
-                throw new IllegalStateException("Unknown type " + jandexType);
+                throw new IllegalArgumentException("Unknown type " + jandexType);
         }
     }
 

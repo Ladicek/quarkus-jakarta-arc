@@ -2,15 +2,21 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 
 import java.util.Objects;
 import org.jboss.jandex.DotName;
+import org.jboss.jandex.FieldInfo;
 
-class FieldAnnotationTransformations extends AbstractAnnotationTransformations<FieldAnnotationTransformations.Key> {
+class FieldAnnotationTransformations
+        extends AbstractAnnotationTransformations<FieldAnnotationTransformations.Key, org.jboss.jandex.FieldInfo> {
     FieldAnnotationTransformations() {
         super(org.jboss.jandex.AnnotationTarget.Kind.FIELD);
     }
 
     @Override
-    protected Key extractKey(TransformationContext ctx) {
-        org.jboss.jandex.FieldInfo field = ctx.getTarget().asField();
+    protected org.jboss.jandex.FieldInfo extractJandexDeclaration(TransformationContext ctx) {
+        return ctx.getTarget().asField();
+    }
+
+    @Override
+    protected Key extractKey(org.jboss.jandex.FieldInfo field) {
         return new Key(field.declaringClass().name(), field.name());
     }
 

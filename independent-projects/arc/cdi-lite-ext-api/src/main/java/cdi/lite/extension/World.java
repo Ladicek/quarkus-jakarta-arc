@@ -1,5 +1,8 @@
 package cdi.lite.extension;
 
+import cdi.lite.extension.model.configs.ClassConfig;
+import cdi.lite.extension.model.configs.FieldConfig;
+import cdi.lite.extension.model.configs.MethodConfig;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
@@ -39,7 +42,7 @@ public interface World {
 
         Stream<ClassInfo<?>> stream();
 
-        // TODO also return ClassConfig<?> somehow
+        Collection<ClassConfig<?>> configure();
     }
 
     interface MethodQuery {
@@ -57,7 +60,7 @@ public interface World {
 
         Stream<? extends MethodInfo<?>> stream();
 
-        // TODO also return MethodConfig<?> somehow
+        Collection<MethodConfig<?>> configure();
     }
 
     interface FieldQuery {
@@ -73,6 +76,6 @@ public interface World {
 
         Stream<FieldInfo<?>> stream();
 
-        // TODO also return FieldConfig<?> somehow
+        Collection<FieldConfig<?>> configure();
     }
 }

@@ -3,9 +3,8 @@ package cdi.lite.extension.model.types;
 import java.util.Optional;
 
 /**
- * In case the wildcard type is unbounded (i.e., declared as {@code ?}), it is treated as if
- * it had an upper bound of {@code java.lang.Object}.
- * TODO this seems to be a Jandex decision, not sure we want to follow it
+ * In case the wildcard type is unbounded (i.e., declared as {@code ?}), both {@code upperBound}
+ * and {@code lowerBound} are empty.
  */
 public interface WildcardType extends Type {
     Optional<Type> upperBound();

@@ -20,7 +20,7 @@ class ClassConfigImpl extends ClassInfoImpl implements ClassConfig<Object> {
 
     @Override
     public void addAnnotation(Class<? extends Annotation> clazz, AnnotationAttribute... attributes) {
-        transformations.add(jandexDeclaration.name(), ctx -> {
+        transformations.add(jandexDeclaration, ctx -> {
             org.jboss.jandex.AnnotationValue[] jandexAnnotationAttributes = Arrays.stream(attributes)
                     .map(it -> ((AnnotationAttributeImpl) it).jandexAnnotationAttribute)
                     .toArray(org.jboss.jandex.AnnotationValue[]::new);
@@ -30,7 +30,7 @@ class ClassConfigImpl extends ClassInfoImpl implements ClassConfig<Object> {
 
     @Override
     public void addAnnotation(ClassInfo<?> clazz, AnnotationAttribute... attributes) {
-        transformations.add(jandexDeclaration.name(), ctx -> {
+        transformations.add(jandexDeclaration, ctx -> {
             DotName jandexName = ((ClassInfoImpl) clazz).jandexDeclaration.name();
             org.jboss.jandex.AnnotationValue[] jandexAnnotationAttributes = Arrays.stream(attributes)
                     .map(it -> ((AnnotationAttributeImpl) it).jandexAnnotationAttribute)
@@ -41,18 +41,27 @@ class ClassConfigImpl extends ClassInfoImpl implements ClassConfig<Object> {
 
     @Override
     public void addAnnotation(AnnotationInfo annotation) {
-        transformations.add(jandexDeclaration.name(), ctx -> {
+        transformations.add(jandexDeclaration, ctx -> {
             ctx.transform().add(((AnnotationInfoImpl) annotation).jandexAnnotation).done();
         });
     }
 
     @Override
+    public void addAnnotation(Annotation annotation) {
+        AnnotationsReflection.with(annotation, (jandexName, jandexAnnotationAttributes) -> {
+            transformations.add(jandexDeclaration, ctx -> {
+                ctx.transform().add(jandexName, jandexAnnotationAttributes).done();
+            });
+        });
+    }
+
+    @Override
     public void removeAnnotation(Predicate<AnnotationInfo> predicate) {
-        transformations.add(jandexDeclaration.name(), ctx -> {
+        transformations.add(jandexDeclaration, ctx -> {
             ctx.transform().remove(new Predicate<org.jboss.jandex.AnnotationInstance>() {
                 @Override
-                public boolean test(org.jboss.jandex.AnnotationInstance annotationInstance) {
-                    return predicate.test(new AnnotationInfoImpl(jandexIndex, annotationInstance));
+                public boolean test(org.jboss.jandex.AnnotationInstance jandexAnnotation) {
+                    return predicate.test(new AnnotationInfoImpl(jandexIndex, jandexAnnotation));
                 }
             }).done();
         });
@@ -60,7 +69,7 @@ class ClassConfigImpl extends ClassInfoImpl implements ClassConfig<Object> {
 
     @Override
     public void removeAllAnnotations() {
-        transformations.add(jandexDeclaration.name(), ctx -> {
+        transformations.add(jandexDeclaration, ctx -> {
             ctx.transform().removeAll().done();
         });
     }

@@ -45,7 +45,7 @@ class TypesImpl implements Types {
             } else if (clazz == Character.TYPE) {
                 return ofPrimitive(PrimitiveType.PrimitiveKind.CHAR);
             } else {
-                throw new IllegalStateException("Unknown primitive type " + clazz);
+                throw new IllegalArgumentException("Unknown primitive type " + clazz);
             }
         }
 

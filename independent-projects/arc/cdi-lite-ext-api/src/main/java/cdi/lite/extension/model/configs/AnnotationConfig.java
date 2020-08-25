@@ -13,6 +13,8 @@ public interface AnnotationConfig {
 
     void addAnnotation(AnnotationInfo annotation);
 
+    void addAnnotation(Annotation annotation);
+
     void removeAnnotation(Predicate<AnnotationInfo> predicate);
 
     void removeAllAnnotations();

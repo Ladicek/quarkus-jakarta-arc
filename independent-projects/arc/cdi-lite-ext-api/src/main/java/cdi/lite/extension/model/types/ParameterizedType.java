@@ -6,7 +6,7 @@ import java.util.List;
 public interface ParameterizedType extends Type {
     ClassInfo<?> declaration();
 
-    List<Type> typeParameters();
+    List<Type> typeArguments();
 
     // ---
 

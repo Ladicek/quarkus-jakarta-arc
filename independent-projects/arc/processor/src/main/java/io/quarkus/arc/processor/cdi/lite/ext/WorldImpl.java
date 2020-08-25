@@ -1,6 +1,9 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
 import cdi.lite.extension.World;
+import cdi.lite.extension.model.configs.ClassConfig;
+import cdi.lite.extension.model.configs.FieldConfig;
+import cdi.lite.extension.model.configs.MethodConfig;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
@@ -17,9 +20,11 @@ import org.jboss.jandex.DotName;
 
 class WorldImpl implements World {
     private final org.jboss.jandex.IndexView jandexIndex;
+    private final AllAnnotationTransformations allAnnotationTransformations;
 
-    WorldImpl(org.jboss.jandex.IndexView jandexIndex) {
+    WorldImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationTransformations allAnnotationTransformations) {
         this.jandexIndex = jandexIndex;
+        this.allAnnotationTransformations = allAnnotationTransformations;
     }
 
     @Override
@@ -215,6 +220,14 @@ class WorldImpl implements World {
                         .map(it -> new ClassInfoImpl(jandexIndex, it));
             }
         }
+
+        @Override
+        public Collection<ClassConfig<?>> configure() {
+            return stream()
+                    .map(it -> new ClassConfigImpl(jandexIndex, ((ClassInfoImpl) it).jandexDeclaration,
+                            allAnnotationTransformations.classes))
+                    .collect(Collectors.toList());
+        }
     }
 
     private class MethodQueryImpl implements MethodQuery {
@@ -366,6 +379,14 @@ class WorldImpl implements World {
                         .map(it -> new MethodInfoImpl(jandexIndex, it));
             }
         }
+
+        @Override
+        public Collection<MethodConfig<?>> configure() {
+            return stream()
+                    .map(it -> new MethodConfigImpl(jandexIndex, ((MethodInfoImpl) it).jandexDeclaration,
+                            allAnnotationTransformations.methods))
+                    .collect(Collectors.toList());
+        }
     }
 
     private class FieldQueryImpl implements FieldQuery {
@@ -503,6 +524,14 @@ class WorldImpl implements World {
                         .flatMap(it -> it.fields().stream())
                         .map(it -> new FieldInfoImpl(jandexIndex, it));
             }
+        }
+
+        @Override
+        public Collection<FieldConfig<?>> configure() {
+            return stream()
+                    .map(it -> new FieldConfigImpl(jandexIndex, ((FieldInfoImpl) it).jandexDeclaration,
+                            allAnnotationTransformations.fields))
+                    .collect(Collectors.toList());
         }
     }
 }

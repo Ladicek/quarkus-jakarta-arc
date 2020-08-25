@@ -75,7 +75,7 @@ import java.lang.annotation.Target;
  * </ul>
  * </ul>
  * <p>
- * It is possible to further narrow down these queries by {@link WithAnnotations}. (TODO doesn't exist yet)
+ * It is possible to further narrow down the queries by {@link WithAnnotations}.
  * <p>
  * For advanced use cases, where this kind of queries is not powerful enough, the extension method can also declare
  * a parameter of type {@link World}. If you declare a parameter of shape {@code Collection<SomethingInfo<?>>}

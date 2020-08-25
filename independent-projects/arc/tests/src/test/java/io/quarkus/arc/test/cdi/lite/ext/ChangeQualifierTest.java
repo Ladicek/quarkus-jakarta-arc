@@ -4,6 +4,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import cdi.lite.extension.Extension;
+import cdi.lite.extension.WithAnnotations;
 import cdi.lite.extension.World;
 import cdi.lite.extension.model.configs.ClassConfig;
 import cdi.lite.extension.model.configs.FieldConfig;
@@ -58,6 +59,8 @@ public class ChangeQualifierTest {
                 Collection<FieldInfo<? extends MyService>> fields,
                 Collection<ParameterInfo<MyExtension>> parameters,
                 ClassInfo<MyFooService> singleAgain,
+                @WithAnnotations(Inject.class) Collection<FieldInfo<?>> fieldsWithAnnotation,
+                @WithAnnotations(Extension.class) Collection<MethodInfo<?>> methodsWithAnnotation,
                 World world) {
 
             System.out.println("!!! upper bound");
@@ -94,6 +97,12 @@ public class ChangeQualifierTest {
             singleAgain.constructors().forEach(System.out::println);
             singleAgain.methods().forEach(System.out::println);
             singleAgain.fields().forEach(System.out::println);
+
+            System.out.println("!!! fields with annotation");
+            fieldsWithAnnotation.forEach(System.out::println);
+
+            System.out.println("!!! methods with annotation");
+            methodsWithAnnotation.forEach(System.out::println);
 
             System.out.println("!!! world");
             world.classes()

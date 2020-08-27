@@ -76,7 +76,7 @@ abstract class AnnotationsTransformation<Key, JandexDeclaration extends org.jbos
     }
 
     void addAnnotation(JandexDeclaration jandexDeclaration, Annotation annotation) {
-        addAnnotation(jandexDeclaration, AnnotationsReflection.from(annotation));
+        addAnnotation(jandexDeclaration, AnnotationsReflection.jandexAnnotation(annotation));
     }
 
     private void removeMatchingAnnotations(JandexDeclaration declaration,

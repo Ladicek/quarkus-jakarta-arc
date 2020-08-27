@@ -16,6 +16,7 @@ import io.quarkus.arc.Arc;
 import io.quarkus.arc.test.ArcTestContainer;
 import java.lang.annotation.Retention;
 import java.util.Collection;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 import javax.inject.Singleton;
@@ -40,6 +41,14 @@ public class ChangeQualifierTest {
         @Extension
         public void configure(ClassConfig<MyFooService> foo, ClassConfig<MyBarService> bar,
                 Collection<FieldConfig<MyServiceConsumer>> service) {
+
+            System.out.println("????????? " + foo.annotations());
+            System.out.println("????????? " + bar.annotations());
+            System.out.println("????????? " + service.stream()
+                    .filter(it -> "myService".equals(it.name()))
+                    .flatMap(it -> it.annotations().stream())
+                    .collect(Collectors.toSet()));
+
             foo.removeAnnotation(ann -> ann.declaration().name().equals(MyQualifier.class.getName()));
             bar.addAnnotation(MyQualifier.class);
             service.stream()
@@ -47,6 +56,13 @@ public class ChangeQualifierTest {
                     .forEach(it -> {
                         it.addAnnotation(MyQualifier.class);
                     });
+
+            System.out.println("????????? " + foo.annotations());
+            System.out.println("????????? " + bar.annotations());
+            System.out.println("????????? " + service.stream()
+                    .filter(it -> "myService".equals(it.name()))
+                    .flatMap(it -> it.annotations().stream())
+                    .collect(Collectors.toSet()));
         }
 
         @Extension

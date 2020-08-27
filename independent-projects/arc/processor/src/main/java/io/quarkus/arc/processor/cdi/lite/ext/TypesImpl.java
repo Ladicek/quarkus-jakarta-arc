@@ -8,9 +8,11 @@ import org.jboss.jandex.DotName;
 
 class TypesImpl implements Types {
     private final org.jboss.jandex.IndexView jandexIndex;
+    private final AllAnnotationOverlays annotationOverlays;
 
-    TypesImpl(org.jboss.jandex.IndexView jandexIndex) {
+    TypesImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays) {
         this.jandexIndex = jandexIndex;
+        this.annotationOverlays = annotationOverlays;
     }
 
     @Override
@@ -51,7 +53,7 @@ class TypesImpl implements Types {
 
         org.jboss.jandex.Type jandexType = org.jboss.jandex.Type.create(DotName.createSimple(clazz.getName()),
                 org.jboss.jandex.Type.Kind.CLASS);
-        return new ClassTypeImpl(jandexIndex, jandexType.asClassType());
+        return new ClassTypeImpl(jandexIndex, annotationOverlays, jandexType.asClassType());
 
     }
 
@@ -59,27 +61,27 @@ class TypesImpl implements Types {
     public Type ofVoid() {
         org.jboss.jandex.Type jandexType = org.jboss.jandex.Type.create(DotName.createSimple("void"),
                 org.jboss.jandex.Type.Kind.VOID);
-        return new VoidTypeImpl(jandexIndex, jandexType.asVoidType());
+        return new VoidTypeImpl(jandexIndex, annotationOverlays, jandexType.asVoidType());
     }
 
     @Override
     public Type ofPrimitive(PrimitiveType.PrimitiveKind kind) {
         org.jboss.jandex.Type jandexType = org.jboss.jandex.Type.create(DotName.createSimple(kind.name().toLowerCase()),
                 org.jboss.jandex.Type.Kind.PRIMITIVE);
-        return new PrimitiveTypeImpl(jandexIndex, jandexType.asPrimitiveType());
+        return new PrimitiveTypeImpl(jandexIndex, annotationOverlays, jandexType.asPrimitiveType());
     }
 
     @Override
     public Type ofClass(ClassInfo<?> clazz) {
         org.jboss.jandex.Type jandexType = org.jboss.jandex.Type.create(((ClassInfoImpl) clazz).jandexDeclaration.name(),
                 org.jboss.jandex.Type.Kind.CLASS);
-        return new ClassTypeImpl(jandexIndex, jandexType.asClassType());
+        return new ClassTypeImpl(jandexIndex, annotationOverlays, jandexType.asClassType());
     }
 
     @Override
     public Type ofArray(Type componentType, int dimensions) {
         org.jboss.jandex.ArrayType jandexType = org.jboss.jandex.ArrayType.create(((TypeImpl<?>) componentType).jandexType,
                 dimensions);
-        return new ArrayTypeImpl(jandexIndex, jandexType);
+        return new ArrayTypeImpl(jandexIndex, annotationOverlays, jandexType);
     }
 }

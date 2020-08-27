@@ -13,6 +13,13 @@ import java.util.function.BiFunction;
 import org.jboss.jandex.DotName;
 
 class AnnotationsReflection {
+    // TODO if this method is enough, get rid of `with`
+    static org.jboss.jandex.AnnotationInstance from(Annotation annotation) {
+        return with(annotation, (name, jandexAnnotationAttributes) -> {
+            return org.jboss.jandex.AnnotationInstance.create(name, null, jandexAnnotationAttributes);
+        });
+    }
+
     static <T> T with(Annotation annotation, BiFunction<DotName, org.jboss.jandex.AnnotationValue[], T> function) {
         Class<? extends Annotation> annotationType = findAnnotationType(annotation);
 

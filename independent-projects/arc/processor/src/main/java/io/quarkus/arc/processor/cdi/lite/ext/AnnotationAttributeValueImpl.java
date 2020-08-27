@@ -6,15 +6,18 @@ import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.types.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 class AnnotationAttributeValueImpl implements AnnotationAttributeValue {
     final org.jboss.jandex.IndexView jandexIndex;
+    final AllAnnotationOverlays annotationOverlays;
     final org.jboss.jandex.AnnotationValue jandexAnnotationAttribute;
 
-    AnnotationAttributeValueImpl(org.jboss.jandex.IndexView jandexIndex,
+    AnnotationAttributeValueImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
             org.jboss.jandex.AnnotationValue jandexAnnotationAttribute) {
         this.jandexIndex = jandexIndex;
+        this.annotationOverlays = annotationOverlays;
         this.jandexAnnotationAttribute = jandexAnnotationAttribute;
     }
 
@@ -116,12 +119,13 @@ class AnnotationAttributeValueImpl implements AnnotationAttributeValue {
 
     @Override
     public ClassInfo<?> asEnumClass() {
-        return new ClassInfoImpl(jandexIndex, jandexIndex.getClassByName(jandexAnnotationAttribute.asEnumType()));
+        return new ClassInfoImpl(jandexIndex, annotationOverlays,
+                jandexIndex.getClassByName(jandexAnnotationAttribute.asEnumType()));
     }
 
     @Override
     public Type asClass() {
-        return TypeImpl.fromJandexType(jandexIndex, jandexAnnotationAttribute.asClass());
+        return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexAnnotationAttribute.asClass());
     }
 
     @Override
@@ -129,12 +133,32 @@ class AnnotationAttributeValueImpl implements AnnotationAttributeValue {
         org.jboss.jandex.AnnotationValue[] array = new org.jboss.jandex.HackAnnotationValue(jandexAnnotationAttribute)
                 .asArray();
         return Arrays.stream(array)
-                .map(it -> new AnnotationAttributeValueImpl(jandexIndex, it))
+                .map(it -> new AnnotationAttributeValueImpl(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());
     }
 
     @Override
     public AnnotationInfo asNestedAnnotation() {
-        return new AnnotationInfoImpl(jandexIndex, jandexAnnotationAttribute.asNested());
+        return new AnnotationInfoImpl(jandexIndex, annotationOverlays, jandexAnnotationAttribute.asNested());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        AnnotationAttributeValueImpl that = (AnnotationAttributeValueImpl) o;
+        return Objects.equals(jandexAnnotationAttribute.value(), that.jandexAnnotationAttribute.value());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(jandexAnnotationAttribute.value());
+    }
+
+    @Override
+    public String toString() {
+        return "" + jandexAnnotationAttribute.value();
     }
 }

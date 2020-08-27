@@ -3,8 +3,9 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 import cdi.lite.extension.model.types.PrimitiveType;
 
 class PrimitiveTypeImpl extends TypeImpl<org.jboss.jandex.PrimitiveType> implements PrimitiveType {
-    PrimitiveTypeImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.PrimitiveType jandexType) {
-        super(jandexIndex, jandexType);
+    PrimitiveTypeImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+            org.jboss.jandex.PrimitiveType jandexType) {
+        super(jandexIndex, annotationOverlays, jandexType);
     }
 
     @Override

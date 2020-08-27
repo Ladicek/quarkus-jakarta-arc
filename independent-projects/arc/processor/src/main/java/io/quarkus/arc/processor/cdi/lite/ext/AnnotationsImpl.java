@@ -240,12 +240,9 @@ class AnnotationsImpl implements Annotations {
 
     @Override
     public AnnotationAttribute annotationAttribute(String name, Annotation annotation) {
-        return AnnotationsReflection.with(annotation, (jandexName, jandexAnnotationAttributes) -> {
-            org.jboss.jandex.AnnotationInstance jandexAnnotation = org.jboss.jandex.AnnotationInstance.create(jandexName, null,
-                    jandexAnnotationAttributes);
-            org.jboss.jandex.AnnotationValue jandexAttribute = org.jboss.jandex.AnnotationValue.createNestedAnnotationValue(
-                    name, jandexAnnotation);
-            return new AnnotationAttributeImpl(jandexIndex, annotationOverlays, jandexAttribute);
-        });
+        org.jboss.jandex.AnnotationInstance jandexAnnotation = AnnotationsReflection.jandexAnnotation(annotation);
+        org.jboss.jandex.AnnotationValue jandexAttribute = org.jboss.jandex.AnnotationValue.createNestedAnnotationValue(
+                name, jandexAnnotation);
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays, jandexAttribute);
     }
 }

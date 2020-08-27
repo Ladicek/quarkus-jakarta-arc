@@ -8,37 +8,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import org.jboss.jandex.DotName;
 
 class AnnotationsReflection {
-    // TODO if this method is enough, get rid of `with`
-    static org.jboss.jandex.AnnotationInstance from(Annotation annotation) {
-        return with(annotation, (name, jandexAnnotationAttributes) -> {
-            return org.jboss.jandex.AnnotationInstance.create(name, null, jandexAnnotationAttributes);
-        });
-    }
-
-    static <T> T with(Annotation annotation, BiFunction<DotName, org.jboss.jandex.AnnotationValue[], T> function) {
+    static org.jboss.jandex.AnnotationInstance jandexAnnotation(Annotation annotation) {
         Class<? extends Annotation> annotationType = findAnnotationType(annotation);
 
-        DotName jandexName = DotName.createSimple(annotationType.getName());
-        org.jboss.jandex.AnnotationValue[] jandexAnnotationValues = AnnotationsReflection.jandexAnnotationAttributes(
+        DotName name = DotName.createSimple(annotationType.getName());
+        org.jboss.jandex.AnnotationValue[] jandexAnnotationAttributes = jandexAnnotationAttributes(
                 (Class<Annotation>) annotationType, annotation);
 
-        return function.apply(jandexName, jandexAnnotationValues);
-    }
-
-    static void with(Annotation annotation, BiConsumer<DotName, org.jboss.jandex.AnnotationValue[]> consumer) {
-        with(annotation, biFunctionFromBiConsumer(consumer));
-    }
-
-    private static <T, U> BiFunction<T, U, Void> biFunctionFromBiConsumer(BiConsumer<T, U> biConsumer) {
-        return (t, u) -> {
-            biConsumer.accept(t, u);
-            return null;
-        };
+        return org.jboss.jandex.AnnotationInstance.create(name, null, jandexAnnotationAttributes);
     }
 
     private static Class<? extends Annotation> findAnnotationType(Annotation annotation) {

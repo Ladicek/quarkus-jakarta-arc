@@ -6,8 +6,9 @@ import java.util.Collections;
 import java.util.List;
 
 class UnresolvedTypeVariableImpl extends TypeImpl<org.jboss.jandex.UnresolvedTypeVariable> implements TypeVariable {
-    UnresolvedTypeVariableImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.UnresolvedTypeVariable jandexType) {
-        super(jandexIndex, jandexType);
+    UnresolvedTypeVariableImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+            org.jboss.jandex.UnresolvedTypeVariable jandexType) {
+        super(jandexIndex, annotationOverlays, jandexType);
     }
 
     @Override

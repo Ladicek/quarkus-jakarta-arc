@@ -20,11 +20,11 @@ import org.jboss.jandex.DotName;
 
 class WorldImpl implements World {
     private final org.jboss.jandex.IndexView jandexIndex;
-    private final AllAnnotationTransformations allAnnotationTransformations;
+    private final AllAnnotationTransformations annotationTransformations;
 
-    WorldImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationTransformations allAnnotationTransformations) {
+    WorldImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationTransformations annotationTransformations) {
         this.jandexIndex = jandexIndex;
-        this.allAnnotationTransformations = allAnnotationTransformations;
+        this.annotationTransformations = annotationTransformations;
     }
 
     @Override
@@ -194,11 +194,11 @@ class WorldImpl implements World {
                             }
                             return false;
                         })
-                        .map(it -> new ClassInfoImpl(jandexIndex, it));
+                        .map(it -> new ClassInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
             } else if (requiredJandexClasses != null) {
                 return requiredJandexClasses.stream()
                         .map(jandexIndex::getClassByName)
-                        .map(it -> new ClassInfoImpl(jandexIndex, it));
+                        .map(it -> new ClassInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
             } else if (requiredJandexAnnotations != null) {
                 Stream<ClassInfo<?>> result = null;
                 for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
@@ -206,7 +206,7 @@ class WorldImpl implements World {
                             .stream()
                             .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.CLASS)
                             .map(it -> it.target().asClass())
-                            .map(it -> new ClassInfoImpl(jandexIndex, it));
+                            .map(it -> new ClassInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
                     if (result == null) {
                         result = partialResult;
                     } else {
@@ -217,15 +217,15 @@ class WorldImpl implements World {
             } else {
                 return jandexIndex.getKnownClasses()
                         .stream()
-                        .map(it -> new ClassInfoImpl(jandexIndex, it));
+                        .map(it -> new ClassInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
             }
         }
 
         @Override
         public Collection<ClassConfig<?>> configure() {
             return stream()
-                    .map(it -> new ClassConfigImpl(jandexIndex, ((ClassInfoImpl) it).jandexDeclaration,
-                            allAnnotationTransformations.classes))
+                    .map(it -> new ClassConfigImpl(jandexIndex, annotationTransformations.classes,
+                            ((ClassInfoImpl) it).jandexDeclaration))
                     .collect(Collectors.toList());
         }
     }
@@ -347,14 +347,14 @@ class WorldImpl implements World {
                             }
                             return false;
                         })
-                        .map(it -> new MethodInfoImpl(jandexIndex, it));
+                        .map(it -> new MethodInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
             } else if (requiredJandexReturnTypes != null) {
                 return jandexIndex.getKnownClasses()
                         .stream()
                         .flatMap(it -> it.methods().stream())
                         .filter(it -> nameFilter.test(it.name()))
                         .filter(it -> requiredJandexReturnTypes.contains(it.returnType()))
-                        .map(it -> new MethodInfoImpl(jandexIndex, it));
+                        .map(it -> new MethodInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
             } else if (requiredJandexAnnotations != null) {
                 Stream<MethodInfo<?>> result = null;
                 for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
@@ -363,7 +363,7 @@ class WorldImpl implements World {
                             .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD)
                             .map(it -> it.target().asMethod())
                             .filter(it -> nameFilter.test(it.name()))
-                            .map(it -> new MethodInfoImpl(jandexIndex, it));
+                            .map(it -> new MethodInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
                     if (result == null) {
                         result = partialResult;
                     } else {
@@ -376,15 +376,15 @@ class WorldImpl implements World {
                         .stream()
                         .flatMap(it -> it.methods().stream())
                         .filter(it -> nameFilter.test(it.name()))
-                        .map(it -> new MethodInfoImpl(jandexIndex, it));
+                        .map(it -> new MethodInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
             }
         }
 
         @Override
         public Collection<MethodConfig<?>> configure() {
             return stream()
-                    .map(it -> new MethodConfigImpl(jandexIndex, ((MethodInfoImpl) it).jandexDeclaration,
-                            allAnnotationTransformations.methods))
+                    .map(it -> new MethodConfigImpl(jandexIndex, annotationTransformations.methods,
+                            ((MethodInfoImpl) it).jandexDeclaration))
                     .collect(Collectors.toList());
         }
     }
@@ -496,13 +496,13 @@ class WorldImpl implements World {
                             }
                             return false;
                         })
-                        .map(it -> new FieldInfoImpl(jandexIndex, it));
+                        .map(it -> new FieldInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
             } else if (requiredJandexTypes != null) {
                 return jandexIndex.getKnownClasses()
                         .stream()
                         .flatMap(it -> it.fields().stream())
                         .filter(it -> requiredJandexTypes.contains(it.type()))
-                        .map(it -> new FieldInfoImpl(jandexIndex, it));
+                        .map(it -> new FieldInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
             } else if (requiredJandexAnnotations != null) {
                 Stream<FieldInfo<?>> result = null;
                 for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
@@ -510,7 +510,7 @@ class WorldImpl implements World {
                             .stream()
                             .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.FIELD)
                             .map(it -> it.target().asField())
-                            .map(it -> new FieldInfoImpl(jandexIndex, it));
+                            .map(it -> new FieldInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
                     if (result == null) {
                         result = partialResult;
                     } else {
@@ -522,15 +522,15 @@ class WorldImpl implements World {
                 return jandexIndex.getKnownClasses()
                         .stream()
                         .flatMap(it -> it.fields().stream())
-                        .map(it -> new FieldInfoImpl(jandexIndex, it));
+                        .map(it -> new FieldInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
             }
         }
 
         @Override
         public Collection<FieldConfig<?>> configure() {
             return stream()
-                    .map(it -> new FieldConfigImpl(jandexIndex, ((FieldInfoImpl) it).jandexDeclaration,
-                            allAnnotationTransformations.fields))
+                    .map(it -> new FieldConfigImpl(jandexIndex, annotationTransformations.fields,
+                            ((FieldInfoImpl) it).jandexDeclaration))
                     .collect(Collectors.toList());
         }
     }

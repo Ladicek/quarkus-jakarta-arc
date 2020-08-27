@@ -1,13 +1,9 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.AnnotationInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.types.Type;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.jboss.jandex.DotName;
 
 class FieldInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.FieldInfo> implements FieldInfo<Object> {
@@ -15,8 +11,9 @@ class FieldInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.FieldInfo> impl
     private final DotName className;
     private final String name;
 
-    FieldInfoImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.FieldInfo jandexDeclaration) {
-        super(jandexIndex, jandexDeclaration);
+    FieldInfoImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+            org.jboss.jandex.FieldInfo jandexDeclaration) {
+        super(jandexIndex, annotationOverlays, jandexDeclaration);
         this.className = jandexDeclaration.declaringClass().name();
         this.name = jandexDeclaration.name();
     }
@@ -28,7 +25,7 @@ class FieldInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.FieldInfo> impl
 
     @Override
     public Type type() {
-        return TypeImpl.fromJandexType(jandexIndex, jandexDeclaration.type());
+        return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexDeclaration.type());
     }
 
     @Override
@@ -47,30 +44,8 @@ class FieldInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.FieldInfo> impl
     }
 
     @Override
-    public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
-        return jandexDeclaration.annotation(DotName.createSimple(annotationType.getName())) != null;
-    }
-
-    @Override
-    public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
-        return new AnnotationInfoImpl(jandexIndex,
-                jandexDeclaration.annotation(DotName.createSimple(annotationType.getName())));
-    }
-
-    @Override
-    public Collection<AnnotationInfo> repeatableAnnotation(Class<? extends Annotation> annotationType) {
-        return jandexDeclaration.annotationsWithRepeatable(DotName.createSimple(annotationType.getName()), jandexIndex)
-                .stream()
-                .map(it -> new AnnotationInfoImpl(jandexIndex, it))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Collection<AnnotationInfo> annotations() {
-        return jandexDeclaration.annotations()
-                .stream()
-                .map(it -> new AnnotationInfoImpl(jandexIndex, it))
-                .collect(Collectors.toList());
+    AnnotationsOverlay<?, org.jboss.jandex.FieldInfo> annotationsOverlay() {
+        return annotationOverlays.fields;
     }
 
     @Override

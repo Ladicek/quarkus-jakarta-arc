@@ -7,20 +7,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 class ParameterizedTypeImpl extends TypeImpl<org.jboss.jandex.ParameterizedType> implements ParameterizedType {
-    ParameterizedTypeImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.ParameterizedType jandexType) {
-        super(jandexIndex, jandexType);
+    ParameterizedTypeImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+            org.jboss.jandex.ParameterizedType jandexType) {
+        super(jandexIndex, annotationOverlays, jandexType);
     }
 
     @Override
     public ClassInfo<?> declaration() {
-        return new ClassInfoImpl(jandexIndex, jandexIndex.getClassByName(jandexType.name()));
+        return new ClassInfoImpl(jandexIndex, annotationOverlays, jandexIndex.getClassByName(jandexType.name()));
     }
 
     @Override
     public List<Type> typeArguments() {
         return jandexType.arguments()
                 .stream()
-                .map(it -> TypeImpl.fromJandexType(jandexIndex, it))
+                .map(it -> TypeImpl.fromJandexType(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());
     }
 }

@@ -14,9 +14,11 @@ import org.jboss.jandex.DotName;
 
 class AnnotationsImpl implements Annotations {
     private final org.jboss.jandex.IndexView jandexIndex;
+    private final AllAnnotationOverlays annotationOverlays;
 
-    AnnotationsImpl(org.jboss.jandex.IndexView jandexIndex) {
+    AnnotationsImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays) {
         this.jandexIndex = jandexIndex;
+        this.annotationOverlays = annotationOverlays;
     }
 
     @Override
@@ -107,71 +109,82 @@ class AnnotationsImpl implements Annotations {
 
     @Override
     public AnnotationAttribute attribute(String name, boolean value) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createBooleanValue(name, value));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createBooleanValue(name, value));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, byte value) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createByteValue(name, value));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createByteValue(name, value));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, short value) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createShortValue(name, value));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createShortValue(name, value));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, int value) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createIntegerValue(name, value));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createIntegerValue(name, value));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, long value) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createLongValue(name, value));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createLongValue(name, value));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, float value) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createFloatValue(name, value));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createFloatValue(name, value));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, double value) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createDoubleValue(name, value));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createDoubleValue(name, value));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, char value) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createCharacterValue(name, value));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createCharacterValue(name, value));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, String value) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createStringValue(name, value));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createStringValue(name, value));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, Enum<?> enumValue) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createEnumValue(name,
-                DotName.createSimple(enumValue.getDeclaringClass().getName()), enumValue.name()));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createEnumValue(name,
+                        DotName.createSimple(enumValue.getDeclaringClass().getName()), enumValue.name()));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, Class<? extends Enum<?>> enumType, String enumValue) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createEnumValue(name,
-                DotName.createSimple(enumType.getName()), enumValue));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createEnumValue(name, DotName.createSimple(enumType.getName()), enumValue));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, ClassInfo<?> enumType, String enumValue) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createEnumValue(name,
-                ((ClassInfoImpl) enumType).jandexDeclaration.name(), enumValue));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createEnumValue(name, ((ClassInfoImpl) enumType).jandexDeclaration.name(),
+                        enumValue));
     }
 
     @Override
     public AnnotationAttribute attribute(String name, Class<?> value) {
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createClassValue(name,
-                TypesReflection.jandexType(value)));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createClassValue(name, TypesReflection.jandexType(value)));
     }
 
     @Override
@@ -188,8 +201,8 @@ class AnnotationsImpl implements Annotations {
         org.jboss.jandex.AnnotationValue[] jandexAnnotationAttributes = values
                 .map(it -> ((AnnotationAttributeValueImpl) it).jandexAnnotationAttribute)
                 .toArray(org.jboss.jandex.AnnotationValue[]::new);
-        return new AnnotationAttributeImpl(jandexIndex, org.jboss.jandex.AnnotationValue.createArrayValue(name,
-                jandexAnnotationAttributes));
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays,
+                org.jboss.jandex.AnnotationValue.createArrayValue(name, jandexAnnotationAttributes));
     }
 
     @Override
@@ -202,7 +215,7 @@ class AnnotationsImpl implements Annotations {
                 DotName.createSimple(annotationType.getName()), null, jandexAttributes);
         org.jboss.jandex.AnnotationValue jandexNestedAnnotation = org.jboss.jandex.AnnotationValue.createNestedAnnotationValue(
                 name, jandexAnnotation);
-        return new AnnotationAttributeImpl(jandexIndex, jandexNestedAnnotation);
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays, jandexNestedAnnotation);
     }
 
     @Override
@@ -215,14 +228,14 @@ class AnnotationsImpl implements Annotations {
                 ((ClassInfoImpl) annotationType).jandexDeclaration.name(), null, jandexAnnotationAttributes);
         org.jboss.jandex.AnnotationValue jandexNestedAnnotation = org.jboss.jandex.AnnotationValue.createNestedAnnotationValue(
                 name, jandexAnnotation);
-        return new AnnotationAttributeImpl(jandexIndex, jandexNestedAnnotation);
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays, jandexNestedAnnotation);
     }
 
     @Override
     public AnnotationAttribute annotationAttribute(String name, AnnotationInfo annotation) {
         org.jboss.jandex.AnnotationValue jandexNestedAnnotation = org.jboss.jandex.AnnotationValue.createNestedAnnotationValue(
                 name, ((AnnotationInfoImpl) annotation).jandexAnnotation);
-        return new AnnotationAttributeImpl(jandexIndex, jandexNestedAnnotation);
+        return new AnnotationAttributeImpl(jandexIndex, annotationOverlays, jandexNestedAnnotation);
     }
 
     @Override
@@ -232,7 +245,7 @@ class AnnotationsImpl implements Annotations {
                     jandexAnnotationAttributes);
             org.jboss.jandex.AnnotationValue jandexAttribute = org.jboss.jandex.AnnotationValue.createNestedAnnotationValue(
                     name, jandexAnnotation);
-            return new AnnotationAttributeImpl(jandexIndex, jandexAttribute);
+            return new AnnotationAttributeImpl(jandexIndex, annotationOverlays, jandexAttribute);
         });
     }
 }

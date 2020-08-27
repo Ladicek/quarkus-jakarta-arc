@@ -1,14 +1,11 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.AnnotationInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
 import cdi.lite.extension.model.declarations.ParameterInfo;
 import cdi.lite.extension.model.types.Type;
 import cdi.lite.extension.model.types.TypeVariable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,8 +18,9 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
     private final String name;
     private final List<org.jboss.jandex.Type> parameterTypes;
 
-    MethodInfoImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.MethodInfo jandexDeclaration) {
-        super(jandexIndex, jandexDeclaration);
+    MethodInfoImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+            org.jboss.jandex.MethodInfo jandexDeclaration) {
+        super(jandexIndex, annotationOverlays, jandexDeclaration);
         this.className = jandexDeclaration.declaringClass().name();
         this.name = jandexDeclaration.name();
         this.parameterTypes = jandexDeclaration.parameters();
@@ -39,7 +37,7 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
         List<ParameterInfo<Object>> result = new ArrayList<>(parameters);
 
         for (int i = 0; i < parameters; i++) {
-            result.add(new ParameterInfoImpl(jandexIndex, jandexDeclaration, i));
+            result.add(new ParameterInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration, i));
         }
 
         return result;
@@ -47,19 +45,19 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
 
     @Override
     public Type returnType() {
-        return TypeImpl.fromJandexType(jandexIndex, jandexDeclaration.returnType());
+        return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexDeclaration.returnType());
     }
 
     @Override
     public Optional<Type> receiverType() {
-        return Optional.of(TypeImpl.fromJandexType(jandexIndex, jandexDeclaration.receiverType()));
+        return Optional.of(TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexDeclaration.receiverType()));
     }
 
     @Override
     public List<Type> throwsTypes() {
         return jandexDeclaration.exceptions()
                 .stream()
-                .map(it -> TypeImpl.fromJandexType(jandexIndex, it))
+                .map(it -> TypeImpl.fromJandexType(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());
     }
 
@@ -67,7 +65,7 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
     public List<TypeVariable> typeParameters() {
         return jandexDeclaration.typeParameters()
                 .stream()
-                .map(it -> TypeImpl.fromJandexType(jandexIndex, it))
+                .map(it -> TypeImpl.fromJandexType(jandexIndex, annotationOverlays, it))
                 .filter(Type::isTypeVariable) // not necessary, just as a precaution
                 .map(Type::asTypeVariable) // not necessary, just as a precaution
                 .collect(Collectors.toList());
@@ -94,38 +92,8 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
     }
 
     @Override
-    public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
-        return jandexDeclaration.annotations(DotName.createSimple(annotationType.getName()))
-                .stream()
-                .anyMatch(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD);
-    }
-
-    @Override
-    public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
-        return jandexDeclaration.annotations(DotName.createSimple(annotationType.getName()))
-                .stream()
-                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD)
-                .findFirst()
-                .map(it -> new AnnotationInfoImpl(jandexIndex, it))
-                .get();
-    }
-
-    @Override
-    public Collection<AnnotationInfo> repeatableAnnotation(Class<? extends Annotation> annotationType) {
-        return jandexDeclaration.annotationsWithRepeatable(DotName.createSimple(annotationType.getName()), jandexIndex)
-                .stream()
-                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD)
-                .map(it -> new AnnotationInfoImpl(jandexIndex, it))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Collection<AnnotationInfo> annotations() {
-        return jandexDeclaration.annotations()
-                .stream()
-                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD)
-                .map(it -> new AnnotationInfoImpl(jandexIndex, it))
-                .collect(Collectors.toList());
+    AnnotationsOverlay<?, org.jboss.jandex.MethodInfo> annotationsOverlay() {
+        return annotationOverlays.methods;
     }
 
     @Override

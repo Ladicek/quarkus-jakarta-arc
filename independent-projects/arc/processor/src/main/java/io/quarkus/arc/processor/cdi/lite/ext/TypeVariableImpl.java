@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 class TypeVariableImpl extends TypeImpl<org.jboss.jandex.TypeVariable> implements TypeVariable {
-    TypeVariableImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.TypeVariable jandexType) {
-        super(jandexIndex, jandexType);
+    TypeVariableImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+            org.jboss.jandex.TypeVariable jandexType) {
+        super(jandexIndex, annotationOverlays, jandexType);
     }
 
     @Override
@@ -19,7 +20,7 @@ class TypeVariableImpl extends TypeImpl<org.jboss.jandex.TypeVariable> implement
     public List<Type> bounds() {
         return jandexType.bounds()
                 .stream()
-                .map(it -> TypeImpl.fromJandexType(jandexIndex, it))
+                .map(it -> TypeImpl.fromJandexType(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());
     }
 }

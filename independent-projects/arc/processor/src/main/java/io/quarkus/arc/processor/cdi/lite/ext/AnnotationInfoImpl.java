@@ -12,10 +12,13 @@ import org.jboss.jandex.DotName;
 
 class AnnotationInfoImpl implements AnnotationInfo {
     final org.jboss.jandex.IndexView jandexIndex;
+    final AllAnnotationOverlays annotationOverlays;
     final org.jboss.jandex.AnnotationInstance jandexAnnotation;
 
-    AnnotationInfoImpl(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.AnnotationInstance jandexAnnotation) {
+    AnnotationInfoImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+            org.jboss.jandex.AnnotationInstance jandexAnnotation) {
         this.jandexIndex = jandexIndex;
+        this.annotationOverlays = annotationOverlays;
         this.jandexAnnotation = jandexAnnotation;
     }
 
@@ -26,9 +29,9 @@ class AnnotationInfoImpl implements AnnotationInfo {
             // TODO
             return null;
         } else if (jandexAnnotationTarget.kind() == org.jboss.jandex.AnnotationTarget.Kind.TYPE) {
-            return TypeImpl.fromJandexType(jandexIndex, jandexAnnotationTarget.asType().target());
+            return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexAnnotationTarget.asType().target());
         } else {
-            return DeclarationInfoImpl.fromJandexDeclaration(jandexIndex, jandexAnnotation.target());
+            return DeclarationInfoImpl.fromJandexDeclaration(jandexIndex, annotationOverlays, jandexAnnotation.target());
         }
     }
 
@@ -39,7 +42,7 @@ class AnnotationInfoImpl implements AnnotationInfo {
         if (annotationClass == null) {
             throw new IllegalStateException("Class " + annotationClassName + " not found in Jandex");
         }
-        return new ClassInfoImpl(jandexIndex, annotationClass);
+        return new ClassInfoImpl(jandexIndex, annotationOverlays, annotationClass);
     }
 
     @Override
@@ -49,14 +52,15 @@ class AnnotationInfoImpl implements AnnotationInfo {
 
     @Override
     public AnnotationAttributeValue attribute(String name) {
-        return new AnnotationAttributeValueImpl(jandexIndex, jandexAnnotation.valueWithDefault(jandexIndex, name));
+        return new AnnotationAttributeValueImpl(jandexIndex, annotationOverlays,
+                jandexAnnotation.valueWithDefault(jandexIndex, name));
     }
 
     @Override
     public Collection<AnnotationAttribute> attributes() {
         return jandexAnnotation.valuesWithDefaults(jandexIndex)
                 .stream()
-                .map(it -> new AnnotationAttributeImpl(jandexIndex, it))
+                .map(it -> new AnnotationAttributeImpl(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());
     }
 
@@ -67,11 +71,17 @@ class AnnotationInfoImpl implements AnnotationInfo {
         if (o == null || getClass() != o.getClass())
             return false;
         AnnotationInfoImpl that = (AnnotationInfoImpl) o;
-        return Objects.equals(jandexAnnotation, that.jandexAnnotation);
+        return Objects.equals(jandexAnnotation.name(), that.jandexAnnotation.name())
+                && Objects.equals(attributes(), that.attributes());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(jandexAnnotation);
+        return Objects.hash(jandexAnnotation.name(), attributes());
+    }
+
+    @Override
+    public String toString() {
+        return jandexAnnotation.toString(false);
     }
 }

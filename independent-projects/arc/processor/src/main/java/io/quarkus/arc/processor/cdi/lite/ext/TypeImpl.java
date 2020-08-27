@@ -13,31 +13,34 @@ import org.jboss.jandex.DotName;
 // TODO all subclasses must have equals, hashCode and perhaps also their own toString (though the current one is fine)
 abstract class TypeImpl<JandexType extends org.jboss.jandex.Type> implements Type {
     final org.jboss.jandex.IndexView jandexIndex;
+    final AllAnnotationOverlays annotationOverlays;
     final JandexType jandexType;
 
-    TypeImpl(org.jboss.jandex.IndexView jandexIndex, JandexType jandexType) {
+    TypeImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays, JandexType jandexType) {
         this.jandexIndex = jandexIndex;
+        this.annotationOverlays = annotationOverlays;
         this.jandexType = jandexType;
     }
 
-    static Type fromJandexType(org.jboss.jandex.IndexView jandexIndex, org.jboss.jandex.Type jandexType) {
+    static Type fromJandexType(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+            org.jboss.jandex.Type jandexType) {
         switch (jandexType.kind()) {
             case VOID:
-                return new VoidTypeImpl(jandexIndex, jandexType.asVoidType());
+                return new VoidTypeImpl(jandexIndex, annotationOverlays, jandexType.asVoidType());
             case PRIMITIVE:
-                return new PrimitiveTypeImpl(jandexIndex, jandexType.asPrimitiveType());
+                return new PrimitiveTypeImpl(jandexIndex, annotationOverlays, jandexType.asPrimitiveType());
             case CLASS:
-                return new ClassTypeImpl(jandexIndex, jandexType.asClassType());
+                return new ClassTypeImpl(jandexIndex, annotationOverlays, jandexType.asClassType());
             case ARRAY:
-                return new ArrayTypeImpl(jandexIndex, jandexType.asArrayType());
+                return new ArrayTypeImpl(jandexIndex, annotationOverlays, jandexType.asArrayType());
             case PARAMETERIZED_TYPE:
-                return new ParameterizedTypeImpl(jandexIndex, jandexType.asParameterizedType());
+                return new ParameterizedTypeImpl(jandexIndex, annotationOverlays, jandexType.asParameterizedType());
             case TYPE_VARIABLE:
-                return new TypeVariableImpl(jandexIndex, jandexType.asTypeVariable());
+                return new TypeVariableImpl(jandexIndex, annotationOverlays, jandexType.asTypeVariable());
             case UNRESOLVED_TYPE_VARIABLE:
-                return new UnresolvedTypeVariableImpl(jandexIndex, jandexType.asUnresolvedTypeVariable());
+                return new UnresolvedTypeVariableImpl(jandexIndex, annotationOverlays, jandexType.asUnresolvedTypeVariable());
             case WILDCARD_TYPE:
-                return new WildcardTypeImpl(jandexIndex, jandexType.asWildcardType());
+                return new WildcardTypeImpl(jandexIndex, annotationOverlays, jandexType.asWildcardType());
             default:
                 throw new IllegalArgumentException("Unknown type " + jandexType);
         }
@@ -50,14 +53,15 @@ abstract class TypeImpl<JandexType extends org.jboss.jandex.Type> implements Typ
 
     @Override
     public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
-        return new AnnotationInfoImpl(jandexIndex, jandexType.annotation(DotName.createSimple(annotationType.getName())));
+        return new AnnotationInfoImpl(jandexIndex, annotationOverlays,
+                jandexType.annotation(DotName.createSimple(annotationType.getName())));
     }
 
     @Override
     public Collection<AnnotationInfo> repeatableAnnotation(Class<? extends Annotation> annotationType) {
         return annotationsWithRepeatable(jandexType, DotName.createSimple(annotationType.getName()), jandexIndex)
                 .stream()
-                .map(it -> new AnnotationInfoImpl(jandexIndex, it))
+                .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());
     }
 
@@ -65,7 +69,7 @@ abstract class TypeImpl<JandexType extends org.jboss.jandex.Type> implements Typ
     public Collection<AnnotationInfo> annotations() {
         return jandexType.annotations()
                 .stream()
-                .map(it -> new AnnotationInfoImpl(jandexIndex, it))
+                .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());
     }
 

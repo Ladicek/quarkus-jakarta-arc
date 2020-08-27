@@ -20,12 +20,14 @@ import org.jboss.jandex.DotName;
 public class CdiLiteExtProcessor {
     private final org.jboss.jandex.IndexView index;
     private final BeanProcessor.Builder builder;
-    private final AllAnnotationTransformations allAnnotationTransformations;
+    private final AllAnnotationOverlays annotationOverlays;
+    private final AllAnnotationTransformations annotationTransformations;
 
     public CdiLiteExtProcessor(org.jboss.jandex.IndexView index, BeanProcessor.Builder builder) {
         this.index = index;
         this.builder = builder;
-        this.allAnnotationTransformations = new AllAnnotationTransformations();
+        this.annotationOverlays = new AllAnnotationOverlays();
+        this.annotationTransformations = new AllAnnotationTransformations(index, annotationOverlays);
     }
 
     public void run() {
@@ -34,13 +36,16 @@ public class CdiLiteExtProcessor {
         } catch (Exception e) {
             // TODO proper diagnostics system
             throw new RuntimeException(e);
+        } finally {
+            annotationOverlays.invalidate();
+            annotationTransformations.freeze();
         }
     }
 
     private void doRun() throws ReflectiveOperationException {
-        allAnnotationTransformations.register(builder);
+        annotationTransformations.register(builder);
 
-        for (org.jboss.jandex.AnnotationInstance annotation : index.getAnnotations(DotNames.LITE_EXTENSION)) {
+        for (org.jboss.jandex.AnnotationInstance annotation : index.getAnnotations(DotNames.EXTENSION)) {
             org.jboss.jandex.MethodInfo method = annotation.target().asMethod();
             processExtensionMethod(method);
         }
@@ -265,7 +270,7 @@ public class CdiLiteExtProcessor {
         switch (kind) {
             case CLASS_INFO:
                 if (matchingClasses.size() == 1) {
-                    return new ClassInfoImpl(index, matchingClasses.iterator().next());
+                    return new ClassInfoImpl(index, annotationOverlays, matchingClasses.iterator().next());
                 } else {
                     // TODO should report an error here
                     return null;
@@ -273,8 +278,7 @@ public class CdiLiteExtProcessor {
 
             case CLASS_CONFIG:
                 if (matchingClasses.size() == 1) {
-                    return new ClassConfigImpl(index, matchingClasses.iterator().next(),
-                            allAnnotationTransformations.classes);
+                    return new ClassConfigImpl(index, annotationTransformations.classes, matchingClasses.iterator().next());
                 } else {
                     // TODO should report an error here
                     return null;
@@ -282,14 +286,14 @@ public class CdiLiteExtProcessor {
 
             case COLLECTION_CLASS_INFO:
                 return matchingClasses.stream()
-                        .map(it -> new ClassInfoImpl(index, it))
+                        .map(it -> new ClassInfoImpl(index, annotationOverlays, it))
                         .collect(Collectors.toList());
             case COLLECTION_METHOD_INFO:
                 return matchingClasses.stream()
                         .flatMap(it -> it.methods().stream())
                         .filter(MethodPredicates.IS_METHOD_OR_CONSTRUCTOR_JANDEX)
                         .filter(it -> hasRequiredAnnotations(it, requiredAnnotations))
-                        .map(it -> new MethodInfoImpl(index, it))
+                        .map(it -> new MethodInfoImpl(index, annotationOverlays, it))
                         .collect(Collectors.toList());
             case COLLECTION_PARAMETER_INFO:
                 List<ParameterInfoImpl> parameterInfos = new ArrayList<>();
@@ -300,7 +304,7 @@ public class CdiLiteExtProcessor {
                             for (int i = 0; i < numParameters; i++) {
                                 if (hasRequiredAnnotations(org.jboss.jandex.MethodParameterInfo.create(it, (short) i),
                                         requiredAnnotations)) {
-                                    parameterInfos.add(new ParameterInfoImpl(index, it, i));
+                                    parameterInfos.add(new ParameterInfoImpl(index, annotationOverlays, it, i));
                                 }
                             }
                         });
@@ -309,33 +313,33 @@ public class CdiLiteExtProcessor {
                 return matchingClasses.stream()
                         .flatMap(it -> it.fields().stream())
                         .filter(it -> hasRequiredAnnotations(it, requiredAnnotations))
-                        .map(it -> new FieldInfoImpl(index, it))
+                        .map(it -> new FieldInfoImpl(index, annotationOverlays, it))
                         .collect(Collectors.toList());
 
             case COLLECTION_CLASS_CONFIG:
                 return matchingClasses.stream()
-                        .map(it -> new ClassConfigImpl(index, it, allAnnotationTransformations.classes))
+                        .map(it -> new ClassConfigImpl(index, annotationTransformations.classes, it))
                         .collect(Collectors.toList());
             case COLLECTION_METHOD_CONFIG:
                 return matchingClasses.stream()
                         .flatMap(it -> it.methods().stream())
                         .filter(MethodPredicates.IS_METHOD_OR_CONSTRUCTOR_JANDEX)
                         .filter(it -> hasRequiredAnnotations(it, requiredAnnotations))
-                        .map(it -> new MethodConfigImpl(index, it, allAnnotationTransformations.methods))
+                        .map(it -> new MethodConfigImpl(index, annotationTransformations.methods, it))
                         .collect(Collectors.toList());
             case COLLECTION_FIELD_CONFIG:
                 return matchingClasses.stream()
                         .flatMap(it -> it.fields().stream())
                         .filter(it -> hasRequiredAnnotations(it, requiredAnnotations))
-                        .map(it -> new FieldConfigImpl(index, it, allAnnotationTransformations.fields))
+                        .map(it -> new FieldConfigImpl(index, annotationTransformations.fields, it))
                         .collect(Collectors.toList());
 
             case ANNOTATIONS:
-                return new AnnotationsImpl(index);
+                return new AnnotationsImpl(index, annotationOverlays);
             case TYPES:
-                return new TypesImpl(index);
+                return new TypesImpl(index, annotationOverlays);
             case WORLD:
-                return new WorldImpl(index, allAnnotationTransformations);
+                return new WorldImpl(index, annotationTransformations);
 
             default:
                 // TODO should report an error here

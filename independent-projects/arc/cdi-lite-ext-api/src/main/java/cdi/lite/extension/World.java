@@ -56,9 +56,9 @@ public interface World {
 
         MethodQuery annotatedWith(ClassInfo<?> annotationType);
 
-        Collection<? extends MethodInfo<?>> find();
+        Collection<MethodInfo<?>> find();
 
-        Stream<? extends MethodInfo<?>> stream();
+        Stream<MethodInfo<?>> stream();
 
         Collection<MethodConfig<?>> configure();
     }

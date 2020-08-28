@@ -5,6 +5,7 @@ import cdi.lite.extension.model.declarations.DeclarationInfo;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import org.jboss.jandex.DotName;
 
 // TODO all *Info subclasses have equals/hashCode, but *Config do not, and that's probably correct?
 abstract class DeclarationInfoImpl<JandexDeclaration extends org.jboss.jandex.AnnotationTarget> implements DeclarationInfo {
@@ -39,7 +40,7 @@ abstract class DeclarationInfoImpl<JandexDeclaration extends org.jboss.jandex.An
 
     @Override
     public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
-        return annotationsOverlay().getAnnotations(jandexDeclaration).hasAnnotation(annotationType);
+        return annotationsOverlay().hasAnnotation(jandexDeclaration, DotName.createSimple(annotationType.getName()));
     }
 
     @Override

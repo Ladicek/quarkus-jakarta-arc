@@ -2,6 +2,7 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 
 import cdi.lite.extension.Annotations;
 import cdi.lite.extension.Extension;
+import cdi.lite.extension.ExtensionPriority;
 import cdi.lite.extension.Types;
 import cdi.lite.extension.WithAnnotations;
 import cdi.lite.extension.World;
@@ -22,6 +23,7 @@ class DotNames {
     static final DotName REPEATABLE = DotName.createSimple(Repeatable.class.getName());
 
     static final DotName EXTENSION = DotName.createSimple(Extension.class.getName());
+    static final DotName EXTENSION_PRIORITY = DotName.createSimple(ExtensionPriority.class.getName());
     static final DotName WITH_ANNOTATIONS = DotName.createSimple(WithAnnotations.class.getName());
 
     static final DotName CLASS_INFO = DotName.createSimple(ClassInfo.class.getName());

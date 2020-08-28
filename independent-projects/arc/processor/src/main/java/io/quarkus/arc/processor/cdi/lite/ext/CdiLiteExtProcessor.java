@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,6 +33,10 @@ public class CdiLiteExtProcessor {
 
     public void run() {
         try {
+            builder.addAnnotationTransformer(annotationTransformations.classes);
+            builder.addAnnotationTransformer(annotationTransformations.methods);
+            builder.addAnnotationTransformer(annotationTransformations.fields);
+
             doRun();
         } catch (Exception e) {
             // TODO proper diagnostics system
@@ -43,12 +48,46 @@ public class CdiLiteExtProcessor {
     }
 
     private void doRun() throws ReflectiveOperationException {
-        annotationTransformations.register(builder);
+        List<org.jboss.jandex.MethodInfo> extensionMethods = index.getAnnotations(DotNames.EXTENSION)
+                .stream()
+                .map(it -> it.target().asMethod()) // the annotation can only be put on methods
+                .sorted((m1, m2) -> {
+                    if (m1 == m2) {
+                        // at this particular point, two different org.jboss.jandex.MethodInfo instances are never equal
+                        return 0;
+                    }
 
-        for (org.jboss.jandex.AnnotationInstance annotation : index.getAnnotations(DotNames.EXTENSION)) {
-            org.jboss.jandex.MethodInfo method = annotation.target().asMethod();
+                    OptionalInt p1 = getExtensionMethodPriority(m1);
+                    OptionalInt p2 = getExtensionMethodPriority(m2);
+
+                    if (p1.isPresent() && p2.isPresent()) {
+                        // must _not_ return 0 if priorities are equal, because that isn't consistent
+                        // with the `equals` method (see also above)
+                        return p1.getAsInt() < p2.getAsInt() ? 1 : -1;
+                    } else if (p1.isPresent()) {
+                        return -1;
+                    } else if (p2.isPresent()) {
+                        return 1;
+                    } else {
+                        // must _not_ return 0 if both methods are missing a priority, because that isn't consistent
+                        // with the `equals` method (see also above)
+                        return -1;
+                    }
+                })
+                .collect(Collectors.toList());
+
+        for (org.jboss.jandex.MethodInfo method : extensionMethods) {
             processExtensionMethod(method);
         }
+    }
+
+    private OptionalInt getExtensionMethodPriority(org.jboss.jandex.MethodInfo method) {
+        // the annotation can only be put on methods, so no need to filter out parameter annotations etc.
+        org.jboss.jandex.AnnotationInstance priority = method.annotation(DotNames.EXTENSION_PRIORITY);
+        if (priority != null) {
+            return OptionalInt.of(priority.value().asInt());
+        }
+        return OptionalInt.empty();
     }
 
     private void processExtensionMethod(org.jboss.jandex.MethodInfo method) throws ReflectiveOperationException {

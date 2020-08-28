@@ -23,7 +23,6 @@ abstract class AnnotationsTransformation<Key, JandexDeclaration extends org.jbos
     final AllAnnotationOverlays annotationOverlays;
 
     private final org.jboss.jandex.AnnotationTarget.Kind kind;
-    // TODO add freezing, after which no more modifications would be allowed
     private final Map<Key, List<Consumer<TransformationContext>>> transformations = new HashMap<>();
 
     private boolean frozen = false;
@@ -40,7 +39,7 @@ abstract class AnnotationsTransformation<Key, JandexDeclaration extends org.jbos
             throw new IllegalStateException("Annotations transformation frozen");
         }
 
-        Key key = annotationsOverlay().keyFor(jandexDeclaration);
+        Key key = annotationsOverlay().key(jandexDeclaration);
 
         annotationsOverlay().getAnnotations(jandexDeclaration).add(jandexAnnotation);
 
@@ -86,7 +85,7 @@ abstract class AnnotationsTransformation<Key, JandexDeclaration extends org.jbos
             throw new IllegalStateException("Annotations transformation frozen");
         }
 
-        Key key = annotationsOverlay().keyFor(declaration);
+        Key key = annotationsOverlay().key(declaration);
 
         annotationsOverlay().getAnnotations(declaration).removeIf(predicate);
 
@@ -123,7 +122,7 @@ abstract class AnnotationsTransformation<Key, JandexDeclaration extends org.jbos
     @Override
     public void transform(TransformationContext ctx) {
         JandexDeclaration jandexDeclaration = transformedJandexDeclaration(ctx);
-        Key key = annotationsOverlay().keyFor(jandexDeclaration);
+        Key key = annotationsOverlay().key(jandexDeclaration);
         transformations.getOrDefault(key, Collections.emptyList())
                 .forEach(it -> it.accept(ctx));
     }

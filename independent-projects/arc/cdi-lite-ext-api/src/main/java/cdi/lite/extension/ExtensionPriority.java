@@ -11,6 +11,8 @@ import java.lang.annotation.Target;
  * Extensions with specified priority always precede extensions without any priority.
  * Extension with highest priority get invoked first. If two extensions have equal
  * priority, the ordering is undefined.
+ * TODO should really figure out if low number = high priority or otherwise, preferrably
+ *  so that it's consistent with common usages of `@Priority`
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

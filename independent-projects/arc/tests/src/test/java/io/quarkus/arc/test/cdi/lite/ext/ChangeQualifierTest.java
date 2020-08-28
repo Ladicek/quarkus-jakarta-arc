@@ -4,6 +4,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import cdi.lite.extension.Extension;
+import cdi.lite.extension.ExtensionPriority;
 import cdi.lite.extension.WithAnnotations;
 import cdi.lite.extension.World;
 import cdi.lite.extension.model.configs.ClassConfig;
@@ -39,6 +40,7 @@ public class ChangeQualifierTest {
 
     public static class MyExtension {
         @Extension
+        @ExtensionPriority(0)
         public void configure(ClassConfig<MyFooService> foo, ClassConfig<MyBarService> bar,
                 Collection<FieldConfig<MyServiceConsumer>> service) {
 
@@ -126,6 +128,16 @@ public class ChangeQualifierTest {
                     .annotatedWith(Singleton.class)
                     .stream()
                     .forEach(System.out::println);
+
+            System.out.println("!!! world seeing changed annotations");
+            world.classes()
+                    .annotatedWith(MyQualifier.class)
+                    .stream()
+                    .forEach(System.out::println);
+            world.fields()
+                    .annotatedWith(MyQualifier.class)
+                    .stream()
+                    .forEach(System.out::println);
         }
     }
 
@@ -166,5 +178,4 @@ public class ChangeQualifierTest {
         @Inject
         MyService myService;
     }
-
 }

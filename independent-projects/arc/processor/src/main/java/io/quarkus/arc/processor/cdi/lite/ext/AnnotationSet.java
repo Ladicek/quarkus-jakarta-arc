@@ -21,7 +21,11 @@ class AnnotationSet {
 
     boolean hasAnnotation(Class<? extends Annotation> annotationType) {
         DotName name = DotName.createSimple(annotationType.getName());
-        return data.containsKey(name);
+        return hasAnnotation(name);
+    }
+
+    boolean hasAnnotation(DotName annotationName) {
+        return data.containsKey(annotationName);
     }
 
     org.jboss.jandex.AnnotationInstance annotation(Class<? extends Annotation> annotationType) {
@@ -64,7 +68,7 @@ class AnnotationSet {
     }
 
     // ---
-    // modifications, can only be called from AbstractAnnotationTransformations
+    // modifications, can only be called from AnnotationsTransformation
 
     void add(org.jboss.jandex.AnnotationInstance jandexAnnotation) {
         data.put(jandexAnnotation.name(), jandexAnnotation);

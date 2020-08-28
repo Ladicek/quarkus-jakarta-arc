@@ -39,7 +39,7 @@ class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo>
         return "parameter " + (name != null ? name : position) + " of method " + jandexDeclaration;
     }
 
-    private AnnotationSet getAnnotations() {
+    private AnnotationSet annotationSet() {
         if (annotationSet == null) {
             Set<org.jboss.jandex.AnnotationInstance> jandexAnnotations = jandexDeclaration.annotations()
                     .stream()
@@ -54,17 +54,17 @@ class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo>
 
     @Override
     public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
-        return getAnnotations().hasAnnotation(annotationType);
+        return annotationSet().hasAnnotation(annotationType);
     }
 
     @Override
     public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
-        return new AnnotationInfoImpl(jandexIndex, annotationOverlays, getAnnotations().annotation(annotationType));
+        return new AnnotationInfoImpl(jandexIndex, annotationOverlays, annotationSet().annotation(annotationType));
     }
 
     @Override
     public Collection<AnnotationInfo> repeatableAnnotation(Class<? extends Annotation> annotationType) {
-        return getAnnotations().annotationsWithRepeatable(annotationType, jandexIndex)
+        return annotationSet().annotationsWithRepeatable(annotationType, jandexIndex)
                 .stream()
                 .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());
@@ -72,7 +72,7 @@ class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo>
 
     @Override
     public Collection<AnnotationInfo> annotations() {
-        return getAnnotations().annotations()
+        return annotationSet().annotations()
                 .stream()
                 .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());

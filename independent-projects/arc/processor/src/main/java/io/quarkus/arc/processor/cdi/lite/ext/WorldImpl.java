@@ -21,10 +21,18 @@ import org.jboss.jandex.DotName;
 class WorldImpl implements World {
     private final org.jboss.jandex.IndexView jandexIndex;
     private final AllAnnotationTransformations annotationTransformations;
+    private final AllAnnotationOverlays annotationOverlays;
+    private final AnnotationsOverlay.Classes classesOverlay;
+    private final AnnotationsOverlay.Methods methodsOverlay;
+    private final AnnotationsOverlay.Fields fieldsOverlay;
 
     WorldImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationTransformations annotationTransformations) {
         this.jandexIndex = jandexIndex;
         this.annotationTransformations = annotationTransformations;
+        this.annotationOverlays = annotationTransformations.annotationOverlays;
+        this.classesOverlay = annotationTransformations.annotationOverlays.classes;
+        this.methodsOverlay = annotationTransformations.annotationOverlays.methods;
+        this.fieldsOverlay = annotationTransformations.annotationOverlays.fields;
     }
 
     @Override
@@ -79,18 +87,8 @@ class WorldImpl implements World {
                 requiredJandexClasses = new HashSet<>();
             }
 
-            // TODO getAllKnown* is not reflexive
-            if (clazz.isInterface()) {
-                jandexIndex.getAllKnownImplementors(DotName.createSimple(clazz.getName()))
-                        .stream()
-                        .map(org.jboss.jandex.ClassInfo::name)
-                        .forEach(requiredJandexClasses::add);
-            } else {
-                jandexIndex.getAllKnownSubclasses(DotName.createSimple(clazz.getName()))
-                        .stream()
-                        .map(org.jboss.jandex.ClassInfo::name)
-                        .forEach(requiredJandexClasses::add);
-            }
+            DotName name = DotName.createSimple(clazz.getName());
+            addSubClassesToRequiredClassesSet(name, clazz.isInterface());
 
             return this;
         }
@@ -101,20 +99,25 @@ class WorldImpl implements World {
                 requiredJandexClasses = new HashSet<>();
             }
 
+            DotName name = ((ClassInfoImpl) clazz).jandexDeclaration.name();
+            addSubClassesToRequiredClassesSet(name, clazz.isInterface());
+
+            return this;
+        }
+
+        private void addSubClassesToRequiredClassesSet(DotName name, boolean isInterface) {
             // TODO getAllKnown* is not reflexive
-            if (clazz.isInterface()) {
-                jandexIndex.getAllKnownImplementors(((ClassInfoImpl) clazz).jandexDeclaration.name())
+            if (isInterface) {
+                jandexIndex.getAllKnownImplementors(name)
                         .stream()
                         .map(org.jboss.jandex.ClassInfo::name)
                         .forEach(requiredJandexClasses::add);
             } else {
-                jandexIndex.getAllKnownSubclasses(((ClassInfoImpl) clazz).jandexDeclaration.name())
+                jandexIndex.getAllKnownSubclasses(name)
                         .stream()
                         .map(org.jboss.jandex.ClassInfo::name)
                         .forEach(requiredJandexClasses::add);
             }
-
-            return this;
         }
 
         @Override
@@ -188,17 +191,17 @@ class WorldImpl implements World {
                         .map(jandexIndex::getClassByName)
                         .filter(jandexClass -> {
                             for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
-                                if (jandexClass.classAnnotation(requiredJandexAnnotation) != null) {
+                                if (classesOverlay.hasAnnotation(jandexClass, requiredJandexAnnotation)) {
                                     return true;
                                 }
                             }
                             return false;
                         })
-                        .map(it -> new ClassInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                        .map(it -> new ClassInfoImpl(jandexIndex, annotationOverlays, it));
             } else if (requiredJandexClasses != null) {
                 return requiredJandexClasses.stream()
                         .map(jandexIndex::getClassByName)
-                        .map(it -> new ClassInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                        .map(it -> new ClassInfoImpl(jandexIndex, annotationOverlays, it));
             } else if (requiredJandexAnnotations != null) {
                 Stream<ClassInfo<?>> result = null;
                 for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
@@ -206,18 +209,25 @@ class WorldImpl implements World {
                             .stream()
                             .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.CLASS)
                             .map(it -> it.target().asClass())
-                            .map(it -> new ClassInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                            .filter(it -> classesOverlay.hasAnnotation(it, requiredJandexAnnotation))
+                            .map(it -> new ClassInfoImpl(jandexIndex, annotationOverlays, it));
                     if (result == null) {
                         result = partialResult;
                     } else {
                         result = Stream.concat(result, partialResult);
                     }
+
+                    Stream<ClassInfoImpl> fromOverlay = classesOverlay
+                            .overlaidDeclarationsWithAnnotation(requiredJandexAnnotation)
+                            .stream()
+                            .map(it -> new ClassInfoImpl(jandexIndex, annotationOverlays, it));
+                    result = Stream.concat(result, fromOverlay);
                 }
                 return result == null ? Stream.empty() : result.distinct();
             } else {
                 return jandexIndex.getKnownClasses()
                         .stream()
-                        .map(it -> new ClassInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                        .map(it -> new ClassInfoImpl(jandexIndex, annotationOverlays, it));
             }
         }
 
@@ -298,7 +308,8 @@ class WorldImpl implements World {
                         .filter(it -> requiredJandexReturnTypes.contains(((MethodInfoImpl) it).jandexDeclaration.returnType()))
                         .filter(it -> {
                             for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
-                                if (((MethodInfoImpl) it).jandexDeclaration.hasAnnotation(requiredJandexAnnotation)) {
+                                if (methodsOverlay.hasAnnotation(((MethodInfoImpl) it).jandexDeclaration,
+                                        requiredJandexAnnotation)) {
                                     return true;
                                 }
                             }
@@ -319,7 +330,8 @@ class WorldImpl implements World {
                         .filter(it -> nameFilter.test(it.name()))
                         .filter(it -> {
                             for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
-                                if (((FieldInfoImpl) it).jandexDeclaration.hasAnnotation(requiredJandexAnnotation)) {
+                                if (methodsOverlay.hasAnnotation(((MethodInfoImpl) it).jandexDeclaration,
+                                        requiredJandexAnnotation)) {
                                     return true;
                                 }
                             }
@@ -341,20 +353,20 @@ class WorldImpl implements World {
                         .filter(it -> requiredJandexReturnTypes.contains(it.returnType()))
                         .filter(it -> {
                             for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
-                                if (it.hasAnnotation(requiredJandexAnnotation)) {
+                                if (methodsOverlay.hasAnnotation(it, requiredJandexAnnotation)) {
                                     return true;
                                 }
                             }
                             return false;
                         })
-                        .map(it -> new MethodInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                        .map(it -> new MethodInfoImpl(jandexIndex, annotationOverlays, it));
             } else if (requiredJandexReturnTypes != null) {
                 return jandexIndex.getKnownClasses()
                         .stream()
                         .flatMap(it -> it.methods().stream())
                         .filter(it -> nameFilter.test(it.name()))
                         .filter(it -> requiredJandexReturnTypes.contains(it.returnType()))
-                        .map(it -> new MethodInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                        .map(it -> new MethodInfoImpl(jandexIndex, annotationOverlays, it));
             } else if (requiredJandexAnnotations != null) {
                 Stream<MethodInfo<?>> result = null;
                 for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
@@ -363,12 +375,19 @@ class WorldImpl implements World {
                             .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD)
                             .map(it -> it.target().asMethod())
                             .filter(it -> nameFilter.test(it.name()))
-                            .map(it -> new MethodInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                            .filter(it -> methodsOverlay.hasAnnotation(it, requiredJandexAnnotation))
+                            .map(it -> new MethodInfoImpl(jandexIndex, annotationOverlays, it));
                     if (result == null) {
                         result = partialResult;
                     } else {
                         result = Stream.concat(result, partialResult);
                     }
+
+                    Stream<MethodInfoImpl> fromOverlay = methodsOverlay
+                            .overlaidDeclarationsWithAnnotation(requiredJandexAnnotation)
+                            .stream()
+                            .map(it -> new MethodInfoImpl(jandexIndex, annotationOverlays, it));
+                    result = Stream.concat(result, fromOverlay);
                 }
                 return result == null ? Stream.empty() : result.distinct();
             } else {
@@ -376,7 +395,7 @@ class WorldImpl implements World {
                         .stream()
                         .flatMap(it -> it.methods().stream())
                         .filter(it -> nameFilter.test(it.name()))
-                        .map(it -> new MethodInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                        .map(it -> new MethodInfoImpl(jandexIndex, annotationOverlays, it));
             }
         }
 
@@ -451,7 +470,8 @@ class WorldImpl implements World {
                         .filter(it -> requiredJandexTypes.contains(((FieldInfoImpl) it).jandexDeclaration.type()))
                         .filter(it -> {
                             for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
-                                if (((FieldInfoImpl) it).jandexDeclaration.hasAnnotation(requiredJandexAnnotation)) {
+                                if (fieldsOverlay.hasAnnotation(((FieldInfoImpl) it).jandexDeclaration,
+                                        requiredJandexAnnotation)) {
                                     return true;
                                 }
                             }
@@ -470,7 +490,8 @@ class WorldImpl implements World {
                         .flatMap(it -> it.fields().stream())
                         .filter(it -> {
                             for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
-                                if (((FieldInfoImpl) it).jandexDeclaration.hasAnnotation(requiredJandexAnnotation)) {
+                                if (fieldsOverlay.hasAnnotation(((FieldInfoImpl) it).jandexDeclaration,
+                                        requiredJandexAnnotation)) {
                                     return true;
                                 }
                             }
@@ -490,19 +511,19 @@ class WorldImpl implements World {
                         .filter(it -> requiredJandexTypes.contains(it.type()))
                         .filter(it -> {
                             for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
-                                if (it.hasAnnotation(requiredJandexAnnotation)) {
+                                if (fieldsOverlay.hasAnnotation(it, requiredJandexAnnotation)) {
                                     return true;
                                 }
                             }
                             return false;
                         })
-                        .map(it -> new FieldInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                        .map(it -> new FieldInfoImpl(jandexIndex, annotationOverlays, it));
             } else if (requiredJandexTypes != null) {
                 return jandexIndex.getKnownClasses()
                         .stream()
                         .flatMap(it -> it.fields().stream())
                         .filter(it -> requiredJandexTypes.contains(it.type()))
-                        .map(it -> new FieldInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                        .map(it -> new FieldInfoImpl(jandexIndex, annotationOverlays, it));
             } else if (requiredJandexAnnotations != null) {
                 Stream<FieldInfo<?>> result = null;
                 for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
@@ -510,19 +531,26 @@ class WorldImpl implements World {
                             .stream()
                             .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.FIELD)
                             .map(it -> it.target().asField())
-                            .map(it -> new FieldInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                            .filter(it -> fieldsOverlay.hasAnnotation(it, requiredJandexAnnotation))
+                            .map(it -> new FieldInfoImpl(jandexIndex, annotationOverlays, it));
                     if (result == null) {
                         result = partialResult;
                     } else {
                         result = Stream.concat(result, partialResult);
                     }
+
+                    Stream<FieldInfoImpl> fromOverlay = fieldsOverlay
+                            .overlaidDeclarationsWithAnnotation(requiredJandexAnnotation)
+                            .stream()
+                            .map(it -> new FieldInfoImpl(jandexIndex, annotationOverlays, it));
+                    result = Stream.concat(result, fromOverlay);
                 }
                 return result == null ? Stream.empty() : result.distinct();
             } else {
                 return jandexIndex.getKnownClasses()
                         .stream()
                         .flatMap(it -> it.fields().stream())
-                        .map(it -> new FieldInfoImpl(jandexIndex, annotationTransformations.annotationOverlays, it));
+                        .map(it -> new FieldInfoImpl(jandexIndex, annotationOverlays, it));
             }
         }
 

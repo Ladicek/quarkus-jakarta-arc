@@ -1,7 +1,5 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import io.quarkus.arc.processor.BeanProcessor;
-
 class AllAnnotationTransformations {
     final AllAnnotationOverlays annotationOverlays;
     final AnnotationsTransformation.Classes classes;
@@ -13,12 +11,6 @@ class AllAnnotationTransformations {
         classes = new AnnotationsTransformation.Classes(jandexIndex, annotationOverlays);
         methods = new AnnotationsTransformation.Methods(jandexIndex, annotationOverlays);
         fields = new AnnotationsTransformation.Fields(jandexIndex, annotationOverlays);
-    }
-
-    void register(BeanProcessor.Builder builder) {
-        builder.addAnnotationTransformer(classes);
-        builder.addAnnotationTransformer(methods);
-        builder.addAnnotationTransformer(fields);
     }
 
     void freeze() {

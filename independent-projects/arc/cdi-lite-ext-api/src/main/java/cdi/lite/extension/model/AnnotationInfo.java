@@ -17,6 +17,14 @@ public interface AnnotationInfo {
      */
     ClassInfo<?> declaration();
 
+    /**
+     * Fully qualified name of the annotation.
+     * Equivalent to {@code declaration().name()}.
+     */
+    default String name() {
+        return declaration().name();
+    }
+
     default boolean isRepeatable() {
         return declaration().hasAnnotation(Repeatable.class);
     }

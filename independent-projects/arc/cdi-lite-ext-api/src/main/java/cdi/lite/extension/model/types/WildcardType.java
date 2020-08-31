@@ -7,8 +7,18 @@ import java.util.Optional;
  * and {@code lowerBound} are empty.
  */
 public interface WildcardType extends Type {
+    /**
+     * Present when the wildcard type has a form of {@code ? extends Number}.
+     * The upper bound in this case is {@code Number}.
+     * Otherwise empty.
+     */
     Optional<Type> upperBound();
 
+    /**
+     * Present when the wildcard type has a form of {@code ? super Number}.
+     * The lower bound in this case is {@code Number}.
+     * Otherwise empty.
+     */
     Optional<Type> lowerBound();
 
     // ---

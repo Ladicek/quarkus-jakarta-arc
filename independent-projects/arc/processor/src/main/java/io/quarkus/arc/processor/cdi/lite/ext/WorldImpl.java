@@ -262,6 +262,17 @@ class WorldImpl implements World {
         }
 
         @Override
+        public MethodQuery withReturnType(Class<?> type) {
+            if (requiredJandexReturnTypes == null) {
+                requiredJandexReturnTypes = new HashSet<>();
+            }
+
+            requiredJandexReturnTypes.add(TypesReflection.jandexType(type));
+
+            return this;
+        }
+
+        @Override
         public MethodQuery withReturnType(Type type) {
             if (requiredJandexReturnTypes == null) {
                 requiredJandexReturnTypes = new HashSet<>();
@@ -420,6 +431,17 @@ class WorldImpl implements World {
             } else {
                 requiredDeclarationSites = Stream.concat(requiredDeclarationSites, classes.stream());
             }
+
+            return this;
+        }
+
+        @Override
+        public FieldQuery ofType(Class<?> type) {
+            if (requiredJandexTypes == null) {
+                requiredJandexTypes = new HashSet<>();
+            }
+
+            requiredJandexTypes.add(TypesReflection.jandexType(type));
 
             return this;
         }

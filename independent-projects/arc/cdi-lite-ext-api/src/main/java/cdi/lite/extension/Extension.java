@@ -7,7 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * An extension is a {@code public}, non-{@code static}, {@code void}-returning method without type parameters,
- * annotated with {@code @Extension} and declared on a {@code public} class with a {@code public} zero-parameter constructor.
+ * annotated with {@code @Extension}. The method must be declared on a {@code public} class without type parameters
+ * and with a {@code public} zero-parameter constructor.
  * This class should not be a CDI bean and should not be used by the application at runtime.
  * <p>
  * Extension methods can declare arbitrary number of parameters that take one of the following forms:

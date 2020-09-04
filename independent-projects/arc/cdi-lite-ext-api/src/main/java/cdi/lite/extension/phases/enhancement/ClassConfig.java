@@ -1,4 +1,4 @@
-package cdi.lite.extension.model.configs;
+package cdi.lite.extension.phases.enhancement;
 
 import cdi.lite.extension.model.declarations.ClassInfo;
 

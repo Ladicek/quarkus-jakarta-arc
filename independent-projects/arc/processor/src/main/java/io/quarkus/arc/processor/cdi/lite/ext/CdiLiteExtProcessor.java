@@ -1,5 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import cdi.lite.extension.phases.enhancement.Annotations;
+import cdi.lite.extension.phases.enhancement.ClassConfig;
 import io.quarkus.arc.processor.BeanProcessor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -463,12 +465,12 @@ public class CdiLiteExtProcessor {
 
             if (Collection.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = Collection.class;
-            } else if (cdi.lite.extension.model.configs.ClassConfig.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.model.configs.ClassConfig.class;
+            } else if (ClassConfig.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = ClassConfig.class;
             } else if (cdi.lite.extension.model.declarations.ClassInfo.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.model.declarations.ClassInfo.class;
-            } else if (cdi.lite.extension.Annotations.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.Annotations.class;
+            } else if (Annotations.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = Annotations.class;
             } else if (cdi.lite.extension.Types.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.Types.class;
             } else if (cdi.lite.extension.World.class.isAssignableFrom(argumentClass)) {

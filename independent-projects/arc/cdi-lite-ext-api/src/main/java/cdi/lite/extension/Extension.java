@@ -1,11 +1,20 @@
 package cdi.lite.extension;
 
+import cdi.lite.extension.phases.enhancement.Annotations;
+import cdi.lite.extension.phases.enhancement.ClassConfig;
+import cdi.lite.extension.phases.enhancement.FieldConfig;
+import cdi.lite.extension.phases.enhancement.MethodConfig;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * TODO this will go away, will be replaced by the annotations in {@code phases} package.
+ *  Leaving it intact for now, because the javadoc should be copied elsewhere, as appropriate
+ * <hr>
+ *
  * An extension is a {@code public}, non-{@code static}, {@code void}-returning method without type parameters,
  * annotated with {@code @Extension}. The method must be declared on a {@code public} class without type parameters
  * and with a {@code public} zero-parameter constructor.
@@ -49,7 +58,7 @@ import java.lang.annotation.Target;
  * <li>{@code Collection<FieldInfo<?>>}: information about fields declared on all present classes</li>
  * <li>TODO {@code Stream} instead of / in addition to {@code Collection}?</li>
  * </ul>
- * <li>configuration of classes ({@link cdi.lite.extension.model.configs.ClassConfig ClassConfig}):</li>
+ * <li>configuration of classes ({@link ClassConfig ClassConfig}):</li>
  * <ul>
  * <li>{@code ClassConfig<MyService>}: configurator for one exact class</li>
  * <li>{@code Collection<ClassConfig<MyService>>}: configurator for the one exact class, equivalent to previous line</li>
@@ -58,7 +67,7 @@ import java.lang.annotation.Target;
  * <li>{@code Collection<ClassConfig<?>>}: configurators for all present classes</li>
  * <li>TODO {@code Stream} instead of / in addition to {@code Collection}?</li>
  * </ul>
- * <li>configuration of methods ({@link cdi.lite.extension.model.configs.MethodConfig MethodConfig}):</li>
+ * <li>configuration of methods ({@link MethodConfig MethodConfig}):</li>
  * <ul>
  * <li>{@code Collection<MethodConfig<MyService>>}: configurator for methods declared on one exact class</li>
  * <li>{@code Collection<MethodConfig<? extends MyService>>}: configurators for methods declared on all subclasses</li>
@@ -66,7 +75,7 @@ import java.lang.annotation.Target;
  * <li>{@code Collection<MethodConfig<?>>}: configurators for methods declared on all present classes</li>
  * <li>TODO {@code Stream} instead of / in addition to {@code Collection}?</li>
  * </ul>
- * <li>configuration of fields ({@link cdi.lite.extension.model.configs.FieldConfig FieldConfig}):</li>
+ * <li>configuration of fields ({@link FieldConfig FieldConfig}):</li>
  * <ul>
  * <li>{@code Collection<FieldConfig<MyService>>}: configurator for fields declared on one exact class</li>
  * <li>{@code Collection<FieldConfig<? extends MyService>>}: configurators for fields declared on all subclasses</li>

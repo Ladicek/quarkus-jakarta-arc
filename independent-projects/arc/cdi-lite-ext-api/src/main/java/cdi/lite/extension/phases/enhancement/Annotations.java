@@ -1,4 +1,4 @@
-package cdi.lite.extension;
+package cdi.lite.extension.phases.enhancement;
 
 import cdi.lite.extension.model.AnnotationAttribute;
 import cdi.lite.extension.model.AnnotationAttributeValue;

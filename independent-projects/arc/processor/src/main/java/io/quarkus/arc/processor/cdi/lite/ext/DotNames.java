@@ -1,14 +1,14 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.Annotations;
+import cdi.lite.extension.phases.enhancement.Annotations;
 import cdi.lite.extension.Extension;
 import cdi.lite.extension.ExtensionPriority;
 import cdi.lite.extension.Types;
 import cdi.lite.extension.WithAnnotations;
 import cdi.lite.extension.World;
-import cdi.lite.extension.model.configs.ClassConfig;
-import cdi.lite.extension.model.configs.FieldConfig;
-import cdi.lite.extension.model.configs.MethodConfig;
+import cdi.lite.extension.phases.enhancement.ClassConfig;
+import cdi.lite.extension.phases.enhancement.FieldConfig;
+import cdi.lite.extension.phases.enhancement.MethodConfig;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;

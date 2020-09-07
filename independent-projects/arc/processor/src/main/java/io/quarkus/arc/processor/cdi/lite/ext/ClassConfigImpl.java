@@ -2,8 +2,8 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 
 import cdi.lite.extension.model.AnnotationAttribute;
 import cdi.lite.extension.model.AnnotationInfo;
-import cdi.lite.extension.phases.enhancement.ClassConfig;
 import cdi.lite.extension.model.declarations.ClassInfo;
+import cdi.lite.extension.phases.enhancement.ClassConfig;
 import java.lang.annotation.Annotation;
 import java.util.function.Predicate;
 

@@ -2,17 +2,19 @@ package cdi.lite.extension.phases.synthesis;
 
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.types.Type;
-
-import javax.enterprise.event.TransactionPhase;
 import java.lang.annotation.Annotation;
+import javax.enterprise.event.TransactionPhase;
 
+/**
+ * Instances are not reusable. For each synthetic bean, new instance must be created by {@link SyntheticComponents#addObserver()}.
+ */
 public interface SyntheticObserverBuilder {
     // if called multiple times, last call wins
     SyntheticObserverBuilder id(String identifier);
 
     // if called multiple times, last call wins
-    SyntheticObserverBuilder beanClass(Class<?> beanClass);
-    SyntheticObserverBuilder beanClass(ClassInfo<?> beanClass);
+    SyntheticObserverBuilder declaringClass(Class<?> beanClass);
+    SyntheticObserverBuilder declaringClass(ClassInfo<?> beanClass);
 
     // if called multiple times, last call wins
     SyntheticObserverBuilder observedType(Class<?> observedType);
@@ -34,6 +36,4 @@ public interface SyntheticObserverBuilder {
     SyntheticObserverBuilder transactionPhase(TransactionPhase transactionPhase);
 
     // TODO how to define the observer implementation?
-
-    void build();
 }

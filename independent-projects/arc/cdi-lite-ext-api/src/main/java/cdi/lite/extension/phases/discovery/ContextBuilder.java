@@ -1,7 +1,7 @@
 package cdi.lite.extension.phases.discovery;
 
-import javax.enterprise.context.spi.Context;
 import java.lang.annotation.Annotation;
+import javax.enterprise.context.spi.AlterableContext;
 
 public interface ContextBuilder {
     /**
@@ -27,12 +27,10 @@ public interface ContextBuilder {
      * using {@link #scope(Class)} and {@link #normal(boolean)}.
      * <p>
      * Implementations can impose additional restrictions on what valid parameters are;
-     * they don't have to accept all implementations of {@link Context}.
+     * they don't have to accept all implementations of {@link AlterableContext}.
      */
     // if called multiple times, last call wins
-    ContextBuilder implementation(Class<? extends Context> implementationClass);
+    ContextBuilder implementation(Class<? extends AlterableContext> implementationClass);
 
     // TODO another way to define the context implementation?
-
-    void build();
 }

@@ -1,18 +1,18 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.phases.enhancement.Annotations;
 import cdi.lite.extension.Extension;
 import cdi.lite.extension.ExtensionPriority;
 import cdi.lite.extension.Types;
 import cdi.lite.extension.WithAnnotations;
 import cdi.lite.extension.World;
-import cdi.lite.extension.phases.enhancement.ClassConfig;
-import cdi.lite.extension.phases.enhancement.FieldConfig;
-import cdi.lite.extension.phases.enhancement.MethodConfig;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
 import cdi.lite.extension.model.declarations.ParameterInfo;
+import cdi.lite.extension.phases.enhancement.Annotations;
+import cdi.lite.extension.phases.enhancement.ClassConfig;
+import cdi.lite.extension.phases.enhancement.FieldConfig;
+import cdi.lite.extension.phases.enhancement.MethodConfig;
 import java.lang.annotation.Repeatable;
 import java.util.Collection;
 import org.jboss.jandex.DotName;

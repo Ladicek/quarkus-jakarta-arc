@@ -4,7 +4,6 @@ import cdi.lite.extension.phases.enhancement.Annotations;
 import cdi.lite.extension.phases.enhancement.ClassConfig;
 import cdi.lite.extension.phases.enhancement.FieldConfig;
 import cdi.lite.extension.phases.enhancement.MethodConfig;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -92,13 +91,12 @@ import java.lang.annotation.Target;
  * or {@code Collection<SomethingConfig<?>>}, that's a good sign you probably want to use {@code World}.
  * <p>
  * If you need to create instances of {@link cdi.lite.extension.model.types.Type Type}, you can also declare
- * a parameter of type {@link Types}. It provides factory methods for common types, such as {@code void},
- * primitive types, class types and array types. Other types, such as parameterized types or type variables,
- * can't be created like this and can only be retrieved from declarations that use them.
+ * a parameter of type {@link Types}. It provides factory methods for the void type, primitive types, class types,
+ * array types, parameterized types and wildcard types.
  * <p>
  * If you need to create instances of {@link cdi.lite.extension.model.AnnotationAttribute AnnotationAttribute} or
  * {@link cdi.lite.extension.model.AnnotationAttributeValue AnnotationAttributeValue}, you can also declare
- * a parameter of type {@link Annotations}.
+ * a parameter of type {@link Annotations}. It provides factory values for all kinds of annotation attributes.
  * <p>
  * All the parameters will be provided by the container when the extension is invoked.
  * <p>

@@ -4,6 +4,7 @@ import cdi.lite.extension.Types;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.types.PrimitiveType;
 import cdi.lite.extension.model.types.Type;
+import java.util.Arrays;
 import org.jboss.jandex.DotName;
 
 class TypesImpl implements Types {
@@ -83,5 +84,54 @@ class TypesImpl implements Types {
         org.jboss.jandex.ArrayType jandexType = org.jboss.jandex.ArrayType.create(((TypeImpl<?>) componentType).jandexType,
                 dimensions);
         return new ArrayTypeImpl(jandexIndex, annotationOverlays, jandexType);
+    }
+
+    @Override
+    public Type parameterized(Class<?> parameterizedType, Class<?>... typeArguments) {
+        DotName parameterizedTypeName = DotName.createSimple(parameterizedType.getName());
+        Type[] transformedTypeArguments = Arrays.stream(typeArguments).map(this::of).toArray(Type[]::new);
+        return parameterizedType(parameterizedTypeName, transformedTypeArguments);
+    }
+
+    @Override
+    public Type parameterized(Class<?> parameterizedType, Type... typeArguments) {
+        DotName parameterizedTypeName = DotName.createSimple(parameterizedType.getName());
+        return parameterizedType(parameterizedTypeName, typeArguments);
+    }
+
+    @Override
+    public Type parameterized(Type parameterizedType, Type... typeArguments) {
+        DotName parameterizedTypeName = ((TypeImpl<?>) parameterizedType).jandexType.name();
+        return parameterizedType(parameterizedTypeName, typeArguments);
+    }
+
+    private Type parameterizedType(DotName parameterizedTypeName, Type... typeArguments) {
+        org.jboss.jandex.Type[] jandexTypeArguments = Arrays.stream(typeArguments)
+                .map(it -> ((TypeImpl<?>) it).jandexType)
+                .toArray(org.jboss.jandex.Type[]::new);
+
+        org.jboss.jandex.ParameterizedType jandexType = org.jboss.jandex.ParameterizedType.create(parameterizedTypeName,
+                jandexTypeArguments, null);
+        return new ParameterizedTypeImpl(jandexIndex, annotationOverlays, jandexType);
+    }
+
+    @Override
+    public Type wildcardWithUpperBound(Type upperBound) {
+        org.jboss.jandex.WildcardType jandexType = org.jboss.jandex.WildcardType.create(((TypeImpl<?>) upperBound).jandexType,
+                true);
+        return new WildcardTypeImpl(jandexIndex, annotationOverlays, jandexType);
+    }
+
+    @Override
+    public Type wildcardWithLowerBound(Type lowerBound) {
+        org.jboss.jandex.WildcardType jandexType = org.jboss.jandex.WildcardType.create(((TypeImpl<?>) lowerBound).jandexType,
+                false);
+        return new WildcardTypeImpl(jandexIndex, annotationOverlays, jandexType);
+    }
+
+    @Override
+    public Type wildcardUnbounded() {
+        org.jboss.jandex.WildcardType jandexType = org.jboss.jandex.WildcardType.create(null, true);
+        return new WildcardTypeImpl(jandexIndex, annotationOverlays, jandexType);
     }
 }

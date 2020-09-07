@@ -25,4 +25,25 @@ public interface Types {
     Type ofClass(ClassInfo<?> clazz);
 
     Type ofArray(Type componentType, int dimensions);
+
+    Type parameterized(Class<?> parameterizedType, Class<?>... typeArguments);
+
+    Type parameterized(Class<?> parameterizedType, Type... typeArguments);
+
+    Type parameterized(Type parameterizedType, Type... typeArguments);
+
+    /**
+     * Equivalent of {@code ? extends upperBound}.
+     */
+    Type wildcardWithUpperBound(Type upperBound);
+
+    /**
+     * Equivalent of {@code ? super lowerBound}.
+     */
+    Type wildcardWithLowerBound(Type lowerBound);
+
+    /**
+     * Equivalent of {@code ?}.
+     */
+    Type wildcardUnbounded();
 }

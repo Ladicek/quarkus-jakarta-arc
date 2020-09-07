@@ -1,13 +1,13 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
 import cdi.lite.extension.World;
-import cdi.lite.extension.phases.enhancement.ClassConfig;
-import cdi.lite.extension.phases.enhancement.FieldConfig;
-import cdi.lite.extension.phases.enhancement.MethodConfig;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
 import cdi.lite.extension.model.types.Type;
+import cdi.lite.extension.phases.enhancement.ClassConfig;
+import cdi.lite.extension.phases.enhancement.FieldConfig;
+import cdi.lite.extension.phases.enhancement.MethodConfig;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.HashSet;

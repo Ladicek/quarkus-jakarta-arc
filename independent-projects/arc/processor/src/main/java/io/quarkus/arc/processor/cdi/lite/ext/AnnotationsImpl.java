@@ -1,10 +1,10 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.phases.enhancement.Annotations;
 import cdi.lite.extension.model.AnnotationAttribute;
 import cdi.lite.extension.model.AnnotationAttributeValue;
 import cdi.lite.extension.model.AnnotationInfo;
 import cdi.lite.extension.model.declarations.ClassInfo;
+import cdi.lite.extension.phases.enhancement.Annotations;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;

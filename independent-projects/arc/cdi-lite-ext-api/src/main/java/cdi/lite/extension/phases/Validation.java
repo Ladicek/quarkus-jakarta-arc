@@ -11,11 +11,16 @@ import java.lang.annotation.Target;
  * <p>
  * Extension methods annotated {@code @Validation} can define parameters of these types:
  * <ul>
- *     <li>{@link cdi.lite.extension.phases.validation.Errors}</li>
- *     <li>types that allow inspecting the application
- *          (that is, {@code ClassInfo<...>}, {@code Collection<ClassInfo<...>>}, {@code Collection<MethodInfo<...>>},
- *          {@code Collection<FieldInfo<...>>}, and {@code World} and {@code Types})
- *     </li>
+ * <li>{@link cdi.lite.extension.phases.validation.Errors}</li>
+ * <li>types that allow inspecting the application
+ * (that is, {@code ClassInfo<...>}, {@code Collection<ClassInfo<...>>}, {@code Collection<MethodInfo<...>>},
+ * {@code Collection<FieldInfo<...>>}, and {@code World} and {@code Types})
+ * </li>
+ * <li>
+ * types that allow inspecting the application beans
+ * (that is, {@code Collection<BeanInfo<...>>}, {@code Collection<ObserverInfo<...>>})
+ * (TODO more? also something similar to {@code World} for beans?)
+ * </li>
  * </ul>
  */
 @Target(ElementType.METHOD)

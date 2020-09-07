@@ -12,12 +12,8 @@ import java.lang.annotation.Target;
  * <p>
  * Extension methods annotated {@code @Discovery} can define parameters of these types:
  * <ul>
- *     <li>{@link cdi.lite.extension.phases.discovery.Classes}</li>
- *     <li>{@link cdi.lite.extension.phases.discovery.Contexts}</li>
- *     <li>TODO also classes that allow inspecting the original application, without additional classes?
- *          (that is, {@code ClassInfo<...>}, {@code Collection<ClassInfo<...>>}, {@code Collection<MethodInfo<...>>},
- *          {@code Collection<FieldInfo<...>>}, and {@code World} and {@code Types})
- *     </li>
+ * <li>{@link cdi.lite.extension.phases.discovery.Classes}</li>
+ * <li>{@link cdi.lite.extension.phases.discovery.Contexts}</li>
  * </ul>
  */
 @Target(ElementType.METHOD)

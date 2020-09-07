@@ -1,9 +1,11 @@
 package cdi.lite.extension.phases.synthesis;
 
 import cdi.lite.extension.model.declarations.ClassInfo;
-
 import java.lang.annotation.Annotation;
 
+/**
+ * Instances are not reusable. For each synthetic bean, new instance must be created by {@link SyntheticComponents#addBean()}.
+ */
 public interface SyntheticBeanBuilder {
     // can be called multiple times and is additive
     SyntheticBeanBuilder type(Class<?> clazz);
@@ -35,10 +37,9 @@ public interface SyntheticBeanBuilder {
 
     // TODO anything else?
 
-    // if called multiple times, last call wins
+    // TODO this is probably useless, in such case, one can just add annotations to the class and be done with it
     SyntheticBeanBuilder implementation(Class<?> implementationClass);
     SyntheticBeanBuilder implementation(ClassInfo<?> implementationClass);
-    // TODO another way to define the bean implementation?
 
-    void build();
+    // TODO how to define the creation/destruction implementation?
 }

@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows specifying priority of {@link Extension}s.
+ * Allows specifying priority of extensions.
  * <p>
  * Extensions with specified priority always precede extensions without any priority.
  * Extension with highest priority get invoked first. If two extensions have equal

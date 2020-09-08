@@ -1,8 +1,5 @@
 package cdi.lite.extension;
 
-import cdi.lite.extension.phases.enhancement.ClassConfig;
-import cdi.lite.extension.phases.enhancement.FieldConfig;
-import cdi.lite.extension.phases.enhancement.MethodConfig;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
@@ -11,8 +8,7 @@ import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-// TODO better name?
-public interface World {
+public interface AppArchive {
     ClassQuery classes();
 
     MethodQuery constructors(); // no static initializers
@@ -26,7 +22,7 @@ public interface World {
      * When called multiple times, they form a union of requested classes (not an intersection).
      * For example,
      * <pre>{@code
-     * world.classes()
+     * appArchive.classes()
      *     .exactly(Foo.class)
      *     .subtypeOf(Bar.class)
      *     .find()
@@ -37,7 +33,7 @@ public interface World {
      * When called multiple times, they form a union of requested annotations (not an intersection).
      * For example,
      * <pre>{@code
-     * world.classes()
+     * appArchive.classes()
      *     .annotatedWith(Foo.class)
      *     .annotatedWith(Bar.class)
      *     .find()
@@ -64,8 +60,6 @@ public interface World {
         Collection<ClassInfo<?>> find();
 
         Stream<ClassInfo<?>> stream();
-
-        Collection<ClassConfig<?>> configure();
     }
 
     /**
@@ -73,16 +67,16 @@ public interface World {
      * When called multiple times, it forms a union of requested classes (not an intersection).
      * For example,
      * <pre>{@code
-     * world.methods()
-     *     .declaredOn(world.classes().exactly(Foo.class))
-     *     .declaredOn(world.classes().subtypeOf(Bar.class))
+     * appArchive.methods()
+     *     .declaredOn(appArchive.classes().exactly(Foo.class))
+     *     .declaredOn(appArchive.classes().subtypeOf(Bar.class))
      *     .find()
      * }</pre>
      * returns all methods declared on the {@code Foo} class and on all subtypes of the {@code Bar} class.
      * Note that this example can be rewritten as
      * <pre>{@code
-     * world.methods()
-     *     .declaredOn(world.classes().exactly(Foo.class).subtypeOf(Bar.class))
+     * appArchive.methods()
+     *     .declaredOn(appArchive.classes().exactly(Foo.class).subtypeOf(Bar.class))
      *     .find()
      * }</pre>
      * which is probably easier to understand.
@@ -91,7 +85,7 @@ public interface World {
      * When called multiple times, they form a union of requested return types (not an intersection).
      * For example,
      * <pre>{@code
-     * world.methods()
+     * appArchive.methods()
      *     .withReturnType(Foo.class)
      *     .withReturnType(Bar.class)
      *     .find()
@@ -102,7 +96,7 @@ public interface World {
      * When called multiple times, they form a union of requested annotations (not an intersection).
      * For example,
      * <pre>{@code
-     * world.methods()
+     * appArchive.methods()
      *     .annotatedWith(Foo.class)
      *     .annotatedWith(Bar.class)
      *     .find()
@@ -128,8 +122,6 @@ public interface World {
         Collection<MethodInfo<?>> find();
 
         Stream<MethodInfo<?>> stream();
-
-        Collection<MethodConfig<?>> configure();
     }
 
     /**
@@ -137,16 +129,16 @@ public interface World {
      * When called multiple times, it forms a union of requested classes (not an intersection).
      * For example,
      * <pre>{@code
-     * world.fields()
-     *     .declaredOn(world.classes().exactly(Foo.class))
-     *     .declaredOn(world.classes().subtypeOf(Bar.class))
+     * appArchive.fields()
+     *     .declaredOn(appArchive.classes().exactly(Foo.class))
+     *     .declaredOn(appArchive.classes().subtypeOf(Bar.class))
      *     .find()
      * }</pre>
      * returns all fields declared on the {@code Foo} class and on all subtypes of the {@code Bar} class.
      * Note that this example can be rewritten as
      * <pre>{@code
-     * world.fields()
-     *     .declaredOn(world.classes().exactly(Foo.class).subtypeOf(Bar.class))
+     * appArchive.fields()
+     *     .declaredOn(appArchive.classes().exactly(Foo.class).subtypeOf(Bar.class))
      *     .find()
      * }</pre>
      * which is probably easier to understand.
@@ -155,7 +147,7 @@ public interface World {
      * When called multiple times, they form a union of requested field types (not an intersection).
      * For example,
      * <pre>{@code
-     * world.fields()
+     * appArchive.fields()
      *     .ofType(Foo.class)
      *     .ofType(Bar.class)
      *     .find()
@@ -166,7 +158,7 @@ public interface World {
      * When called multiple times, they form a union of requested annotations (not an intersection).
      * For example,
      * <pre>{@code
-     * world.fields()
+     * appArchive.fields()
      *     .annotatedWith(Foo.class)
      *     .annotatedWith(Bar.class)
      *     .find()
@@ -190,7 +182,5 @@ public interface World {
         Collection<FieldInfo<?>> find();
 
         Stream<FieldInfo<?>> stream();
-
-        Collection<FieldConfig<?>> configure();
     }
 }

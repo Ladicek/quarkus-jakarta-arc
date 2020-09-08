@@ -1,4 +1,4 @@
-package cdi.lite.extension.model.beans;
+package cdi.lite.extension.beans;
 
 import cdi.lite.extension.model.AnnotationInfo;
 import cdi.lite.extension.model.declarations.ClassInfo;
@@ -15,6 +15,11 @@ import javax.enterprise.event.TransactionPhase;
 public interface ObserverInfo<T> {
     String id(); // ???
 
+    Type observedType();
+
+    // TODO method(s) for getting AnnotationInfo for given qualifier class?
+    Collection<AnnotationInfo> qualifiers();
+
     ClassInfo<?> declaringClass(); // never null, even if synthetic
 
     MethodInfo<?> observerMethod(); // TODO null for synthetic observers, or return Optional? see also isSynthetic below
@@ -26,11 +31,6 @@ public interface ObserverInfo<T> {
     default boolean isSynthetic() {
         return bean() == null;
     }
-
-    Type observedType();
-
-    // TODO method(s) for getting AnnotationInfo for given qualifier class?
-    Collection<AnnotationInfo> qualifiers();
 
     int priority();
 

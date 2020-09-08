@@ -1,13 +1,10 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.World;
+import cdi.lite.extension.AppArchive;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
 import cdi.lite.extension.model.types.Type;
-import cdi.lite.extension.phases.enhancement.ClassConfig;
-import cdi.lite.extension.phases.enhancement.FieldConfig;
-import cdi.lite.extension.phases.enhancement.MethodConfig;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,15 +15,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jboss.jandex.DotName;
 
-class WorldImpl implements World {
-    private final org.jboss.jandex.IndexView jandexIndex;
-    private final AllAnnotationTransformations annotationTransformations;
-    private final AllAnnotationOverlays annotationOverlays;
-    private final AnnotationsOverlay.Classes classesOverlay;
-    private final AnnotationsOverlay.Methods methodsOverlay;
-    private final AnnotationsOverlay.Fields fieldsOverlay;
+class AppArchiveImpl implements AppArchive {
+    final org.jboss.jandex.IndexView jandexIndex;
+    final AllAnnotationTransformations annotationTransformations;
+    final AllAnnotationOverlays annotationOverlays;
+    final AnnotationsOverlay.Classes classesOverlay;
+    final AnnotationsOverlay.Methods methodsOverlay;
+    final AnnotationsOverlay.Fields fieldsOverlay;
 
-    WorldImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationTransformations annotationTransformations) {
+    AppArchiveImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationTransformations annotationTransformations) {
         this.jandexIndex = jandexIndex;
         this.annotationTransformations = annotationTransformations;
         this.annotationOverlays = annotationTransformations.annotationOverlays;
@@ -55,7 +52,7 @@ class WorldImpl implements World {
         return new FieldQueryImpl();
     }
 
-    private class ClassQueryImpl implements ClassQuery {
+    class ClassQueryImpl implements ClassQuery {
         private Set<DotName> requiredJandexClasses;
         private Set<DotName> requiredJandexAnnotations;
 
@@ -230,17 +227,9 @@ class WorldImpl implements World {
                         .map(it -> new ClassInfoImpl(jandexIndex, annotationOverlays, it));
             }
         }
-
-        @Override
-        public Collection<ClassConfig<?>> configure() {
-            return stream()
-                    .map(it -> new ClassConfigImpl(jandexIndex, annotationTransformations.classes,
-                            ((ClassInfoImpl) it).jandexDeclaration))
-                    .collect(Collectors.toList());
-        }
     }
 
-    private class MethodQueryImpl implements MethodQuery {
+    class MethodQueryImpl implements MethodQuery {
         private final Predicate<String> nameFilter;
         private Stream<ClassInfo<?>> requiredDeclarationSites; // elements not guaranteed to be distinct!
         private Set<org.jboss.jandex.Type> requiredJandexReturnTypes;
@@ -409,17 +398,9 @@ class WorldImpl implements World {
                         .map(it -> new MethodInfoImpl(jandexIndex, annotationOverlays, it));
             }
         }
-
-        @Override
-        public Collection<MethodConfig<?>> configure() {
-            return stream()
-                    .map(it -> new MethodConfigImpl(jandexIndex, annotationTransformations.methods,
-                            ((MethodInfoImpl) it).jandexDeclaration))
-                    .collect(Collectors.toList());
-        }
     }
 
-    private class FieldQueryImpl implements FieldQuery {
+    class FieldQueryImpl implements FieldQuery {
         private Stream<ClassInfo<?>> requiredDeclarationSites; // elements not guaranteed to be distinct!
         private Set<org.jboss.jandex.Type> requiredJandexTypes;
         private Set<DotName> requiredJandexAnnotations;
@@ -574,14 +555,6 @@ class WorldImpl implements World {
                         .flatMap(it -> it.fields().stream())
                         .map(it -> new FieldInfoImpl(jandexIndex, annotationOverlays, it));
             }
-        }
-
-        @Override
-        public Collection<FieldConfig<?>> configure() {
-            return stream()
-                    .map(it -> new FieldConfigImpl(jandexIndex, annotationTransformations.fields,
-                            ((FieldInfoImpl) it).jandexDeclaration))
-                    .collect(Collectors.toList());
         }
     }
 }

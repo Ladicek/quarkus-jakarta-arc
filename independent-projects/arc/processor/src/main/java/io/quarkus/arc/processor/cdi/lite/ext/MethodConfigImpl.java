@@ -17,13 +17,13 @@ class MethodConfigImpl extends MethodInfoImpl implements MethodConfig<Object> {
     }
 
     @Override
-    public void addAnnotation(Class<? extends Annotation> clazz, AnnotationAttribute... attributes) {
-        transformations.addAnnotation(jandexDeclaration, clazz, attributes);
+    public void addAnnotation(Class<? extends Annotation> annotationType, AnnotationAttribute... attributes) {
+        transformations.addAnnotation(jandexDeclaration, annotationType, attributes);
     }
 
     @Override
-    public void addAnnotation(ClassInfo<?> clazz, AnnotationAttribute... attributes) {
-        transformations.addAnnotation(jandexDeclaration, clazz, attributes);
+    public void addAnnotation(ClassInfo<?> annotationType, AnnotationAttribute... attributes) {
+        transformations.addAnnotation(jandexDeclaration, annotationType, attributes);
     }
 
     @Override

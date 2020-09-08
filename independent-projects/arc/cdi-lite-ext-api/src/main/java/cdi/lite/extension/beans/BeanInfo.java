@@ -1,4 +1,4 @@
-package cdi.lite.extension.model.beans;
+package cdi.lite.extension.beans;
 
 import cdi.lite.extension.model.AnnotationInfo;
 import cdi.lite.extension.model.declarations.ClassInfo;
@@ -47,7 +47,8 @@ public interface BeanInfo<T> {
 
     DisposerInfo disposer(); // TODO is this necessary?
 
-    // TODO stereotypes?
+    Collection<StereotypeInfo> stereotypes();
+
     // TODO interceptors?
 
     Collection<InjectionPointInfo> injectionPoints();

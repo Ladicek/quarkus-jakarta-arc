@@ -1,7 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import cdi.lite.extension.beans.InjectionPointInfo;
 import cdi.lite.extension.model.AnnotationInfo;
-import cdi.lite.extension.model.beans.InjectionPointInfo;
 import cdi.lite.extension.model.declarations.DeclarationInfo;
 import cdi.lite.extension.model.types.Type;
 import java.util.Collection;

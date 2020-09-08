@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface MethodInfo<T> extends DeclarationInfo {
     String name();
 
-    List<ParameterInfo<T>> parameters();
+    List<ParameterInfo> parameters();
 
     Type returnType();
 

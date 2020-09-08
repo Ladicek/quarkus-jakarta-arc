@@ -2,10 +2,7 @@ package cdi.lite.extension.model.declarations;
 
 import cdi.lite.extension.model.types.Type;
 
-/**
- * @param <T> type of whomever declares the method or constructor that has the inspected parameter
- */
-public interface ParameterInfo<T> extends DeclarationInfo {
+public interface ParameterInfo extends DeclarationInfo {
     String name(); // TODO doesn't have to be present
 
     Type type();
@@ -18,7 +15,7 @@ public interface ParameterInfo<T> extends DeclarationInfo {
     }
 
     @Override
-    default ParameterInfo<?> asParameter() {
+    default ParameterInfo asParameter() {
         return this;
     }
 }

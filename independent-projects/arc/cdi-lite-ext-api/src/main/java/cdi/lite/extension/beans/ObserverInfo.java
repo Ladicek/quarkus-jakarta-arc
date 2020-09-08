@@ -24,7 +24,7 @@ public interface ObserverInfo<T> {
 
     MethodInfo<?> observerMethod(); // TODO null for synthetic observers, or return Optional? see also isSynthetic below
 
-    ParameterInfo<?> eventParameter(); // TODO null for synthetic observers, or return Optional? see also isSynthetic below
+    ParameterInfo eventParameter(); // TODO null for synthetic observers, or return Optional? see also isSynthetic below
 
     BeanInfo<?> bean(); // TODO null for synthetic observers, or return Optional? see also isSynthetic below
 

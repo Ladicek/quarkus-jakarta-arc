@@ -67,7 +67,7 @@ public interface DeclarationInfo extends AnnotationTarget {
         throw new IllegalStateException("Not a method");
     }
 
-    default ParameterInfo<?> asParameter() {
+    default ParameterInfo asParameter() {
         throw new IllegalStateException("Not a parameter");
     }
 

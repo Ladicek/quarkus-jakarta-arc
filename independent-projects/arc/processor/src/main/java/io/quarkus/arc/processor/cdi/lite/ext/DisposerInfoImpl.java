@@ -24,7 +24,7 @@ class DisposerInfoImpl implements DisposerInfo {
     }
 
     @Override
-    public ParameterInfo<?> disposedParameter() {
+    public ParameterInfo disposedParameter() {
         org.jboss.jandex.MethodParameterInfo jandexParameter = arcDisposerInfo.getDisposedParameter();
         return new ParameterInfoImpl(jandexIndex, annotationOverlays, jandexParameter.method(), jandexParameter.position());
     }

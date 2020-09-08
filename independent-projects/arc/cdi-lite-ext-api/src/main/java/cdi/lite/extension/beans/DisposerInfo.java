@@ -6,5 +6,5 @@ import cdi.lite.extension.model.declarations.ParameterInfo;
 public interface DisposerInfo {
     MethodInfo<?> disposerMethod();
 
-    ParameterInfo<?> disposedParameter();
+    ParameterInfo disposedParameter();
 }

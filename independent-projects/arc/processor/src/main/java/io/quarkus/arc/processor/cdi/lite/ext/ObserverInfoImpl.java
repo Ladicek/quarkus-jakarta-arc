@@ -42,7 +42,7 @@ class ObserverInfoImpl implements ObserverInfo<Object> {
     }
 
     @Override
-    public ParameterInfo<?> eventParameter() {
+    public ParameterInfo eventParameter() {
         org.jboss.jandex.MethodParameterInfo jandexParameter = arcObserverInfo.getEventParameter();
         return new ParameterInfoImpl(jandexIndex, annotationOverlays, jandexParameter.method(), jandexParameter.position());
     }

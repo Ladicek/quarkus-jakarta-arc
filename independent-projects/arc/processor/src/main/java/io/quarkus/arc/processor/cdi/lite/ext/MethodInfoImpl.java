@@ -32,9 +32,9 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
     }
 
     @Override
-    public List<ParameterInfo<Object>> parameters() {
+    public List<ParameterInfo> parameters() {
         int parameters = jandexDeclaration.parameters().size();
-        List<ParameterInfo<Object>> result = new ArrayList<>(parameters);
+        List<ParameterInfo> result = new ArrayList<>(parameters);
 
         for (int i = 0; i < parameters; i++) {
             result.add(new ParameterInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration, i));

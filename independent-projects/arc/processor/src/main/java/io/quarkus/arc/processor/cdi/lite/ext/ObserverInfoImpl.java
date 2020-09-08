@@ -1,8 +1,8 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import cdi.lite.extension.beans.BeanInfo;
+import cdi.lite.extension.beans.ObserverInfo;
 import cdi.lite.extension.model.AnnotationInfo;
-import cdi.lite.extension.model.beans.BeanInfo;
-import cdi.lite.extension.model.beans.ObserverInfo;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
 import cdi.lite.extension.model.declarations.ParameterInfo;

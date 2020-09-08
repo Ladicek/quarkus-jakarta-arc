@@ -1,6 +1,6 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.beans.DisposerInfo;
+import cdi.lite.extension.beans.DisposerInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
 import cdi.lite.extension.model.declarations.ParameterInfo;
 import org.jboss.jandex.IndexView;

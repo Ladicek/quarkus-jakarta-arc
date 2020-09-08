@@ -3,14 +3,13 @@ package io.quarkus.arc.test.cdi.lite.ext;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import cdi.lite.extension.Extension;
+import cdi.lite.extension.AppArchive;
 import cdi.lite.extension.ExtensionPriority;
 import cdi.lite.extension.WithAnnotations;
-import cdi.lite.extension.World;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
-import cdi.lite.extension.model.declarations.ParameterInfo;
+import cdi.lite.extension.phases.Enhancement;
 import cdi.lite.extension.phases.enhancement.ClassConfig;
 import cdi.lite.extension.phases.enhancement.FieldConfig;
 import io.quarkus.arc.Arc;
@@ -29,7 +28,7 @@ public class ChangeQualifierTest {
     public ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyExtension.class, MyQualifier.class, MyService.class, MyFooService.class, MyBarService.class,
                     MyServiceConsumer.class,
-                    Extension.class)
+                    Enhancement.class)
             .build();
 
     @Test
@@ -39,7 +38,7 @@ public class ChangeQualifierTest {
     }
 
     public static class MyExtension {
-        @Extension
+        @Enhancement
         @ExtensionPriority(0)
         public void configure(ClassConfig<MyFooService> foo, ClassConfig<MyBarService> bar,
                 Collection<FieldConfig<MyServiceConsumer>> service) {
@@ -67,7 +66,7 @@ public class ChangeQualifierTest {
                     .collect(Collectors.toSet()));
         }
 
-        @Extension
+        @Enhancement
         public void test(Collection<ClassConfig<? extends MyService>> upperBound,
                 Collection<ClassConfig<? super MyService>> lowerBound,
                 Collection<ClassConfig<MyService>> single,
@@ -75,11 +74,10 @@ public class ChangeQualifierTest {
                 Collection<ClassInfo<?>> allAgain,
                 Collection<MethodInfo<? super MyService>> methods,
                 Collection<FieldInfo<? extends MyService>> fields,
-                Collection<ParameterInfo<MyExtension>> parameters,
                 ClassInfo<MyFooService> singleAgain,
                 @WithAnnotations(Inject.class) Collection<FieldInfo<?>> fieldsWithAnnotation,
-                @WithAnnotations(Extension.class) Collection<MethodInfo<?>> methodsWithAnnotation,
-                World world) {
+                @WithAnnotations(Enhancement.class) Collection<MethodInfo<?>> methodsWithAnnotation,
+                AppArchive appArchive) {
 
             System.out.println("!!! upper bound");
             upperBound.forEach(System.out::println);
@@ -102,9 +100,6 @@ public class ChangeQualifierTest {
             System.out.println("!!! fields");
             fields.forEach(System.out::println);
 
-            System.out.println("!!! parameters");
-            parameters.forEach(System.out::println);
-
             System.out.println("!!! single again");
             System.out.println(singleAgain);
             System.out.println(singleAgain.name());
@@ -123,18 +118,18 @@ public class ChangeQualifierTest {
             methodsWithAnnotation.forEach(System.out::println);
 
             System.out.println("!!! world");
-            world.classes()
+            appArchive.classes()
                     .subtypeOf(MyService.class)
                     .annotatedWith(Singleton.class)
                     .stream()
                     .forEach(System.out::println);
 
             System.out.println("!!! world seeing changed annotations");
-            world.classes()
+            appArchive.classes()
                     .annotatedWith(MyQualifier.class)
                     .stream()
                     .forEach(System.out::println);
-            world.fields()
+            appArchive.fields()
                     .annotatedWith(MyQualifier.class)
                     .stream()
                     .forEach(System.out::println);

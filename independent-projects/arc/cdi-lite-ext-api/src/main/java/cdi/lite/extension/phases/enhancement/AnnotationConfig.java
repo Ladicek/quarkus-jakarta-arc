@@ -7,9 +7,9 @@ import java.lang.annotation.Annotation;
 import java.util.function.Predicate;
 
 public interface AnnotationConfig {
-    void addAnnotation(Class<? extends Annotation> clazz, AnnotationAttribute... attributes);
+    void addAnnotation(Class<? extends Annotation> annotationType, AnnotationAttribute... attributes);
 
-    void addAnnotation(ClassInfo<?> clazz, AnnotationAttribute... attributes);
+    void addAnnotation(ClassInfo<?> annotationType, AnnotationAttribute... attributes);
 
     void addAnnotation(AnnotationInfo annotation);
 

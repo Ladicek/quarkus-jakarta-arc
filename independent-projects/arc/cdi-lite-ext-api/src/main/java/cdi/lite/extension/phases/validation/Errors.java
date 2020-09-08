@@ -1,8 +1,8 @@
 package cdi.lite.extension.phases.validation;
 
+import cdi.lite.extension.beans.BeanInfo;
+import cdi.lite.extension.beans.ObserverInfo;
 import cdi.lite.extension.model.AnnotationTarget;
-import cdi.lite.extension.model.beans.BeanInfo;
-import cdi.lite.extension.model.beans.ObserverInfo;
 
 public interface Errors {
     /**

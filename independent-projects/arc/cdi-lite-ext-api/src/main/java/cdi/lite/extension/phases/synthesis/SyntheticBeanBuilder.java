@@ -1,5 +1,7 @@
 package cdi.lite.extension.phases.synthesis;
 
+import cdi.lite.extension.model.AnnotationAttribute;
+import cdi.lite.extension.model.AnnotationInfo;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import java.lang.annotation.Annotation;
 
@@ -9,16 +11,27 @@ import java.lang.annotation.Annotation;
 public interface SyntheticBeanBuilder {
     // can be called multiple times and is additive
     SyntheticBeanBuilder type(Class<?> clazz);
+
     SyntheticBeanBuilder type(ClassInfo<?> clazz);
-    // TODO methods to add multiple types at once, or even an entire transitive closure of types
+
+    SyntheticBeanBuilder typeWithTransitiveClosure(Class<?> clazz);
+
+    SyntheticBeanBuilder typeWithTransitiveClosure(ClassInfo<?> clazz);
+    // TODO methods to add multiple types at once?
 
     // can be called multiple times and is additive
-    SyntheticBeanBuilder qualifier(Class<? extends Annotation> qualifierAnnotation);
-    // TODO other variants of qualifier, to deal with annotation attributes
-    // TODO methods to add multiple qualifiers at once
+    SyntheticBeanBuilder qualifier(Class<? extends Annotation> qualifierAnnotation, AnnotationAttribute... attributes);
+
+    SyntheticBeanBuilder qualifier(ClassInfo<?> qualifierAnnotation, AnnotationAttribute... attributes);
+
+    SyntheticBeanBuilder qualifier(AnnotationInfo qualifierAnnotation);
+
+    SyntheticBeanBuilder qualifier(Annotation qualifierAnnotation);
+    // TODO methods to add multiple qualifiers at once?
 
     // if called multiple times, last call wins
     SyntheticBeanBuilder scope(Class<? extends Annotation> scopeAnnotation);
+
     SyntheticBeanBuilder scope(ClassInfo<?> scopeAnnotation);
 
     // if called, priority is automatically 0, unless `priority` is also called
@@ -33,13 +46,10 @@ public interface SyntheticBeanBuilder {
     // if called multiple times, last call wins
     SyntheticBeanBuilder name(String name);
 
-    // TODO stereotypes?
+    // can be called multiple times and is additive
+    SyntheticBeanBuilder stereotype(Class<? extends Annotation> stereotypeAnnotation);
 
-    // TODO anything else?
-
-    // TODO this is probably useless, in such case, one can just add annotations to the class and be done with it
-    SyntheticBeanBuilder implementation(Class<?> implementationClass);
-    SyntheticBeanBuilder implementation(ClassInfo<?> implementationClass);
+    SyntheticBeanBuilder stereotype(ClassInfo<?> stereotypeAnnotation);
 
     // TODO how to define the creation/destruction implementation?
 }

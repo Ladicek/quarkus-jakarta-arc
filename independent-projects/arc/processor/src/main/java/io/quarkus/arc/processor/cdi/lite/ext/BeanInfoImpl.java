@@ -1,10 +1,11 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import cdi.lite.extension.beans.BeanInfo;
+import cdi.lite.extension.beans.DisposerInfo;
+import cdi.lite.extension.beans.InjectionPointInfo;
+import cdi.lite.extension.beans.ScopeInfo;
+import cdi.lite.extension.beans.StereotypeInfo;
 import cdi.lite.extension.model.AnnotationInfo;
-import cdi.lite.extension.model.beans.BeanInfo;
-import cdi.lite.extension.model.beans.DisposerInfo;
-import cdi.lite.extension.model.beans.InjectionPointInfo;
-import cdi.lite.extension.model.beans.ScopeInfo;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
@@ -48,6 +49,7 @@ class BeanInfoImpl implements BeanInfo<Object> {
 
     @Override
     public ClassInfo<?> declaringClass() {
+        // TODO getImplClass or getBeanClass?
         return new ClassInfoImpl(jandexIndex, annotationOverlays, arcBeanInfo.getImplClazz());
     }
 
@@ -109,6 +111,14 @@ class BeanInfoImpl implements BeanInfo<Object> {
     public DisposerInfo disposer() {
         // TODO what if none?
         return new DisposerInfoImpl(jandexIndex, annotationOverlays, arcBeanInfo.getDisposer());
+    }
+
+    @Override
+    public Collection<StereotypeInfo> stereotypes() {
+        return arcBeanInfo.getStereotypes()
+                .stream()
+                .map(it -> new StereotypeInfoImpl(jandexIndex, annotationOverlays, it))
+                .collect(Collectors.toList());
     }
 
     @Override

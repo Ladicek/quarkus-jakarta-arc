@@ -5,8 +5,7 @@ import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
 import cdi.lite.extension.model.types.Type;
 import java.lang.annotation.Annotation;
-import java.util.Collection;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
 
 public interface AppArchive {
     ClassQuery classes();
@@ -18,7 +17,7 @@ public interface AppArchive {
     FieldQuery fields();
 
     /**
-     * The {@code exactly}, {@code subtypeOf} and {@code supertypeOf} methods are additive.
+     * The {@code exactly} and {@code subtypeOf} methods are additive.
      * When called multiple times, they form a union of requested classes (not an intersection).
      * For example,
      * <pre>{@code
@@ -43,23 +42,11 @@ public interface AppArchive {
     interface ClassQuery {
         ClassQuery exactly(Class<?> clazz);
 
-        ClassQuery exactly(ClassInfo<?> clazz);
-
         ClassQuery subtypeOf(Class<?> clazz);
-
-        ClassQuery subtypeOf(ClassInfo<?> clazz);
-
-        ClassQuery supertypeOf(Class<?> clazz);
-
-        ClassQuery supertypeOf(ClassInfo<?> clazz);
 
         ClassQuery annotatedWith(Class<? extends Annotation> annotationType);
 
-        ClassQuery annotatedWith(ClassInfo<?> annotationType);
-
-        Collection<ClassInfo<?>> find();
-
-        Stream<ClassInfo<?>> stream();
+        void forEach(Consumer<ClassInfo<?>> consumer);
     }
 
     /**
@@ -117,11 +104,7 @@ public interface AppArchive {
 
         MethodQuery annotatedWith(Class<? extends Annotation> annotationType);
 
-        MethodQuery annotatedWith(ClassInfo<?> annotationType);
-
-        Collection<MethodInfo<?>> find();
-
-        Stream<MethodInfo<?>> stream();
+        void forEach(Consumer<MethodInfo<?>> consumer);
     }
 
     /**
@@ -177,10 +160,6 @@ public interface AppArchive {
 
         FieldQuery annotatedWith(Class<? extends Annotation> annotationType);
 
-        FieldQuery annotatedWith(ClassInfo<?> annotationType);
-
-        Collection<FieldInfo<?>> find();
-
-        Stream<FieldInfo<?>> stream();
+        void forEach(Consumer<FieldInfo<?>> consumer);
     }
 }

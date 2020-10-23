@@ -3,20 +3,14 @@ package io.quarkus.arc.test.cdi.lite.ext;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import cdi.lite.extension.AppArchive;
-import cdi.lite.extension.ExtensionPriority;
-import cdi.lite.extension.WithAnnotations;
-import cdi.lite.extension.model.declarations.ClassInfo;
-import cdi.lite.extension.model.declarations.FieldInfo;
-import cdi.lite.extension.model.declarations.MethodInfo;
+import cdi.lite.extension.BuildCompatibleExtension;
 import cdi.lite.extension.phases.Enhancement;
-import cdi.lite.extension.phases.enhancement.ClassConfig;
-import cdi.lite.extension.phases.enhancement.FieldConfig;
+import cdi.lite.extension.phases.enhancement.ClassEntrypoint;
+import cdi.lite.extension.phases.enhancement.ExactType;
+import cdi.lite.extension.phases.enhancement.FieldEntrypoint;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.test.ArcTestContainer;
 import java.lang.annotation.Retention;
-import java.util.Collection;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 import javax.inject.Singleton;
@@ -37,102 +31,44 @@ public class ChangeQualifierTest {
         assertTrue(myServiceConsumer.myService instanceof MyBarService);
     }
 
-    public static class MyExtension {
+    public static class MyExtension implements BuildCompatibleExtension {
         @Enhancement
-        @ExtensionPriority(0)
-        public void configure(ClassConfig<MyFooService> foo, ClassConfig<MyBarService> bar,
-                Collection<FieldConfig<MyServiceConsumer>> service) {
+        public void configure(
+                @ExactType(type = MyFooService.class, annotatedWith = Singleton.class) ClassEntrypoint foo,
+                @ExactType(type = MyBarService.class, annotatedWith = Singleton.class) ClassEntrypoint bar,
+                @ExactType(type = MyServiceConsumer.class, annotatedWith = Inject.class) FieldEntrypoint service) {
 
-            System.out.println("????????? " + foo.annotations());
-            System.out.println("????????? " + bar.annotations());
-            System.out.println("????????? " + service.stream()
-                    .filter(it -> "myService".equals(it.name()))
-                    .flatMap(it -> it.annotations().stream())
-                    .collect(Collectors.toSet()));
+            foo.configure(clazz -> {
+                System.out.println("????????? MyFooService class " + clazz.annotations());
+            });
+            bar.configure(clazz -> {
+                System.out.println("????????? MyBarService class " + clazz.annotations());
+            });
+            service.configure(field -> {
+                if ("myService".equals(field.name())) {
+                    System.out.println("????????? MyServiceConsumer.myService field " + field.annotations());
+                }
+            });
 
-            foo.removeAnnotation(ann -> ann.declaration().name().equals(MyQualifier.class.getName()));
+            foo.removeAnnotation(ann -> ann.name().equals(MyQualifier.class.getName()));
             bar.addAnnotation(MyQualifier.class);
-            service.stream()
-                    .filter(it -> "myService".equals(it.name()))
-                    .forEach(it -> {
-                        it.addAnnotation(MyQualifier.class);
-                    });
+            service.configure(field -> {
+                if ("myService".equals(field.name())) {
+                    field.addAnnotation(MyQualifier.class);
+                }
+            });
 
-            System.out.println("????????? " + foo.annotations());
-            System.out.println("????????? " + bar.annotations());
-            System.out.println("????????? " + service.stream()
-                    .filter(it -> "myService".equals(it.name()))
-                    .flatMap(it -> it.annotations().stream())
-                    .collect(Collectors.toSet()));
-        }
-
-        @Enhancement
-        public void test(Collection<ClassConfig<? extends MyService>> upperBound,
-                Collection<ClassConfig<? super MyService>> lowerBound,
-                Collection<ClassConfig<MyService>> single,
-                Collection<ClassConfig<?>> all,
-                Collection<ClassInfo<?>> allAgain,
-                Collection<MethodInfo<? super MyService>> methods,
-                Collection<FieldInfo<? extends MyService>> fields,
-                ClassInfo<MyFooService> singleAgain,
-                @WithAnnotations(Inject.class) Collection<FieldInfo<?>> fieldsWithAnnotation,
-                @WithAnnotations(Enhancement.class) Collection<MethodInfo<?>> methodsWithAnnotation,
-                AppArchive appArchive) {
-
-            System.out.println("!!! upper bound");
-            upperBound.forEach(System.out::println);
-
-            System.out.println("!!! lower bound");
-            lowerBound.forEach(System.out::println);
-
-            System.out.println("!!! single");
-            single.forEach(System.out::println);
-
-            System.out.println("!!! all");
-            all.forEach(System.out::println);
-
-            System.out.println("!!! all again");
-            allAgain.forEach(System.out::println);
-
-            System.out.println("!!! methods");
-            methods.forEach(System.out::println);
-
-            System.out.println("!!! fields");
-            fields.forEach(System.out::println);
-
-            System.out.println("!!! single again");
-            System.out.println(singleAgain);
-            System.out.println(singleAgain.name());
-            System.out.println(singleAgain.simpleName());
-            System.out.println(singleAgain.packageInfo());
-            System.out.println(singleAgain.superClass());
-            singleAgain.superInterfaces().forEach(System.out::println);
-            singleAgain.constructors().forEach(System.out::println);
-            singleAgain.methods().forEach(System.out::println);
-            singleAgain.fields().forEach(System.out::println);
-
-            System.out.println("!!! fields with annotation");
-            fieldsWithAnnotation.forEach(System.out::println);
-
-            System.out.println("!!! methods with annotation");
-            methodsWithAnnotation.forEach(System.out::println);
-
-            System.out.println("!!! world");
-            appArchive.classes()
-                    .subtypeOf(MyService.class)
-                    .annotatedWith(Singleton.class)
-                    .stream()
-                    .forEach(System.out::println);
-
-            System.out.println("!!! world seeing changed annotations");
-            appArchive.classes()
-                    .annotatedWith(MyQualifier.class)
-                    .stream()
-                    .forEach(System.out::println);
-            appArchive.fields()
-                    .annotatedWith(MyQualifier.class)
-                    .stream()
-                    .forEach(System.out::println);
+            foo.configure(clazz -> {
+                System.out.println("????????? MyFooService class " + clazz.annotations());
+            });
+            bar.configure(clazz -> {
+                System.out.println("????????? MyBarService class " + clazz.annotations());
+            });
+            service.configure(field -> {
+                if ("myService".equals(field.name())) {
+                    System.out.println("????????? MyServiceConsumer.myService field " + field.annotations());
+                }
+            });
         }
     }
 

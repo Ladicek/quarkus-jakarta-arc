@@ -12,11 +12,12 @@ import org.jboss.jandex.DotName;
 class AnnotationSet {
     private final Map<DotName, org.jboss.jandex.AnnotationInstance> data;
 
-    AnnotationSet(Collection<org.jboss.jandex.AnnotationInstance> data) {
-        this.data = new HashMap<>();
-        for (org.jboss.jandex.AnnotationInstance jandexAnnotation : data) {
-            this.data.put(jandexAnnotation.name(), jandexAnnotation);
+    AnnotationSet(Collection<org.jboss.jandex.AnnotationInstance> jandexAnnotations) {
+        Map<DotName, org.jboss.jandex.AnnotationInstance> data = new HashMap<>();
+        for (org.jboss.jandex.AnnotationInstance jandexAnnotation : jandexAnnotations) {
+            data.put(jandexAnnotation.name(), jandexAnnotation);
         }
+        this.data = data;
     }
 
     boolean hasAnnotation(Class<? extends Annotation> annotationType) {

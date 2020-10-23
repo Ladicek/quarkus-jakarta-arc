@@ -1,10 +1,9 @@
 package cdi.lite.extension.phases.enhancement;
 
 import cdi.lite.extension.AppArchive;
-import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.types.Type;
 import java.lang.annotation.Annotation;
-import java.util.Collection;
+import java.util.function.Consumer;
 
 public interface AppArchiveConfig extends AppArchive {
     @Override
@@ -24,27 +23,12 @@ public interface AppArchiveConfig extends AppArchive {
         ClassConfigQuery exactly(Class<?> clazz);
 
         @Override
-        ClassConfigQuery exactly(ClassInfo<?> clazz);
-
-        @Override
         ClassConfigQuery subtypeOf(Class<?> clazz);
-
-        @Override
-        ClassConfigQuery subtypeOf(ClassInfo<?> clazz);
-
-        @Override
-        ClassConfigQuery supertypeOf(Class<?> clazz);
-
-        @Override
-        ClassConfigQuery supertypeOf(ClassInfo<?> clazz);
 
         @Override
         ClassConfigQuery annotatedWith(Class<? extends Annotation> annotationType);
 
-        @Override
-        ClassConfigQuery annotatedWith(ClassInfo<?> annotationType);
-
-        Collection<ClassConfig<?>> configure();
+        void configure(Consumer<ClassConfig<?>> consumer);
     }
 
     interface MethodConfigQuery extends MethodQuery {
@@ -60,10 +44,7 @@ public interface AppArchiveConfig extends AppArchive {
         @Override
         MethodConfigQuery annotatedWith(Class<? extends Annotation> annotationType);
 
-        @Override
-        MethodConfigQuery annotatedWith(ClassInfo<?> annotationType);
-
-        Collection<MethodConfig<?>> configure();
+        void configure(Consumer<MethodConfig<?>> consumer);
     }
 
     interface FieldConfigQuery extends FieldQuery {
@@ -79,9 +60,6 @@ public interface AppArchiveConfig extends AppArchive {
         @Override
         FieldConfigQuery annotatedWith(Class<? extends Annotation> annotationType);
 
-        @Override
-        FieldConfigQuery annotatedWith(ClassInfo<?> annotationType);
-
-        Collection<FieldConfig<?>> configure();
+        void configure(Consumer<FieldConfig<?>> consumer);
     }
 }

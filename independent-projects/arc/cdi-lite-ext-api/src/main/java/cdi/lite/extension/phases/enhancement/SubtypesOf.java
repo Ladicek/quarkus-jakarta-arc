@@ -1,6 +1,5 @@
-package cdi.lite.extension;
+package cdi.lite.extension.phases.enhancement;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -8,6 +7,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WithAnnotations {
-    Class<? extends Annotation>[] value();
+public @interface SubtypesOf {
+    Class<?> type();
+
+    Class<?>[] annotatedWith();
 }

@@ -6,12 +6,11 @@ import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
 import cdi.lite.extension.model.types.Type;
 import java.lang.annotation.Annotation;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jboss.jandex.DotName;
 
@@ -68,35 +67,12 @@ class AppArchiveImpl implements AppArchive {
         }
 
         @Override
-        public ClassQuery exactly(ClassInfo<?> clazz) {
-            if (requiredJandexClasses == null) {
-                requiredJandexClasses = new HashSet<>();
-            }
-
-            requiredJandexClasses.add(((ClassInfoImpl) clazz).jandexDeclaration.name());
-
-            return this;
-        }
-
-        @Override
         public ClassQuery subtypeOf(Class<?> clazz) {
             if (requiredJandexClasses == null) {
                 requiredJandexClasses = new HashSet<>();
             }
 
             DotName name = DotName.createSimple(clazz.getName());
-            addSubClassesToRequiredClassesSet(name, clazz.isInterface());
-
-            return this;
-        }
-
-        @Override
-        public ClassQuery subtypeOf(ClassInfo<?> clazz) {
-            if (requiredJandexClasses == null) {
-                requiredJandexClasses = new HashSet<>();
-            }
-
-            DotName name = ((ClassInfoImpl) clazz).jandexDeclaration.name();
             addSubClassesToRequiredClassesSet(name, clazz.isInterface());
 
             return this;
@@ -118,43 +94,6 @@ class AppArchiveImpl implements AppArchive {
         }
 
         @Override
-        public ClassQuery supertypeOf(Class<?> clazz) {
-            if (requiredJandexClasses == null) {
-                requiredJandexClasses = new HashSet<>();
-            }
-
-            DotName name = DotName.createSimple(clazz.getName());
-            addSuperClassesToRequiredClassesSet(name);
-
-            return this;
-        }
-
-        @Override
-        public ClassQuery supertypeOf(ClassInfo<?> clazz) {
-            if (requiredJandexClasses == null) {
-                requiredJandexClasses = new HashSet<>();
-            }
-
-            DotName name = ((ClassInfoImpl) clazz).jandexDeclaration.name();
-            addSuperClassesToRequiredClassesSet(name);
-
-            return this;
-        }
-
-        private void addSuperClassesToRequiredClassesSet(DotName name) {
-            while (name != null) {
-                org.jboss.jandex.ClassInfo jandexClass = jandexIndex.getClassByName(name);
-                if (jandexClass != null) {
-                    requiredJandexClasses.add(jandexClass.name());
-                    name = jandexClass.superName();
-                } else {
-                    // should report an error here
-                    name = null;
-                }
-            }
-        }
-
-        @Override
         public ClassQuery annotatedWith(Class<? extends Annotation> annotationType) {
             if (requiredJandexAnnotations == null) {
                 requiredJandexAnnotations = new HashSet<>();
@@ -166,23 +105,11 @@ class AppArchiveImpl implements AppArchive {
         }
 
         @Override
-        public ClassQuery annotatedWith(ClassInfo<?> annotationType) {
-            if (requiredJandexAnnotations == null) {
-                requiredJandexAnnotations = new HashSet<>();
-            }
-
-            requiredJandexAnnotations.add(((ClassInfoImpl) annotationType).jandexDeclaration.name());
-
-            return this;
+        public void forEach(Consumer<ClassInfo<?>> consumer) {
+            stream().forEach(consumer);
         }
 
-        @Override
-        public Collection<ClassInfo<?>> find() {
-            return stream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<ClassInfo<?>> stream() {
+        Stream<ClassInfo<?>> stream() {
             if (requiredJandexClasses != null && requiredJandexAnnotations != null) {
                 return requiredJandexClasses.stream()
                         .map(jandexIndex::getClassByName)
@@ -242,9 +169,9 @@ class AppArchiveImpl implements AppArchive {
         @Override
         public MethodQuery declaredOn(ClassQuery classes) {
             if (requiredDeclarationSites == null) {
-                requiredDeclarationSites = classes.stream();
+                requiredDeclarationSites = ((ClassQueryImpl) classes).stream();
             } else {
-                requiredDeclarationSites = Stream.concat(requiredDeclarationSites, classes.stream());
+                requiredDeclarationSites = Stream.concat(requiredDeclarationSites, ((ClassQueryImpl) classes).stream());
             }
 
             return this;
@@ -284,23 +211,11 @@ class AppArchiveImpl implements AppArchive {
         }
 
         @Override
-        public MethodQuery annotatedWith(ClassInfo<?> annotationType) {
-            if (requiredJandexAnnotations == null) {
-                requiredJandexAnnotations = new HashSet<>();
-            }
-
-            requiredJandexAnnotations.add(((ClassInfoImpl) annotationType).jandexDeclaration.name());
-
-            return this;
+        public void forEach(Consumer<MethodInfo<?>> consumer) {
+            stream().forEach(consumer);
         }
 
-        @Override
-        public Collection<MethodInfo<?>> find() {
-            return stream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<MethodInfo<?>> stream() {
+        Stream<MethodInfo<?>> stream() {
             if (requiredDeclarationSites != null && requiredJandexReturnTypes != null && requiredJandexAnnotations != null) {
                 return requiredDeclarationSites
                         .flatMap(it -> it.methods().stream())
@@ -408,9 +323,9 @@ class AppArchiveImpl implements AppArchive {
         @Override
         public FieldQuery declaredOn(ClassQuery classes) {
             if (requiredDeclarationSites == null) {
-                requiredDeclarationSites = classes.stream();
+                requiredDeclarationSites = ((ClassQueryImpl) classes).stream();
             } else {
-                requiredDeclarationSites = Stream.concat(requiredDeclarationSites, classes.stream());
+                requiredDeclarationSites = Stream.concat(requiredDeclarationSites, ((ClassQueryImpl) classes).stream());
             }
 
             return this;
@@ -450,23 +365,11 @@ class AppArchiveImpl implements AppArchive {
         }
 
         @Override
-        public FieldQuery annotatedWith(ClassInfo<?> annotationType) {
-            if (requiredJandexAnnotations == null) {
-                requiredJandexAnnotations = new HashSet<>();
-            }
-
-            requiredJandexAnnotations.add(((ClassInfoImpl) annotationType).jandexDeclaration.name());
-
-            return this;
+        public void forEach(Consumer<FieldInfo<?>> consumer) {
+            stream().forEach(consumer);
         }
 
-        @Override
-        public Collection<FieldInfo<?>> find() {
-            return stream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<FieldInfo<?>> stream() {
+        Stream<FieldInfo<?>> stream() {
             if (requiredDeclarationSites != null && requiredJandexTypes != null && requiredJandexAnnotations != null) {
                 return requiredDeclarationSites
                         .flatMap(it -> it.fields().stream())

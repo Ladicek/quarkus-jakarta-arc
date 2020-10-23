@@ -1,5 +1,8 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import cdi.lite.extension.phases.enhancement.ClassConfig;
+import cdi.lite.extension.phases.enhancement.FieldConfig;
+import cdi.lite.extension.phases.enhancement.MethodConfig;
 import io.quarkus.arc.processor.BeanProcessor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -9,14 +12,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
 
 public class CdiLiteExtProcessor {
@@ -49,9 +51,14 @@ public class CdiLiteExtProcessor {
     }
 
     private void doRun() throws ReflectiveOperationException {
-        List<org.jboss.jandex.MethodInfo> extensionMethods = index.getAnnotations(DotNames.ENHANCEMENT)
+        // TODO use service loader to find and instantiate BuildCompatibleExtensions
+        List<org.jboss.jandex.MethodInfo> extensionMethods = index.getAllKnownImplementors(DotNames.BUILD_COMPATIBLE_EXTENSION)
                 .stream()
-                .map(it -> it.target().asMethod()) // the annotation can only be put on methods
+                .flatMap(it -> it.annotations()
+                        .getOrDefault(DotNames.ENHANCEMENT, Collections.emptyList())
+                        .stream()
+                        .filter(ann -> ann.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD)
+                        .map(ann -> ann.target().asMethod()))
                 .sorted((m1, m2) -> {
                     if (m1 == m2) {
                         // at this particular point, two different org.jboss.jandex.MethodInfo instances are never equal
@@ -101,12 +108,18 @@ public class CdiLiteExtProcessor {
             org.jboss.jandex.Type parameterType = method.parameters().get(i);
             ExtensionMethodParameterType kind = ExtensionMethodParameterType.of(parameterType);
 
-            Set<DotName> requiredAnnotations = requiredAnnotationsForExtensionMethodParameter(method, i);
+            org.jboss.jandex.AnnotationInstance constraintAnnotation = constraintAnnotationForExtensionMethodParameter(method, i);
+            if (kind.isQuery() && constraintAnnotation == null) {
+                throw new IllegalArgumentException("Missing constraint annotation (@ExactType, @SubtypesOf) for parameter "
+                        + i + " of method " + method + " @ " + method.declaringClass());
+            }
+
+            Set<DotName> requiredAnnotations = requiredAnnotationsForExtensionMethodParameter(constraintAnnotation);
 
             Collection<org.jboss.jandex.ClassInfo> matchingClasses = matchingClassesForExtensionMethodParameter(kind,
-                    parameterType, kind.isClassQuery() ? requiredAnnotations : null);
+                    constraintAnnotation, requiredAnnotations);
 
-            Object argument = createArgumentForExtensionMethodParameter(kind, requiredAnnotations, matchingClasses);
+            Object argument = createArgumentForExtensionMethodParameter(kind, matchingClasses);
 
             arguments.add(argument);
         }
@@ -122,20 +135,9 @@ public class CdiLiteExtProcessor {
     }
 
     private enum ExtensionMethodParameterType {
-        CLASS_INFO(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
-
-        COLLECTION_CLASS_INFO(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
-        COLLECTION_METHOD_INFO(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
-        COLLECTION_FIELD_INFO(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
-
-        CLASS_CONFIG(Phase.ENHANCEMENT),
-
-        COLLECTION_CLASS_CONFIG(Phase.ENHANCEMENT),
-        COLLECTION_METHOD_CONFIG(Phase.ENHANCEMENT),
-        COLLECTION_FIELD_CONFIG(Phase.ENHANCEMENT),
-
-        COLLECTION_BEAN_INFO(Phase.SYNTHESIS, Phase.VALIDATION),
-        COLLECTION_OBSERVER_INFO(Phase.SYNTHESIS, Phase.VALIDATION),
+        CLASS_ENTRYPOINT(Phase.ENHANCEMENT),
+        METHOD_ENTRYPOINT(Phase.ENHANCEMENT),
+        FIELD_ENTRYPOINT(Phase.ENHANCEMENT),
 
         ANNOTATIONS(Phase.ENHANCEMENT),
         APP_ARCHIVE(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
@@ -143,7 +145,7 @@ public class CdiLiteExtProcessor {
         APP_ARCHIVE_CONFIG(Phase.ENHANCEMENT),
         APP_DEPLOYMENT(Phase.SYNTHESIS, Phase.VALIDATION),
         CONTEXTS(Phase.DISCOVERY),
-        ERRORS(Phase.VALIDATION),
+        MESSAGES(Phase.DISCOVERY, Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
         SYNTHETIC_COMPONENTS(Phase.SYNTHESIS),
         TYPES(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
 
@@ -161,28 +163,9 @@ public class CdiLiteExtProcessor {
         }
 
         boolean isQuery() {
-            return this != ANNOTATIONS
-                    && this != APP_ARCHIVE
-                    && this != APP_ARCHIVE_BUILDER
-                    && this != APP_ARCHIVE_CONFIG
-                    && this != APP_DEPLOYMENT
-                    && this != CONTEXTS
-                    && this != ERRORS
-                    && this != SYNTHETIC_COMPONENTS
-                    && this != TYPES
-                    && this != UNKNOWN;
-        }
-
-        boolean isClassQuery() {
-            return this == CLASS_INFO
-                    || this == CLASS_CONFIG
-                    || this == COLLECTION_CLASS_INFO
-                    || this == COLLECTION_CLASS_CONFIG;
-        }
-
-        boolean isSingularQuery() {
-            return this == CLASS_INFO
-                    || this == CLASS_CONFIG;
+            return this == CLASS_ENTRYPOINT
+                    || this == METHOD_ENTRYPOINT
+                    || this == FIELD_ENTRYPOINT;
         }
 
         boolean isAvailableIn(Phase phase) {
@@ -190,37 +173,14 @@ public class CdiLiteExtProcessor {
         }
 
         static ExtensionMethodParameterType of(org.jboss.jandex.Type type) {
-            if (type.kind() == org.jboss.jandex.Type.Kind.PARAMETERIZED_TYPE) {
-                if (type.name().equals(DotNames.COLLECTION)) {
-                    org.jboss.jandex.Type collectionElement = type.asParameterizedType().arguments().get(0);
-                    if (collectionElement.kind() == org.jboss.jandex.Type.Kind.PARAMETERIZED_TYPE) {
-                        if (collectionElement.name().equals(DotNames.CLASS_INFO)) {
-                            return COLLECTION_CLASS_INFO;
-                        } else if (collectionElement.name().equals(DotNames.METHOD_INFO)) {
-                            return COLLECTION_METHOD_INFO;
-                        } else if (collectionElement.name().equals(DotNames.FIELD_INFO)) {
-                            return COLLECTION_FIELD_INFO;
-                        } else if (collectionElement.name().equals(DotNames.CLASS_CONFIG)) {
-                            return COLLECTION_CLASS_CONFIG;
-                        } else if (collectionElement.name().equals(DotNames.METHOD_CONFIG)) {
-                            return COLLECTION_METHOD_CONFIG;
-                        } else if (collectionElement.name().equals(DotNames.FIELD_CONFIG)) {
-                            return COLLECTION_FIELD_CONFIG;
-                        } else if (collectionElement.name().equals(DotNames.BEAN_INFO)) {
-                            return COLLECTION_BEAN_INFO;
-                        } else if (collectionElement.name().equals(DotNames.OBSERVER_INFO)) {
-                            return COLLECTION_OBSERVER_INFO;
-                        }
-                    }
-                } else {
-                    if (type.name().equals(DotNames.CLASS_INFO)) {
-                        return CLASS_INFO;
-                    } else if (type.name().equals(DotNames.CLASS_CONFIG)) {
-                        return CLASS_CONFIG;
-                    }
-                }
-            } else if (type.kind() == org.jboss.jandex.Type.Kind.CLASS) {
-                if (type.name().equals(DotNames.ANNOTATIONS)) {
+            if (type.kind() == org.jboss.jandex.Type.Kind.CLASS) {
+                if (type.name().equals(DotNames.CLASS_ENTRYPOINT)) {
+                    return CLASS_ENTRYPOINT;
+                } else if (type.name().equals(DotNames.METHOD_ENTRYPOINT)) {
+                    return METHOD_ENTRYPOINT;
+                } else if (type.name().equals(DotNames.FIELD_ENTRYPOINT)) {
+                    return FIELD_ENTRYPOINT;
+                } else if (type.name().equals(DotNames.ANNOTATIONS)) {
                     return ANNOTATIONS;
                 } else if (type.name().equals(DotNames.APP_ARCHIVE)) {
                     return APP_ARCHIVE;
@@ -232,8 +192,8 @@ public class CdiLiteExtProcessor {
                     return APP_DEPLOYMENT;
                 } else if (type.name().equals(DotNames.CONTEXTS)) {
                     return CONTEXTS;
-                } else if (type.name().equals(DotNames.ERRORS)) {
-                    return ERRORS;
+                } else if (type.name().equals(DotNames.MESSAGES)) {
+                    return MESSAGES;
                 } else if (type.name().equals(DotNames.SYNTHETIC_COMPONENTS)) {
                     return SYNTHETIC_COMPONENTS;
                 } else if (type.name().equals(DotNames.TYPES)) {
@@ -245,166 +205,93 @@ public class CdiLiteExtProcessor {
         }
     }
 
-    private Set<DotName> requiredAnnotationsForExtensionMethodParameter(org.jboss.jandex.MethodInfo jandexMethod,
-            int parameterPosition) {
-        Set<DotName> requiredAnnotations = null;
-
-        Optional<org.jboss.jandex.AnnotationInstance> jandexAnnotation = jandexMethod.annotations(DotNames.WITH_ANNOTATIONS)
-                .stream()
+    private org.jboss.jandex.AnnotationInstance constraintAnnotationForExtensionMethodParameter(
+            org.jboss.jandex.MethodInfo jandexMethod, int parameterPosition) {
+        Stream<org.jboss.jandex.AnnotationInstance> exactTypeAnnotations = jandexMethod.annotations(DotNames.EXACT_TYPE).stream();
+        Stream<org.jboss.jandex.AnnotationInstance> subtypesOfAnnotations = jandexMethod.annotations(DotNames.SUBTYPES_OF).stream();
+        return Stream.concat(exactTypeAnnotations, subtypesOfAnnotations)
                 .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD_PARAMETER
                         && it.target().asMethodParameter().position() == parameterPosition)
-                .findAny();
+                .findFirst()
+                .orElse(null);
+    }
 
-        if (jandexAnnotation.isPresent()) {
-            org.jboss.jandex.AnnotationValue jandexAnnotationAttribute = jandexAnnotation.get().value();
-            if (jandexAnnotationAttribute != null) {
-                org.jboss.jandex.Type[] jandexTypes = jandexAnnotationAttribute.asClassArray();
-                if (jandexTypes.length > 0) {
-                    requiredAnnotations = Arrays.stream(jandexTypes)
-                            .map(org.jboss.jandex.Type::asClassType)
-                            .map(org.jboss.jandex.Type::name)
-                            .collect(Collectors.toSet());
-                }
+    private Set<DotName> requiredAnnotationsForExtensionMethodParameter(org.jboss.jandex.AnnotationInstance jandexAnnotation) {
+        if (jandexAnnotation == null) {
+            return null;
+        }
+
+        org.jboss.jandex.AnnotationValue jandexAnnotationAttribute = jandexAnnotation.value("annotatedWith");
+        if (jandexAnnotationAttribute != null) {
+            org.jboss.jandex.Type[] jandexTypes = jandexAnnotationAttribute.asClassArray();
+            if (jandexTypes.length > 0) {
+                return Arrays.stream(jandexTypes)
+                        .map(org.jboss.jandex.Type::asClassType)
+                        .map(org.jboss.jandex.Type::name)
+                        .collect(Collectors.toSet());
             }
         }
 
-        return requiredAnnotations;
+        return null;
     }
 
-    // TODO the query implementations here (in matchingClassesForExtensionMethodParameter
-    //  and createArgumentForExtensionMethodParameter) duplicate AppArchiveImpl quite a bit!
-
-    private Collection<org.jboss.jandex.ClassInfo> matchingClassesForExtensionMethodParameter(ExtensionMethodParameterType kind,
-            org.jboss.jandex.Type jandexParameter, Set<DotName> requiredJandexAnnotations) {
+    private List<org.jboss.jandex.ClassInfo> matchingClassesForExtensionMethodParameter(ExtensionMethodParameterType kind,
+            org.jboss.jandex.AnnotationInstance constraintJandexAnnotation, Set<DotName> requiredJandexAnnotations) {
 
         if (!kind.isQuery()) {
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
 
         Collection<org.jboss.jandex.ClassInfo> result;
 
-        org.jboss.jandex.Type queryHolder;
-        if (kind.isSingularQuery()) {
-            queryHolder = jandexParameter;
+        if (DotNames.EXACT_TYPE.equals(constraintJandexAnnotation.name())) {
+            org.jboss.jandex.Type jandexType = constraintJandexAnnotation.value("type").asClass();
+            ClassInfo clazz = index.getClassByName(jandexType.name());
+            // if clazz is null, should report an error here
+            result = Collections.singletonList(clazz);
+        } else if (DotNames.SUBTYPES_OF.equals(constraintJandexAnnotation.name())) {
+            org.jboss.jandex.Type upperBound = constraintJandexAnnotation.value("type").asClass();
+            org.jboss.jandex.ClassInfo clazz = index.getClassByName(upperBound.name());
+            // if clazz is null, should report an error here
+            result = Modifier.isInterface(clazz.flags())
+                    ? index.getAllKnownImplementors(upperBound.name())
+                    : index.getAllKnownSubclasses(upperBound.name());
+            // TODO index.getAllKnown* is not reflexive; should add the original type ourselves?
         } else {
-            queryHolder = jandexParameter.asParameterizedType().arguments().get(0);
-        }
-        org.jboss.jandex.Type query = queryHolder.asParameterizedType().arguments().get(0);
-
-        if (query.kind() == org.jboss.jandex.Type.Kind.WILDCARD_TYPE) {
-            org.jboss.jandex.Type lowerBound = query.asWildcardType().superBound();
-            org.jboss.jandex.Type upperBound = query.asWildcardType().extendsBound();
-            if (lowerBound != null) {
-                result = new ArrayList<>();
-                DotName name = lowerBound.name();
-                while (name != null) {
-                    org.jboss.jandex.ClassInfo clazz = index.getClassByName(name);
-                    if (clazz != null) {
-                        if (hasRequiredAnnotations(clazz, requiredJandexAnnotations)) {
-                            result.add(clazz);
-                        }
-                        name = clazz.superName();
-                    } else {
-                        // TODO should report an error here
-                        name = null;
-                    }
-                }
-            } else if (upperBound.name().equals(DotNames.OBJECT) && requiredJandexAnnotations != null) {
-                List<org.jboss.jandex.ClassInfo> resultFinal = new ArrayList<>();
-                Set<DotName> alreadyAdded = new HashSet<>();
-                for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
-                    index.getAnnotations(requiredJandexAnnotation)
-                            .stream()
-                            .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.CLASS)
-                            .map(it -> it.target().asClass())
-                            .forEach(it -> {
-                                if (!alreadyAdded.contains(it.name())) {
-                                    alreadyAdded.add(it.name());
-                                    resultFinal.add(it);
-                                }
-                            });
-
-                }
-                result = resultFinal;
-            } else {
-                org.jboss.jandex.ClassInfo clazz = index.getClassByName(upperBound.name());
-                // if clazz is null, should report an error here
-                result = Modifier.isInterface(clazz.flags())
-                        ? index.getAllKnownImplementors(upperBound.name())
-                        : index.getAllKnownSubclasses(upperBound.name());
-                // TODO index.getAllKnown* is not reflexive; should add the original type ourselves?
-                //  we do that for lower bound currently (see above)
-
-                if (requiredJandexAnnotations != null) {
-                    result = result.stream()
-                            .filter(it -> hasRequiredAnnotations(it, requiredJandexAnnotations))
-                            .collect(Collectors.toList());
-                }
-            }
-        } else if (query.kind() == org.jboss.jandex.Type.Kind.CLASS) {
-            result = Collections.singleton(index.getClassByName(query.asClassType().name()));
-        } else {
-            // TODO should report an error here (well, perhaps there are other valid cases, e.g. arrays?)
-            result = Collections.emptySet();
+            // TODO error
+            return Collections.emptyList();
         }
 
-        return result;
+        if (requiredJandexAnnotations != null) {
+            result = result.stream()
+                    .filter(it -> it.annotations().keySet().stream().anyMatch(requiredJandexAnnotations::contains))
+                    .collect(Collectors.toList());
+        }
+
+        return result instanceof List<?> ? (List<ClassInfo>) result : new ArrayList<>(result);
     }
 
     private Object createArgumentForExtensionMethodParameter(ExtensionMethodParameterType kind,
-            Set<DotName> requiredAnnotations, Collection<org.jboss.jandex.ClassInfo> matchingClasses) {
+            Collection<org.jboss.jandex.ClassInfo> matchingClasses) {
         switch (kind) {
-            case CLASS_INFO:
-                if (matchingClasses.size() == 1) {
-                    return new ClassInfoImpl(index, annotationOverlays, matchingClasses.iterator().next());
-                } else {
-                    // TODO should report an error here
-                    return null;
-                }
-
-            case CLASS_CONFIG:
-                if (matchingClasses.size() == 1) {
-                    return new ClassConfigImpl(index, annotationTransformations.classes, matchingClasses.iterator().next());
-                } else {
-                    // TODO should report an error here
-                    return null;
-                }
-
-            case COLLECTION_CLASS_INFO:
-                return matchingClasses.stream()
-                        .map(it -> new ClassInfoImpl(index, annotationOverlays, it))
-                        .collect(Collectors.toList());
-            case COLLECTION_METHOD_INFO:
-                return matchingClasses.stream()
-                        .flatMap(it -> it.methods().stream())
-                        .filter(MethodPredicates.IS_METHOD_OR_CONSTRUCTOR_JANDEX)
-                        .filter(it -> hasRequiredAnnotations(it, requiredAnnotations))
-                        .map(it -> new MethodInfoImpl(index, annotationOverlays, it))
-                        .collect(Collectors.toList());
-            case COLLECTION_FIELD_INFO:
-                return matchingClasses.stream()
-                        .flatMap(it -> it.fields().stream())
-                        .filter(it -> hasRequiredAnnotations(it, requiredAnnotations))
-                        .map(it -> new FieldInfoImpl(index, annotationOverlays, it))
-                        .collect(Collectors.toList());
-
-            case COLLECTION_CLASS_CONFIG:
-                return matchingClasses.stream()
+            case CLASS_ENTRYPOINT:
+                List<ClassConfig<?>> classConfigs = matchingClasses.stream()
                         .map(it -> new ClassConfigImpl(index, annotationTransformations.classes, it))
                         .collect(Collectors.toList());
-            case COLLECTION_METHOD_CONFIG:
-                return matchingClasses.stream()
+                return new ClassEntrypointImpl(classConfigs);
+            case METHOD_ENTRYPOINT:
+                List<MethodConfig<?>> methodConfigs = matchingClasses.stream()
                         .flatMap(it -> it.methods().stream())
                         .filter(MethodPredicates.IS_METHOD_OR_CONSTRUCTOR_JANDEX)
-                        .filter(it -> hasRequiredAnnotations(it, requiredAnnotations))
                         .map(it -> new MethodConfigImpl(index, annotationTransformations.methods, it))
                         .collect(Collectors.toList());
-            case COLLECTION_FIELD_CONFIG:
-                return matchingClasses.stream()
+                return new MethodEntrypointImpl(methodConfigs);
+            case FIELD_ENTRYPOINT:
+                List<FieldConfig<?>> fieldConfigs = matchingClasses.stream()
                         .flatMap(it -> it.fields().stream())
-                        .filter(it -> hasRequiredAnnotations(it, requiredAnnotations))
                         .map(it -> new FieldConfigImpl(index, annotationTransformations.fields, it))
                         .collect(Collectors.toList());
+                return new FieldEntrypointImpl(fieldConfigs);
 
             case ANNOTATIONS:
                 return new AnnotationsImpl(index, annotationOverlays);
@@ -419,36 +306,6 @@ public class CdiLiteExtProcessor {
                 // TODO should report an error here
                 return null;
         }
-    }
-
-    private static boolean hasRequiredAnnotations(org.jboss.jandex.ClassInfo jandexClass,
-            Set<DotName> requiredJandexAnnotations) {
-        return areAnnotationsPresent(jandexClass.classAnnotations().stream(), requiredJandexAnnotations);
-    }
-
-    private static boolean hasRequiredAnnotations(org.jboss.jandex.MethodInfo jandexMethod,
-            Set<DotName> requiredJandexAnnotations) {
-        Stream<org.jboss.jandex.AnnotationInstance> jandexAnnotations = jandexMethod.annotations()
-                .stream()
-                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD);
-
-        return areAnnotationsPresent(jandexAnnotations, requiredJandexAnnotations);
-    }
-
-    private static boolean hasRequiredAnnotations(org.jboss.jandex.FieldInfo jandexField,
-            Set<DotName> requiredJandexAnnotations) {
-        return areAnnotationsPresent(jandexField.annotations().stream(), requiredJandexAnnotations);
-    }
-
-    private static boolean areAnnotationsPresent(Stream<org.jboss.jandex.AnnotationInstance> presentAnnotations,
-            Set<DotName> expectedAnnotations) {
-        if (expectedAnnotations == null || expectedAnnotations.isEmpty()) {
-            return true;
-        }
-
-        return presentAnnotations
-                .map(org.jboss.jandex.AnnotationInstance::name)
-                .anyMatch(expectedAnnotations::contains);
     }
 
     // ---
@@ -487,18 +344,18 @@ public class CdiLiteExtProcessor {
             Class<?> argumentClass = argument.getClass();
 
             // beware of ordering! subtypes must precede supertypes
-            if (java.util.Collection.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = java.util.Collection.class;
+            if (cdi.lite.extension.phases.enhancement.ClassEntrypoint.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.phases.enhancement.ClassEntrypoint.class;
+            } else if (cdi.lite.extension.phases.enhancement.MethodEntrypoint.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.phases.enhancement.MethodEntrypoint.class;
+            } else if (cdi.lite.extension.phases.enhancement.FieldEntrypoint.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.phases.enhancement.FieldEntrypoint.class;
             } else if (cdi.lite.extension.phases.enhancement.Annotations.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.phases.enhancement.Annotations.class;
             } else if (cdi.lite.extension.phases.enhancement.AppArchiveConfig.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.phases.enhancement.AppArchiveConfig.class;
             } else if (cdi.lite.extension.AppArchive.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.AppArchive.class;
-            } else if (cdi.lite.extension.phases.enhancement.ClassConfig.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.enhancement.ClassConfig.class;
-            } else if (cdi.lite.extension.model.declarations.ClassInfo.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.model.declarations.ClassInfo.class;
             } else if (cdi.lite.extension.Types.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.Types.class;
             } else {

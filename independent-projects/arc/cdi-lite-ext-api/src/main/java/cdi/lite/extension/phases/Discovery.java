@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * Allow registering additional classes to become part of the application.
  * Also allows registering custom CDI contexts.
  * <p>
- * Extensions annotated {@code @Discovery} can define parameters of these types:
+ * Methods annotated {@code @Discovery} can define parameters of these types:
  * <ul>
  * <li>{@link cdi.lite.extension.phases.discovery.AppArchiveBuilder AppArchiveBuilder}: to add classes to application</li>
  * <li>{@link cdi.lite.extension.phases.discovery.Contexts Contexts}: to register custom contexts</li>

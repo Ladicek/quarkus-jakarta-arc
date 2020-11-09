@@ -9,14 +9,16 @@ import java.lang.annotation.Target;
  * 2nd phase of CDI Lite extension processing.
  * Allows transforming annotations.
  * <p>
- * Methods annotated {@code @Enhancement} can define parameters of these types:
+ * Methods annotated {@code @Enhancement} must define exactly one parameter of one of these types:
  * <ul>
- *  TODO
+ * <li>{@link cdi.lite.extension.phases.enhancement.ClassConfig ClassConfig}</li>
+ * <li>{@link cdi.lite.extension.phases.enhancement.MethodConfig MethodConfig}</li>
+ * <li>{@link cdi.lite.extension.phases.enhancement.FieldConfig FieldConfig}</li>
+ * <li>{@link cdi.lite.extension.phases.enhancement.AppArchiveConfig AppArchiveConfig}</li>
  * </ul>
- * <p>
- * For advanced use cases, where this kind of queries is not powerful enough, the extension can also declare
- * a parameter of type {@link cdi.lite.extension.AppArchive AppArchive} or
- * {@link cdi.lite.extension.phases.enhancement.AppArchiveConfig AppArchiveConfig}.
+ * If the parameter is {@code ClassConfig}, {@code MethodConfig} or {@code FieldConfig}, the method
+ * must have at least one annotation {@link cdi.lite.extension.phases.enhancement.ExactType @ExactType}
+ * or {@link cdi.lite.extension.phases.enhancement.SubtypesOf @SubtypesOf}.
  * <p>
  * If you need to create instances of {@link cdi.lite.extension.model.types.Type Type}, you can also declare
  * a parameter of type {@link cdi.lite.extension.Types Types}. It provides factory methods for the void type,

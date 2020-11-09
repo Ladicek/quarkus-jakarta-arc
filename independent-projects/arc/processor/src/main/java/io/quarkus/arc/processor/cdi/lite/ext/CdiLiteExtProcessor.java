@@ -1,6 +1,5 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.phases.enhancement.ClassConfig;
 import cdi.lite.extension.phases.enhancement.FieldConfig;
 import cdi.lite.extension.phases.enhancement.MethodConfig;
 import io.quarkus.arc.processor.BeanProcessor;
@@ -18,7 +17,6 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
 
 public class CdiLiteExtProcessor {
@@ -102,29 +100,85 @@ public class CdiLiteExtProcessor {
         // TODO
         //  - diagnostics
 
-        List<Object> arguments = new ArrayList<>();
+        List<org.jboss.jandex.AnnotationInstance> constraintAnnotations = constraintAnnotationsForExtensionMethod(method);
+
         int numParameters = method.parameters().size();
+        int numQueryParameters = 0;
+        List<ExtensionMethodParameterType> parameters = new ArrayList<>(numParameters);
         for (int i = 0; i < numParameters; i++) {
             org.jboss.jandex.Type parameterType = method.parameters().get(i);
             ExtensionMethodParameterType kind = ExtensionMethodParameterType.of(parameterType);
+            parameters.add(kind);
 
-            org.jboss.jandex.AnnotationInstance constraintAnnotation = constraintAnnotationForExtensionMethodParameter(method, i);
-            if (kind.isQuery() && constraintAnnotation == null) {
-                throw new IllegalArgumentException("Missing constraint annotation (@ExactType, @SubtypesOf) for parameter "
-                        + i + " of method " + method + " @ " + method.declaringClass());
+            if (kind.isQuery()) {
+                numQueryParameters++;
             }
 
-            Set<DotName> requiredAnnotations = requiredAnnotationsForExtensionMethodParameter(constraintAnnotation);
-
-            Collection<org.jboss.jandex.ClassInfo> matchingClasses = matchingClassesForExtensionMethodParameter(kind,
-                    constraintAnnotation, requiredAnnotations);
-
-            Object argument = createArgumentForExtensionMethodParameter(kind, matchingClasses);
-
-            arguments.add(argument);
+            if (!kind.isAvailableIn(Phase.ENHANCEMENT)) { // we don't implement anything else yet
+                throw new IllegalArgumentException("@Enhancement methods can't declare a parameter of type "
+                        + parameterType + ", found at " + method + " @ " + method.declaringClass());
+            }
         }
 
-        callExtensionMethod(method, arguments);
+        if (numQueryParameters > 1) {
+            // TODO also AppArchive[Config]
+            throw new IllegalArgumentException("More than 1 parameter of type ClassConfig, MethodConfig or FieldConfig"
+                    + " for method " + method + " @ " + method.declaringClass());
+        }
+
+        if (numQueryParameters > 0 && constraintAnnotations.isEmpty()) {
+            throw new IllegalArgumentException("Missing constraint annotation (@ExactType, @SubtypesOf) for method "
+                    + method + " @ " + method.declaringClass());
+        }
+
+        if (numQueryParameters == 0) {
+            List<Object> arguments = new ArrayList<>(numParameters);
+            for (ExtensionMethodParameterType parameter : parameters) {
+                Object argument = createArgumentForExtensionMethodParameter(parameter);
+                arguments.add(argument);
+            }
+
+            callExtensionMethod(method, arguments);
+        } else {
+            ExtensionMethodParameterType query = parameters.stream()
+                    .filter(ExtensionMethodParameterType::isQuery)
+                    .findAny()
+                    .get(); // guaranteed to be there
+
+            List<org.jboss.jandex.ClassInfo> matchingClasses = matchingClassesForExtensionMethod(constraintAnnotations);
+            List<Object> allValuesForQueryParameter;
+            if (query == ExtensionMethodParameterType.CLASS_CONFIG) {
+                allValuesForQueryParameter = matchingClasses.stream()
+                        .map(it -> new ClassConfigImpl(index, annotationTransformations.classes, it))
+                        .collect(Collectors.toList());
+            } else if (query == ExtensionMethodParameterType.METHOD_CONFIG) {
+                allValuesForQueryParameter = matchingClasses.stream()
+                        .flatMap(it -> it.methods().stream())
+                        .filter(MethodPredicates.IS_METHOD_OR_CONSTRUCTOR_JANDEX)
+                        .map(it -> new MethodConfigImpl(index, annotationTransformations.methods, it))
+                        .collect(Collectors.toList());
+            } else if (query == ExtensionMethodParameterType.FIELD_CONFIG) {
+                allValuesForQueryParameter = matchingClasses.stream()
+                        .flatMap(it -> it.fields().stream())
+                        .map(it -> new FieldConfigImpl(index, annotationTransformations.fields, it))
+                        .collect(Collectors.toList());
+            } else {
+                // TODO internal error
+                allValuesForQueryParameter = Collections.emptyList();
+            }
+
+            for (Object queryParameterValue : allValuesForQueryParameter) {
+                List<Object> arguments = new ArrayList<>();
+                for (ExtensionMethodParameterType parameter : parameters) {
+                    Object argument = parameter.isQuery()
+                            ? queryParameterValue
+                            : createArgumentForExtensionMethodParameter(parameter);
+                    arguments.add(argument);
+                }
+
+                callExtensionMethod(method, arguments);
+            }
+        }
     }
 
     private enum Phase {
@@ -135,9 +189,9 @@ public class CdiLiteExtProcessor {
     }
 
     private enum ExtensionMethodParameterType {
-        CLASS_ENTRYPOINT(Phase.ENHANCEMENT),
-        METHOD_ENTRYPOINT(Phase.ENHANCEMENT),
-        FIELD_ENTRYPOINT(Phase.ENHANCEMENT),
+        CLASS_CONFIG(Phase.ENHANCEMENT),
+        METHOD_CONFIG(Phase.ENHANCEMENT),
+        FIELD_CONFIG(Phase.ENHANCEMENT),
 
         ANNOTATIONS(Phase.ENHANCEMENT),
         APP_ARCHIVE(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
@@ -163,9 +217,9 @@ public class CdiLiteExtProcessor {
         }
 
         boolean isQuery() {
-            return this == CLASS_ENTRYPOINT
-                    || this == METHOD_ENTRYPOINT
-                    || this == FIELD_ENTRYPOINT;
+            return this == CLASS_CONFIG
+                    || this == METHOD_CONFIG
+                    || this == FIELD_CONFIG;
         }
 
         boolean isAvailableIn(Phase phase) {
@@ -174,12 +228,12 @@ public class CdiLiteExtProcessor {
 
         static ExtensionMethodParameterType of(org.jboss.jandex.Type type) {
             if (type.kind() == org.jboss.jandex.Type.Kind.CLASS) {
-                if (type.name().equals(DotNames.CLASS_ENTRYPOINT)) {
-                    return CLASS_ENTRYPOINT;
-                } else if (type.name().equals(DotNames.METHOD_ENTRYPOINT)) {
-                    return METHOD_ENTRYPOINT;
-                } else if (type.name().equals(DotNames.FIELD_ENTRYPOINT)) {
-                    return FIELD_ENTRYPOINT;
+                if (type.name().equals(DotNames.CLASS_CONFIG)) {
+                    return CLASS_CONFIG;
+                } else if (type.name().equals(DotNames.METHOD_CONFIG)) {
+                    return METHOD_CONFIG;
+                } else if (type.name().equals(DotNames.FIELD_CONFIG)) {
+                    return FIELD_CONFIG;
                 } else if (type.name().equals(DotNames.ANNOTATIONS)) {
                     return ANNOTATIONS;
                 } else if (type.name().equals(DotNames.APP_ARCHIVE)) {
@@ -205,27 +259,30 @@ public class CdiLiteExtProcessor {
         }
     }
 
-    private org.jboss.jandex.AnnotationInstance constraintAnnotationForExtensionMethodParameter(
-            org.jboss.jandex.MethodInfo jandexMethod, int parameterPosition) {
-        Stream<org.jboss.jandex.AnnotationInstance> exactTypeAnnotations = jandexMethod.annotations(DotNames.EXACT_TYPE).stream();
-        Stream<org.jboss.jandex.AnnotationInstance> subtypesOfAnnotations = jandexMethod.annotations(DotNames.SUBTYPES_OF).stream();
+    private List<org.jboss.jandex.AnnotationInstance> constraintAnnotationsForExtensionMethod(
+            org.jboss.jandex.MethodInfo jandexMethod) {
+        Stream<org.jboss.jandex.AnnotationInstance> exactTypeAnnotations = jandexMethod.annotationsWithRepeatable(DotNames.EXACT_TYPE, index).stream();
+        Stream<org.jboss.jandex.AnnotationInstance> subtypesOfAnnotations = jandexMethod.annotationsWithRepeatable(DotNames.SUBTYPES_OF, index).stream();
         return Stream.concat(exactTypeAnnotations, subtypesOfAnnotations)
-                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD_PARAMETER
-                        && it.target().asMethodParameter().position() == parameterPosition)
-                .findFirst()
-                .orElse(null);
+                .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.METHOD)
+                .collect(Collectors.toList());
     }
 
-    private Set<DotName> requiredAnnotationsForExtensionMethodParameter(org.jboss.jandex.AnnotationInstance jandexAnnotation) {
-        if (jandexAnnotation == null) {
+    private Set<DotName> requiredAnnotationsForConstraintAnnotation(org.jboss.jandex.AnnotationInstance constraintAnnotation) {
+        if (constraintAnnotation == null) {
             return null;
         }
 
-        org.jboss.jandex.AnnotationValue jandexAnnotationAttribute = jandexAnnotation.value("annotatedWith");
-        if (jandexAnnotationAttribute != null) {
-            org.jboss.jandex.Type[] jandexTypes = jandexAnnotationAttribute.asClassArray();
-            if (jandexTypes.length > 0) {
-                return Arrays.stream(jandexTypes)
+        org.jboss.jandex.AnnotationValue annotatedWith = constraintAnnotation.value("annotatedWith");
+        if (annotatedWith != null) {
+            org.jboss.jandex.Type[] types = annotatedWith.asClassArray();
+
+            if (types.length == 1 && DotNames.ANNOTATION.equals(types[0].name())) {
+                return null;
+            }
+
+            if (types.length > 0) {
+                return Arrays.stream(types)
                         .map(org.jboss.jandex.Type::asClassType)
                         .map(org.jboss.jandex.Type::name)
                         .collect(Collectors.toSet());
@@ -235,64 +292,44 @@ public class CdiLiteExtProcessor {
         return null;
     }
 
-    private List<org.jboss.jandex.ClassInfo> matchingClassesForExtensionMethodParameter(ExtensionMethodParameterType kind,
-            org.jboss.jandex.AnnotationInstance constraintJandexAnnotation, Set<DotName> requiredJandexAnnotations) {
+    private List<org.jboss.jandex.ClassInfo> matchingClassesForExtensionMethod(
+            List<org.jboss.jandex.AnnotationInstance> constraintAnnotations) {
+        return constraintAnnotations.stream()
+                .flatMap(constraintAnnotation -> {
+                    Collection<org.jboss.jandex.ClassInfo> result;
 
-        if (!kind.isQuery()) {
-            return Collections.emptyList();
-        }
+                    if (DotNames.EXACT_TYPE.equals(constraintAnnotation.name())) {
+                        org.jboss.jandex.Type jandexType = constraintAnnotation.value("type").asClass();
+                        org.jboss.jandex.ClassInfo clazz = index.getClassByName(jandexType.name());
+                        // if clazz is null, should report an error here
+                        result = Collections.singletonList(clazz);
+                    } else if (DotNames.SUBTYPES_OF.equals(constraintAnnotation.name())) {
+                        org.jboss.jandex.Type upperBound = constraintAnnotation.value("type").asClass();
+                        org.jboss.jandex.ClassInfo clazz = index.getClassByName(upperBound.name());
+                        // if clazz is null, should report an error here
+                        result = Modifier.isInterface(clazz.flags())
+                                ? index.getAllKnownImplementors(upperBound.name())
+                                : index.getAllKnownSubclasses(upperBound.name());
+                        // TODO index.getAllKnown* is not reflexive; should add the original type ourselves?
+                    } else {
+                        // TODO internal error
+                        result = Collections.emptyList();
+                    }
 
-        Collection<org.jboss.jandex.ClassInfo> result;
+                    Set<DotName> requiredAnnotations = requiredAnnotationsForConstraintAnnotation(constraintAnnotation);
+                    if (requiredAnnotations != null) {
+                        result = result.stream()
+                                .filter(it -> it.annotations().keySet().stream().anyMatch(requiredAnnotations::contains))
+                                .collect(Collectors.toList());
+                    }
 
-        if (DotNames.EXACT_TYPE.equals(constraintJandexAnnotation.name())) {
-            org.jboss.jandex.Type jandexType = constraintJandexAnnotation.value("type").asClass();
-            ClassInfo clazz = index.getClassByName(jandexType.name());
-            // if clazz is null, should report an error here
-            result = Collections.singletonList(clazz);
-        } else if (DotNames.SUBTYPES_OF.equals(constraintJandexAnnotation.name())) {
-            org.jboss.jandex.Type upperBound = constraintJandexAnnotation.value("type").asClass();
-            org.jboss.jandex.ClassInfo clazz = index.getClassByName(upperBound.name());
-            // if clazz is null, should report an error here
-            result = Modifier.isInterface(clazz.flags())
-                    ? index.getAllKnownImplementors(upperBound.name())
-                    : index.getAllKnownSubclasses(upperBound.name());
-            // TODO index.getAllKnown* is not reflexive; should add the original type ourselves?
-        } else {
-            // TODO error
-            return Collections.emptyList();
-        }
-
-        if (requiredJandexAnnotations != null) {
-            result = result.stream()
-                    .filter(it -> it.annotations().keySet().stream().anyMatch(requiredJandexAnnotations::contains))
-                    .collect(Collectors.toList());
-        }
-
-        return result instanceof List<?> ? (List<ClassInfo>) result : new ArrayList<>(result);
+                    return result.stream();
+                })
+                .collect(Collectors.toList());
     }
 
-    private Object createArgumentForExtensionMethodParameter(ExtensionMethodParameterType kind,
-            Collection<org.jboss.jandex.ClassInfo> matchingClasses) {
+    private Object createArgumentForExtensionMethodParameter(ExtensionMethodParameterType kind) {
         switch (kind) {
-            case CLASS_ENTRYPOINT:
-                List<ClassConfig<?>> classConfigs = matchingClasses.stream()
-                        .map(it -> new ClassConfigImpl(index, annotationTransformations.classes, it))
-                        .collect(Collectors.toList());
-                return new ClassEntrypointImpl(classConfigs);
-            case METHOD_ENTRYPOINT:
-                List<MethodConfig<?>> methodConfigs = matchingClasses.stream()
-                        .flatMap(it -> it.methods().stream())
-                        .filter(MethodPredicates.IS_METHOD_OR_CONSTRUCTOR_JANDEX)
-                        .map(it -> new MethodConfigImpl(index, annotationTransformations.methods, it))
-                        .collect(Collectors.toList());
-                return new MethodEntrypointImpl(methodConfigs);
-            case FIELD_ENTRYPOINT:
-                List<FieldConfig<?>> fieldConfigs = matchingClasses.stream()
-                        .flatMap(it -> it.fields().stream())
-                        .map(it -> new FieldConfigImpl(index, annotationTransformations.fields, it))
-                        .collect(Collectors.toList());
-                return new FieldEntrypointImpl(fieldConfigs);
-
             case ANNOTATIONS:
                 return new AnnotationsImpl(index, annotationOverlays);
             case APP_ARCHIVE:
@@ -344,12 +381,12 @@ public class CdiLiteExtProcessor {
             Class<?> argumentClass = argument.getClass();
 
             // beware of ordering! subtypes must precede supertypes
-            if (cdi.lite.extension.phases.enhancement.ClassEntrypoint.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.enhancement.ClassEntrypoint.class;
-            } else if (cdi.lite.extension.phases.enhancement.MethodEntrypoint.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.enhancement.MethodEntrypoint.class;
-            } else if (cdi.lite.extension.phases.enhancement.FieldEntrypoint.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.enhancement.FieldEntrypoint.class;
+            if (cdi.lite.extension.phases.enhancement.ClassConfig.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.phases.enhancement.ClassConfig.class;
+            } else if (cdi.lite.extension.phases.enhancement.MethodConfig.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.phases.enhancement.MethodConfig.class;
+            } else if (cdi.lite.extension.phases.enhancement.FieldConfig.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.phases.enhancement.FieldConfig.class;
             } else if (cdi.lite.extension.phases.enhancement.Annotations.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.phases.enhancement.Annotations.class;
             } else if (cdi.lite.extension.phases.enhancement.AppArchiveConfig.class.isAssignableFrom(argumentClass)) {

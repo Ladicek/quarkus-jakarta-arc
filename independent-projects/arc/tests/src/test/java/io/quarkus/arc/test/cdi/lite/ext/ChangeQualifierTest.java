@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import cdi.lite.extension.BuildCompatibleExtension;
 import cdi.lite.extension.phases.Enhancement;
-import cdi.lite.extension.phases.enhancement.ClassEntrypoint;
+import cdi.lite.extension.phases.enhancement.ClassConfig;
 import cdi.lite.extension.phases.enhancement.ExactType;
-import cdi.lite.extension.phases.enhancement.FieldEntrypoint;
+import cdi.lite.extension.phases.enhancement.FieldConfig;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.test.ArcTestContainer;
 import java.lang.annotation.Retention;
@@ -33,42 +33,32 @@ public class ChangeQualifierTest {
 
     public static class MyExtension implements BuildCompatibleExtension {
         @Enhancement
-        public void configure(
-                @ExactType(type = MyFooService.class, annotatedWith = Singleton.class) ClassEntrypoint foo,
-                @ExactType(type = MyBarService.class, annotatedWith = Singleton.class) ClassEntrypoint bar,
-                @ExactType(type = MyServiceConsumer.class, annotatedWith = Inject.class) FieldEntrypoint service) {
+        @ExactType(type = MyFooService.class, annotatedWith = Singleton.class)
+        public void foo(ClassConfig clazz) {
+            System.out.println("!!!!!!!!! foo " + clazz);
+            System.out.println("????????? MyFooService class " + clazz.annotations());
+            clazz.removeAnnotation(ann -> ann.name().equals(MyQualifier.class.getName()));
+            System.out.println("????????? MyFooService class " + clazz.annotations());
+        }
 
-            foo.configure(clazz -> {
-                System.out.println("????????? MyFooService class " + clazz.annotations());
-            });
-            bar.configure(clazz -> {
-                System.out.println("????????? MyBarService class " + clazz.annotations());
-            });
-            service.configure(field -> {
-                if ("myService".equals(field.name())) {
-                    System.out.println("????????? MyServiceConsumer.myService field " + field.annotations());
-                }
-            });
+        @Enhancement
+        @ExactType(type = MyBarService.class, annotatedWith = Singleton.class)
+        public void bar(ClassConfig clazz) {
+            System.out.println("!!!!!!!!! bar " + clazz);
+            System.out.println("????????? MyBarService class " + clazz.annotations());
+            clazz.addAnnotation(MyQualifier.class);
+            System.out.println("????????? MyBarService class " + clazz.annotations());
+        }
 
-            foo.removeAnnotation(ann -> ann.name().equals(MyQualifier.class.getName()));
-            bar.addAnnotation(MyQualifier.class);
-            service.configure(field -> {
-                if ("myService".equals(field.name())) {
-                    field.addAnnotation(MyQualifier.class);
-                }
-            });
-
-            foo.configure(clazz -> {
-                System.out.println("????????? MyFooService class " + clazz.annotations());
-            });
-            bar.configure(clazz -> {
-                System.out.println("????????? MyBarService class " + clazz.annotations());
-            });
-            service.configure(field -> {
-                if ("myService".equals(field.name())) {
-                    System.out.println("????????? MyServiceConsumer.myService field " + field.annotations());
-                }
-            });
+        @Enhancement
+        @ExactType(type = MyServiceConsumer.class, annotatedWith = Inject.class)
+        public void service(FieldConfig field) {
+            System.out.println("!!!!!!!!! service " + field);
+            if ("myService".equals(field.name())) {
+                System.out.println("????????? MyServiceConsumer.myService field " + field.annotations());
+                field.addAnnotation(MyQualifier.class);
+                System.out.println("????????? MyServiceConsumer.myService field " + field.annotations());
+            }
         }
     }
 

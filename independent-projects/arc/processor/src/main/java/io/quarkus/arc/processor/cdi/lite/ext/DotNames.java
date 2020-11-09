@@ -14,16 +14,19 @@ import cdi.lite.extension.phases.discovery.AppArchiveBuilder;
 import cdi.lite.extension.phases.discovery.Contexts;
 import cdi.lite.extension.phases.enhancement.Annotations;
 import cdi.lite.extension.phases.enhancement.AppArchiveConfig;
-import cdi.lite.extension.phases.enhancement.ClassEntrypoint;
+import cdi.lite.extension.phases.enhancement.ClassConfig;
 import cdi.lite.extension.phases.enhancement.ExactType;
-import cdi.lite.extension.phases.enhancement.FieldEntrypoint;
-import cdi.lite.extension.phases.enhancement.MethodEntrypoint;
+import cdi.lite.extension.phases.enhancement.FieldConfig;
+import cdi.lite.extension.phases.enhancement.MethodConfig;
 import cdi.lite.extension.phases.enhancement.SubtypesOf;
 import cdi.lite.extension.phases.synthesis.SyntheticComponents;
+
+import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
 import org.jboss.jandex.DotName;
 
 class DotNames {
+    static final DotName ANNOTATION = DotName.createSimple(Annotation.class.getName());
     static final DotName REPEATABLE = DotName.createSimple(Repeatable.class.getName());
 
     static final DotName BUILD_COMPATIBLE_EXTENSION = DotName.createSimple(BuildCompatibleExtension.class.getName());
@@ -37,9 +40,9 @@ class DotNames {
     static final DotName EXACT_TYPE = DotName.createSimple(ExactType.class.getName());
     static final DotName SUBTYPES_OF = DotName.createSimple(SubtypesOf.class.getName());
 
-    static final DotName CLASS_ENTRYPOINT = DotName.createSimple(ClassEntrypoint.class.getName());
-    static final DotName METHOD_ENTRYPOINT = DotName.createSimple(MethodEntrypoint.class.getName());
-    static final DotName FIELD_ENTRYPOINT = DotName.createSimple(FieldEntrypoint.class.getName());
+    static final DotName CLASS_CONFIG = DotName.createSimple(ClassConfig.class.getName());
+    static final DotName METHOD_CONFIG = DotName.createSimple(MethodConfig.class.getName());
+    static final DotName FIELD_CONFIG = DotName.createSimple(FieldConfig.class.getName());
 
     static final DotName ANNOTATIONS = DotName.createSimple(Annotations.class.getName());
     static final DotName APP_ARCHIVE = DotName.createSimple(AppArchive.class.getName());

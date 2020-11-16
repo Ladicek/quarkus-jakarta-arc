@@ -24,7 +24,7 @@ public @interface ExactType {
     Class<?> type();
 
     // default = any annotation, does that make sense?
-    Class<? extends Annotation>[] annotatedWith() default Annotation.class ;
+    Class<? extends Annotation>[] annotatedWith() default Annotation.class;
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)

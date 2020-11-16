@@ -20,7 +20,6 @@ import cdi.lite.extension.phases.enhancement.FieldConfig;
 import cdi.lite.extension.phases.enhancement.MethodConfig;
 import cdi.lite.extension.phases.enhancement.SubtypesOf;
 import cdi.lite.extension.phases.synthesis.SyntheticComponents;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
 import org.jboss.jandex.DotName;

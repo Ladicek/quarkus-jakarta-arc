@@ -21,6 +21,7 @@ import io.quarkus.arc.processor.BeanArchives;
 import io.quarkus.arc.processor.BeanDefiningAnnotation;
 import io.quarkus.arc.processor.BeanDeployment;
 import io.quarkus.arc.processor.DotNames;
+import io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtDiscoveryProcessor;
 import io.quarkus.deployment.ApplicationArchive;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -54,6 +55,10 @@ public class BeanArchiveProcessor {
         for (AdditionalBeanBuildItem i : additionalBeans) {
             additionalBeanClasses.addAll(i.getBeanClasses());
         }
+
+        Set<String> additionalBeansFromCdiLiteExtensions = new HashSet<>();
+        new CdiLiteExtDiscoveryProcessor(applicationIndex, additionalBeansFromCdiLiteExtensions).run();
+        additionalBeanClasses.addAll(additionalBeansFromCdiLiteExtensions);
 
         // Build the index for additional beans and generated bean classes
         Set<DotName> additionalIndex = new HashSet<>();

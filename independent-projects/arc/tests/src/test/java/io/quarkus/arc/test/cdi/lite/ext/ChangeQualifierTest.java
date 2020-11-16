@@ -20,9 +20,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 public class ChangeQualifierTest {
     @RegisterExtension
     public ArcTestContainer container = ArcTestContainer.builder()
-            .beanClasses(MyExtension.class, MyQualifier.class, MyService.class, MyFooService.class, MyBarService.class,
-                    MyServiceConsumer.class,
-                    Enhancement.class)
+            .beanClasses(MyQualifier.class, MyService.class, MyFooService.class, MyBarService.class, MyServiceConsumer.class)
             .build();
 
     @Test

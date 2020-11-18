@@ -20,7 +20,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 public class ChangeQualifierTest {
     @RegisterExtension
     public ArcTestContainer container = ArcTestContainer.builder()
-            .beanClasses(MyQualifier.class, MyService.class, MyFooService.class, MyBarService.class, MyServiceConsumer.class)
+            .beanClasses(MyQualifier.class, MyService.class, MyFooService.class, MyBarService.class, MyBazService.class, MyServiceConsumer.class)
             .build();
 
     @Test
@@ -89,6 +89,14 @@ public class ChangeQualifierTest {
         @Override
         public String hello() {
             return VALUE;
+        }
+    }
+
+    @Singleton
+    static class MyBazService implements MyService {
+        @Override
+        public String hello() {
+            throw new UnsupportedOperationException();
         }
     }
 

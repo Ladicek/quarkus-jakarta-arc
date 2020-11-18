@@ -4,6 +4,7 @@ import cdi.lite.extension.model.AnnotationInfo;
 import cdi.lite.extension.model.declarations.DeclarationInfo;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.jboss.jandex.DotName;
 
@@ -44,6 +45,13 @@ abstract class DeclarationInfoImpl<JandexDeclaration extends org.jboss.jandex.An
     }
 
     @Override
+    public boolean hasAnnotation(Predicate<AnnotationInfo> predicate) {
+        return annotationsOverlay().getAnnotations(jandexDeclaration).annotations()
+                .stream()
+                .anyMatch(it -> predicate.test(new AnnotationInfoImpl(jandexIndex, annotationOverlays, it)));
+    }
+
+    @Override
     public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
         return new AnnotationInfoImpl(jandexIndex, annotationOverlays,
                 annotationsOverlay().getAnnotations(jandexDeclaration).annotation(annotationType));
@@ -58,11 +66,17 @@ abstract class DeclarationInfoImpl<JandexDeclaration extends org.jboss.jandex.An
     }
 
     @Override
-    public Collection<AnnotationInfo> annotations() {
+    public Collection<AnnotationInfo> annotations(Predicate<AnnotationInfo> predicate) {
         return annotationsOverlay().getAnnotations(jandexDeclaration).annotations()
                 .stream()
                 .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
+                .filter(predicate)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<AnnotationInfo> annotations() {
+        return annotations(it -> true);
     }
 
     abstract AnnotationsOverlay<?, JandexDeclaration> annotationsOverlay();

@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.jboss.jandex.DotName;
 
@@ -52,6 +53,13 @@ abstract class TypeImpl<JandexType extends org.jboss.jandex.Type> implements Typ
     }
 
     @Override
+    public boolean hasAnnotation(Predicate<AnnotationInfo> predicate) {
+        return jandexType.annotations()
+                .stream()
+                .anyMatch(it -> predicate.test(new AnnotationInfoImpl(jandexIndex, annotationOverlays, it)));
+    }
+
+    @Override
     public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
         return new AnnotationInfoImpl(jandexIndex, annotationOverlays,
                 jandexType.annotation(DotName.createSimple(annotationType.getName())));
@@ -66,11 +74,17 @@ abstract class TypeImpl<JandexType extends org.jboss.jandex.Type> implements Typ
     }
 
     @Override
-    public Collection<AnnotationInfo> annotations() {
+    public Collection<AnnotationInfo> annotations(Predicate<AnnotationInfo> predicate) {
         return jandexType.annotations()
                 .stream()
                 .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
+                .filter(predicate)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<AnnotationInfo> annotations() {
+        return annotations(it -> true);
     }
 
     @Override

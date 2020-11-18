@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> implements ParameterInfo {
@@ -58,6 +59,13 @@ class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo>
     }
 
     @Override
+    public boolean hasAnnotation(Predicate<AnnotationInfo> predicate) {
+        return annotationSet().annotations()
+                .stream()
+                .anyMatch(it -> predicate.test(new AnnotationInfoImpl(jandexIndex, annotationOverlays, it)));
+    }
+
+    @Override
     public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
         return new AnnotationInfoImpl(jandexIndex, annotationOverlays, annotationSet().annotation(annotationType));
     }
@@ -71,11 +79,17 @@ class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo>
     }
 
     @Override
-    public Collection<AnnotationInfo> annotations() {
+    public Collection<AnnotationInfo> annotations(Predicate<AnnotationInfo> predicate) {
         return annotationSet().annotations()
                 .stream()
                 .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
+                .filter(predicate)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<AnnotationInfo> annotations() {
+        return annotations(it -> true);
     }
 
     @Override

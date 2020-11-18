@@ -3,9 +3,11 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 import cdi.lite.extension.model.AnnotationInfo;
 import cdi.lite.extension.model.declarations.PackageInfo;
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 class PackageInfoImpl implements PackageInfo {
     private final String name;
@@ -32,6 +34,11 @@ class PackageInfoImpl implements PackageInfo {
     }
 
     @Override
+    public boolean hasAnnotation(Predicate<AnnotationInfo> predicate) {
+        return false;
+    }
+
+    @Override
     public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
         return null;
     }
@@ -42,7 +49,12 @@ class PackageInfoImpl implements PackageInfo {
     }
 
     @Override
-    public List<AnnotationInfo> annotations() {
+    public Collection<AnnotationInfo> annotations(Predicate<AnnotationInfo> predicate) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Collection<AnnotationInfo> annotations() {
         return Collections.emptyList();
     }
 

@@ -128,4 +128,9 @@ class BeanInfoImpl implements BeanInfo<Object> {
                 .map(it -> new InjectionPointInfoImpl(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public String toString() {
+        return arcBeanInfo.toString();
+    }
 }

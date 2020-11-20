@@ -1,5 +1,9 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.ExtensionMethodParameterType;
+import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.Phase;
+
+import cdi.lite.extension.Messages;
 import io.quarkus.arc.processor.BeanProcessor;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -11,21 +15,27 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jboss.jandex.DotName;
+import org.jboss.jandex.IndexView;
 
-public class CdiLiteExtEnhancementProcessor extends CdiLiteExtProcessorBase {
+class CdiLiteExtEnhancementProcessor {
+    private final CdiLiteExtUtil util;
     private final org.jboss.jandex.IndexView beanArchiveIndex;
     private final BeanProcessor.Builder builder;
     private final AllAnnotationOverlays annotationOverlays;
     private final AllAnnotationTransformations annotationTransformations;
+    private final Messages messages;
 
-    public CdiLiteExtEnhancementProcessor(org.jboss.jandex.IndexView beanArchiveIndex, BeanProcessor.Builder builder) {
+    CdiLiteExtEnhancementProcessor(CdiLiteExtUtil util, IndexView beanArchiveIndex, BeanProcessor.Builder builder,
+            AllAnnotationOverlays annotationOverlays, MessagesImpl messages) {
+        this.util = util;
         this.beanArchiveIndex = beanArchiveIndex;
         this.builder = builder;
-        this.annotationOverlays = new AllAnnotationOverlays();
+        this.annotationOverlays = annotationOverlays;
         this.annotationTransformations = new AllAnnotationTransformations(beanArchiveIndex, annotationOverlays);
+        this.messages = messages;
     }
 
-    public void run() {
+    void run() {
         try {
             builder.addAnnotationTransformer(annotationTransformations.classes);
             builder.addAnnotationTransformer(annotationTransformations.methods);
@@ -36,13 +46,12 @@ public class CdiLiteExtEnhancementProcessor extends CdiLiteExtProcessorBase {
             // TODO proper diagnostics system
             throw new RuntimeException(e);
         } finally {
-            annotationOverlays.invalidate();
             annotationTransformations.freeze();
         }
     }
 
     private void doRun() throws ReflectiveOperationException {
-        List<org.jboss.jandex.MethodInfo> extensionMethods = findExtensionMethods(DotNames.ENHANCEMENT);
+        List<org.jboss.jandex.MethodInfo> extensionMethods = util.findExtensionMethods(DotNames.ENHANCEMENT);
 
         for (org.jboss.jandex.MethodInfo method : extensionMethods) {
             processExtensionMethod(method);
@@ -88,7 +97,7 @@ public class CdiLiteExtEnhancementProcessor extends CdiLiteExtProcessorBase {
                 arguments.add(argument);
             }
 
-            callExtensionMethod(method, arguments);
+            util.callExtensionMethod(method, arguments);
         } else {
             ExtensionMethodParameterType query = parameters.stream()
                     .filter(ExtensionMethodParameterType::isQuery)
@@ -126,7 +135,7 @@ public class CdiLiteExtEnhancementProcessor extends CdiLiteExtProcessorBase {
                     arguments.add(argument);
                 }
 
-                callExtensionMethod(method, arguments);
+                util.callExtensionMethod(method, arguments);
             }
         }
     }
@@ -207,11 +216,13 @@ public class CdiLiteExtEnhancementProcessor extends CdiLiteExtProcessorBase {
             case ANNOTATIONS:
                 return new AnnotationsImpl(beanArchiveIndex, annotationOverlays);
             case APP_ARCHIVE:
-                return new AppArchiveImpl(beanArchiveIndex, annotationTransformations);
+                return new AppArchiveImpl(beanArchiveIndex, annotationOverlays);
             case APP_ARCHIVE_CONFIG:
                 return new AppArchiveConfigImpl(beanArchiveIndex, annotationTransformations);
             case TYPES:
                 return new TypesImpl(beanArchiveIndex, annotationOverlays);
+            case MESSAGES:
+                return messages;
 
             default:
                 // TODO should report an error here

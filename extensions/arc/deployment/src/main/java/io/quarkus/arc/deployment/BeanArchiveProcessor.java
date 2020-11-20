@@ -42,7 +42,8 @@ public class BeanArchiveProcessor {
             List<AdditionalBeanBuildItem> additionalBeans, List<GeneratedBeanBuildItem> generatedBeans,
             LiveReloadBuildItem liveReloadBuildItem, BuildProducer<GeneratedClassBuildItem> generatedClass,
             CustomScopeAnnotationsBuildItem customScopes, List<ExcludeDependencyBuildItem> excludeDependencyBuildItems,
-            List<BeanArchivePredicateBuildItem> beanArchivePredicates)
+            List<BeanArchivePredicateBuildItem> beanArchivePredicates,
+            CdiLiteBuildItem cdiLite)
             throws Exception {
 
         // First build an index from application archives
@@ -57,7 +58,7 @@ public class BeanArchiveProcessor {
         }
 
         Set<String> additionalBeansFromCdiLiteExtensions = new HashSet<>();
-        new CdiLiteExtDiscoveryProcessor(applicationIndex, additionalBeansFromCdiLiteExtensions).run();
+        cdiLite.extensions.runDiscovery(applicationIndex, additionalBeansFromCdiLiteExtensions);
         additionalBeanClasses.addAll(additionalBeansFromCdiLiteExtensions);
 
         // Build the index for additional beans and generated bean classes

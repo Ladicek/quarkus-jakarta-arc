@@ -3,8 +3,14 @@ package io.quarkus.arc.test.cdi.lite.ext;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import cdi.lite.extension.AppArchive;
+import cdi.lite.extension.AppDeployment;
 import cdi.lite.extension.BuildCompatibleExtension;
+import cdi.lite.extension.Messages;
+import cdi.lite.extension.phases.Discovery;
 import cdi.lite.extension.phases.Enhancement;
+import cdi.lite.extension.phases.Validation;
+import cdi.lite.extension.phases.discovery.AppArchiveBuilder;
 import cdi.lite.extension.phases.enhancement.ClassConfig;
 import cdi.lite.extension.phases.enhancement.ExactType;
 import cdi.lite.extension.phases.enhancement.FieldConfig;
@@ -20,7 +26,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 public class ChangeQualifierTest {
     @RegisterExtension
     public ArcTestContainer container = ArcTestContainer.builder()
-            .beanClasses(MyQualifier.class, MyService.class, MyFooService.class, MyBarService.class, MyBazService.class, MyServiceConsumer.class)
+            .beanClasses(MyQualifier.class, MyService.class, MyServiceConsumer.class)
+            .additionalClasses(MyFooService.class, MyBarService.class, MyBazService.class)
             .build();
 
     @Test
@@ -30,33 +37,47 @@ public class ChangeQualifierTest {
     }
 
     public static class MyExtension implements BuildCompatibleExtension {
+        @Discovery
+        public void services(AppArchiveBuilder app, Messages messages) {
+            app.addSubtypesOf(MyService.class.getName());
+            messages.info("discovery complete");
+        }
+
         @Enhancement
         @ExactType(type = MyFooService.class, annotatedWith = Singleton.class)
-        public void foo(ClassConfig clazz) {
-            System.out.println("!!!!!!!!! foo " + clazz);
-            System.out.println("????????? MyFooService class " + clazz.annotations());
+        public void foo(ClassConfig clazz, Messages messages) {
+            messages.info("before enhancement: " + clazz.annotations(), clazz);
             clazz.removeAnnotation(ann -> ann.name().equals(MyQualifier.class.getName()));
-            System.out.println("????????? MyFooService class " + clazz.annotations());
+            messages.info("after enhancement: " + clazz.annotations(), clazz);
         }
 
         @Enhancement
         @ExactType(type = MyBarService.class, annotatedWith = Singleton.class)
-        public void bar(ClassConfig clazz) {
-            System.out.println("!!!!!!!!! bar " + clazz);
-            System.out.println("????????? MyBarService class " + clazz.annotations());
+        public void bar(ClassConfig clazz, Messages messages) {
+            messages.info("before enhancement: " + clazz.annotations(), clazz);
             clazz.addAnnotation(MyQualifier.class);
-            System.out.println("????????? MyBarService class " + clazz.annotations());
+            messages.info("after enhancement: " + clazz.annotations(), clazz);
         }
 
         @Enhancement
         @ExactType(type = MyServiceConsumer.class, annotatedWith = Inject.class)
-        public void service(FieldConfig field) {
-            System.out.println("!!!!!!!!! service " + field);
+        public void service(FieldConfig field, Messages messages) {
             if ("myService".equals(field.name())) {
-                System.out.println("????????? MyServiceConsumer.myService field " + field.annotations());
+                messages.info("before enhancement: " + field.annotations(), field);
                 field.addAnnotation(MyQualifier.class);
-                System.out.println("????????? MyServiceConsumer.myService field " + field.annotations());
+                messages.info("after enhancement: " + field.annotations(), field);
             }
+        }
+
+        @Validation
+        public void validate(AppArchive archive, AppDeployment deployment, Messages messages) {
+            archive.classes().subtypeOf(MyService.class).forEach(clazz -> {
+                messages.info("class has annotations " + clazz.annotations(), clazz);
+            });
+
+            deployment.beans().type(MyService.class).forEach(bean -> {
+                messages.info("bean has types " + bean.types(), bean);
+            });
         }
     }
 

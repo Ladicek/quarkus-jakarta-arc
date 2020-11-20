@@ -17,6 +17,7 @@ import io.quarkus.arc.processor.ObserverRegistrar;
 import io.quarkus.arc.processor.ObserverTransformer;
 import io.quarkus.arc.processor.QualifierRegistrar;
 import io.quarkus.arc.processor.ResourceOutput;
+import io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtensions;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,13 +30,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.jboss.jandex.CompositeIndex;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.Index;
+import org.jboss.jandex.IndexView;
 import org.jboss.jandex.Indexer;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -308,15 +313,17 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
         // Make sure Arc is down
         Arc.shutdown();
 
+        CdiLiteExtensions cdiLiteExtensions = new CdiLiteExtensions();
+
         // Build index
-        Index beanArchiveIndex;
+        IndexView beanArchiveIndex;
         try {
             beanArchiveIndex = index(beanClasses);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to create index", e);
         }
 
-        Index applicationIndex;
+        IndexView applicationIndex;
         if (additionalClasses.isEmpty()) {
             applicationIndex = null;
         } else {
@@ -325,6 +332,23 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to create index", e);
             }
+        }
+
+        {
+            List<IndexView> indices = new ArrayList<>();
+            indices.add(beanArchiveIndex);
+            if (applicationIndex != null) {
+                indices.add(applicationIndex);
+            }
+            Set<String> additionalClasses = new HashSet<>();
+            cdiLiteExtensions.runDiscovery(CompositeIndex.create(indices), additionalClasses);
+            Index additionalIndex = null;
+            try {
+                additionalIndex = indexByStringNames(additionalClasses);
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to create index", e);
+            }
+            beanArchiveIndex = CompositeIndex.create(beanArchiveIndex, additionalIndex);
         }
 
         ClassLoader old = Thread.currentThread()
@@ -359,7 +383,8 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
                     .setName(testClass.getSimpleName())
                     .setBeanArchiveIndex(BeanArchives.buildBeanArchiveIndex(getClass().getClassLoader(),
                             new ConcurrentHashMap<>(), beanArchiveIndex))
-                    .setApplicationIndex(applicationIndex);
+                    .setApplicationIndex(applicationIndex)
+                    .setCdiLiteExtensions(cdiLiteExtensions);
             if (!resourceAnnotations.isEmpty()) {
                 builder.addResourceAnnotations(resourceAnnotations.stream()
                         .map(c -> DotName.createSimple(c.getName()))
@@ -450,6 +475,17 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
         for (Class<?> clazz : classes) {
             try (InputStream stream = ArcTestContainer.class.getClassLoader()
                     .getResourceAsStream(clazz.getName().replace('.', '/') + ".class")) {
+                indexer.index(stream);
+            }
+        }
+        return indexer.complete();
+    }
+
+    private Index indexByStringNames(Iterable<String> classes) throws IOException {
+        Indexer indexer = new Indexer();
+        for (String clazz : classes) {
+            try (InputStream stream = ArcTestContainer.class.getClassLoader()
+                    .getResourceAsStream(clazz.replace('.', '/') + ".class")) {
                 indexer.index(stream);
             }
         }

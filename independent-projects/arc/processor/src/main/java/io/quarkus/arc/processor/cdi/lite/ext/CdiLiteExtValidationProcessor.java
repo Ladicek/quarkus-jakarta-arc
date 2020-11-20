@@ -3,28 +3,32 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.ExtensionMethodParameterType;
 import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.Phase;
 
-import cdi.lite.extension.Messages;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+import org.jboss.jandex.IndexView;
 
-class CdiLiteExtDiscoveryProcessor {
+class CdiLiteExtValidationProcessor {
     private final CdiLiteExtUtil util;
-    private final org.jboss.jandex.IndexView applicationIndex;
-    private final Set<String> additionalClasses;
-    private final Messages messages;
+    private final org.jboss.jandex.IndexView beanArchiveIndex;
+    private final AllAnnotationOverlays annotationOverlays;
+    private final Collection<io.quarkus.arc.processor.BeanInfo> allBeans;
+    private final Collection<io.quarkus.arc.processor.ObserverInfo> allObservers;
+    private final MessagesImpl messages;
 
-    final List<ContextBuilderImpl> contexts = new ArrayList<>();
-
-    CdiLiteExtDiscoveryProcessor(CdiLiteExtUtil util, org.jboss.jandex.IndexView applicationIndex,
-            Set<String> additionalClasses, Messages messages) {
+    CdiLiteExtValidationProcessor(CdiLiteExtUtil util, IndexView beanArchiveIndex, AllAnnotationOverlays annotationOverlays,
+            Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
+            Collection<io.quarkus.arc.processor.ObserverInfo> allObservers,
+            MessagesImpl messages) {
         this.util = util;
-        this.applicationIndex = applicationIndex;
-        this.additionalClasses = additionalClasses;
+        this.beanArchiveIndex = beanArchiveIndex;
+        this.annotationOverlays = annotationOverlays;
+        this.allBeans = allBeans;
+        this.allObservers = allObservers;
         this.messages = messages;
     }
 
-    void run() {
+    public void run() {
         try {
             doRun();
         } catch (Exception e) {
@@ -34,7 +38,7 @@ class CdiLiteExtDiscoveryProcessor {
     }
 
     private void doRun() throws ReflectiveOperationException {
-        List<org.jboss.jandex.MethodInfo> extensionMethods = util.findExtensionMethods(DotNames.DISCOVERY);
+        List<org.jboss.jandex.MethodInfo> extensionMethods = util.findExtensionMethods(DotNames.VALIDATION);
 
         for (org.jboss.jandex.MethodInfo method : extensionMethods) {
             processExtensionMethod(method);
@@ -49,8 +53,8 @@ class CdiLiteExtDiscoveryProcessor {
             ExtensionMethodParameterType kind = ExtensionMethodParameterType.of(parameterType);
             parameters.add(kind);
 
-            if (!kind.isAvailableIn(Phase.DISCOVERY)) {
-                throw new IllegalArgumentException("@Discovery methods can't declare a parameter of type "
+            if (!kind.isAvailableIn(Phase.VALIDATION)) {
+                throw new IllegalArgumentException("@Validation methods can't declare a parameter of type "
                         + parameterType + ", found at " + method + " @ " + method.declaringClass());
             }
         }
@@ -66,12 +70,14 @@ class CdiLiteExtDiscoveryProcessor {
 
     private Object createArgumentForExtensionMethodParameter(ExtensionMethodParameterType kind) {
         switch (kind) {
-            case APP_ARCHIVE_BUILDER:
-                return new AppArchiveBuilderImpl(applicationIndex, additionalClasses);
-            case CONTEXTS:
-                return new ContextsImpl(contexts);
+            case APP_ARCHIVE:
+                return new AppArchiveImpl(beanArchiveIndex, annotationOverlays);
+            case APP_DEPLOYMENT:
+                return new AppDeploymentImpl(beanArchiveIndex, annotationOverlays, allBeans, allObservers);
             case MESSAGES:
                 return messages;
+            case TYPES:
+                return new TypesImpl(beanArchiveIndex, annotationOverlays);
 
             default:
                 // TODO should report an error here

@@ -14,9 +14,6 @@ class AllAnnotationTransformations {
     }
 
     void freeze() {
-        // not necessary, just to be explicit about the relationship
-        annotationOverlays.invalidate();
-
         classes.freeze();
         methods.freeze();
         fields.freeze();

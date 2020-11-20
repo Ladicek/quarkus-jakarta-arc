@@ -16,19 +16,17 @@ import org.jboss.jandex.DotName;
 
 class AppArchiveImpl implements AppArchive {
     final org.jboss.jandex.IndexView jandexIndex;
-    final AllAnnotationTransformations annotationTransformations;
     final AllAnnotationOverlays annotationOverlays;
     final AnnotationsOverlay.Classes classesOverlay;
     final AnnotationsOverlay.Methods methodsOverlay;
     final AnnotationsOverlay.Fields fieldsOverlay;
 
-    AppArchiveImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationTransformations annotationTransformations) {
+    AppArchiveImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays) {
         this.jandexIndex = jandexIndex;
-        this.annotationTransformations = annotationTransformations;
-        this.annotationOverlays = annotationTransformations.annotationOverlays;
-        this.classesOverlay = annotationTransformations.annotationOverlays.classes;
-        this.methodsOverlay = annotationTransformations.annotationOverlays.methods;
-        this.fieldsOverlay = annotationTransformations.annotationOverlays.fields;
+        this.annotationOverlays = annotationOverlays;
+        this.classesOverlay = annotationOverlays.classes;
+        this.methodsOverlay = annotationOverlays.methods;
+        this.fieldsOverlay = annotationOverlays.fields;
     }
 
     @Override

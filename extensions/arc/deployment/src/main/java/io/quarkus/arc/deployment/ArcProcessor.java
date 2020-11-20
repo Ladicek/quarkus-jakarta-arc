@@ -154,6 +154,7 @@ public class ArcProcessor {
             BeanArchiveIndexBuildItem beanArchiveIndex,
             CombinedIndexBuildItem combinedIndex,
             ApplicationIndexBuildItem applicationIndex,
+            CdiLiteBuildItem cdiLite,
             List<AnnotationsTransformerBuildItem> annotationTransformers,
             List<InjectionPointTransformerBuildItem> injectionPointTransformers,
             List<ObserverTransformerBuildItem> observerTransformers,
@@ -373,6 +374,8 @@ public class ArcProcessor {
         for (SuppressConditionGeneratorBuildItem generator : suppressConditionGenerators) {
             builder.addSuppressConditionGenerator(generator.getGenerator());
         }
+
+        builder.setCdiLiteExtensions(cdiLite.extensions);
 
         BeanProcessor beanProcessor = builder.build();
         ContextRegistrar.RegistrationContext context = beanProcessor.registerCustomContexts();

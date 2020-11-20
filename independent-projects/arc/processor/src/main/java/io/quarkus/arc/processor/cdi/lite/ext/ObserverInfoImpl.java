@@ -84,4 +84,9 @@ class ObserverInfoImpl implements ObserverInfo<Object> {
     public TransactionPhase transactionPhase() {
         return arcObserverInfo.getTransactionPhase();
     }
+
+    @Override
+    public String toString() {
+        return arcObserverInfo.toString();
+    }
 }

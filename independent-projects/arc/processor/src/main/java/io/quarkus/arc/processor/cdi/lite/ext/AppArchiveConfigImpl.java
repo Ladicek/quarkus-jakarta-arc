@@ -9,8 +9,11 @@ import java.lang.annotation.Annotation;
 import java.util.function.Consumer;
 
 class AppArchiveConfigImpl extends AppArchiveImpl implements AppArchiveConfig {
+    final AllAnnotationTransformations annotationTransformations;
+
     AppArchiveConfigImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationTransformations annotationTransformations) {
-        super(jandexIndex, annotationTransformations);
+        super(jandexIndex, annotationTransformations.annotationOverlays);
+        this.annotationTransformations = annotationTransformations;
     }
 
     @Override

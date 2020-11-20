@@ -5,8 +5,7 @@ import cdi.lite.extension.beans.ObserverInfo;
 import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.types.Type;
 import java.lang.annotation.Annotation;
-import java.util.Collection;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
 
 public interface AppDeployment {
     BeanQuery beans();
@@ -75,13 +74,11 @@ public interface AppDeployment {
 
         BeanQuery qualifier(ClassInfo<?> qualifierAnnotation);
 
-        BeanQuery declaringClass(Class<?> declarationClass);
+        BeanQuery declaringClass(Class<?> declaringClass);
 
-        BeanQuery declaringClass(ClassInfo<?> declarationClass);
+        BeanQuery declaringClass(ClassInfo<?> declaringClass);
 
-        Collection<BeanInfo<?>> find();
-
-        Stream<BeanInfo<?>> stream();
+        void forEach(Consumer<BeanInfo<?>> consumer);
     }
 
     /**
@@ -119,22 +116,20 @@ public interface AppDeployment {
      * returns all observers declared on the {@code Foo} class or the {@code Bar} class.
      */
     interface ObserverQuery {
-        ObserverQuery observedType(Class<?> beanType);
+        ObserverQuery observedType(Class<?> observedType);
 
-        ObserverQuery observedType(ClassInfo<?> beanType);
+        ObserverQuery observedType(ClassInfo<?> observedType);
 
-        ObserverQuery observedType(Type beanType);
+        ObserverQuery observedType(Type observedType);
 
         ObserverQuery qualifier(Class<? extends Annotation> qualifierAnnotation);
 
         ObserverQuery qualifier(ClassInfo<?> qualifierAnnotation);
 
-        ObserverQuery declaringClass(Class<?> declarationClass);
+        ObserverQuery declaringClass(Class<?> declaringClass);
 
-        ObserverQuery declaringClass(ClassInfo<?> declarationClass);
+        ObserverQuery declaringClass(ClassInfo<?> declaringClass);
 
-        Collection<ObserverInfo<?>> find();
-
-        Stream<ObserverInfo<?>> stream();
+        void forEach(Consumer<ObserverInfo<?>> consumer);
     }
 }

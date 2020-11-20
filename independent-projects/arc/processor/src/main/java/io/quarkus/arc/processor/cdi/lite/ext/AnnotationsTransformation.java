@@ -109,8 +109,6 @@ abstract class AnnotationsTransformation<Key, JandexDeclaration extends org.jbos
     }
 
     void freeze() {
-        // not necessary, just to be explicit about the relationship
-        annotationsOverlay().invalidate();
         frozen = true;
     }
 

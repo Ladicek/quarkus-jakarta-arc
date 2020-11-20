@@ -19,10 +19,10 @@ import org.jboss.jandex.DotName;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.Indexer;
 
-abstract class CdiLiteExtProcessorBase {
-    // TODO static so that instances are shared among phases, but this should be done differently
-    private static final Map<String, Class<?>> extensionClasses = new HashMap<>();
-    private static final Map<Class<?>, Object> extensionClassInstances = new HashMap<>();
+// TODO better name!
+class CdiLiteExtUtil {
+    private final Map<String, Class<?>> extensionClasses = new HashMap<>();
+    private final Map<Class<?>, Object> extensionClassInstances = new HashMap<>();
 
     List<org.jboss.jandex.MethodInfo> findExtensionMethods(DotName annotation) {
         // TODO this is silly and we should just use reflection,
@@ -212,6 +212,10 @@ abstract class CdiLiteExtProcessorBase {
                 parameterTypes[i] = cdi.lite.extension.phases.enhancement.AppArchiveConfig.class;
             } else if (cdi.lite.extension.AppArchive.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.AppArchive.class;
+            } else if (cdi.lite.extension.AppDeployment.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.AppDeployment.class;
+            } else if (cdi.lite.extension.Messages.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.Messages.class;
             } else if (cdi.lite.extension.Types.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.Types.class;
             } else {

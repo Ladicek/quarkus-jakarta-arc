@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  * <ul>
  * <li>{@link cdi.lite.extension.phases.discovery.AppArchiveBuilder AppArchiveBuilder}: to add classes to application</li>
  * <li>{@link cdi.lite.extension.phases.discovery.Contexts Contexts}: to register custom contexts</li>
+ * <li>{@link cdi.lite.extension.Messages Messages}: to produce log messages and validation errors</li>
  * </ul>
  */
 @Target(ElementType.METHOD)

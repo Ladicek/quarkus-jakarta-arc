@@ -210,6 +210,8 @@ class CdiLiteExtUtil {
                 parameterTypes[i] = cdi.lite.extension.phases.enhancement.Annotations.class;
             } else if (cdi.lite.extension.phases.enhancement.AppArchiveConfig.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.phases.enhancement.AppArchiveConfig.class;
+            } else if (cdi.lite.extension.phases.synthesis.SyntheticComponents.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.phases.synthesis.SyntheticComponents.class;
             } else if (cdi.lite.extension.AppArchive.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.AppArchive.class;
             } else if (cdi.lite.extension.AppDeployment.class.isAssignableFrom(argumentClass)) {

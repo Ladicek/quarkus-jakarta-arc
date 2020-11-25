@@ -2,9 +2,11 @@ package io.quarkus.arc.processor;
 
 import io.quarkus.gizmo.MethodCreator;
 import java.lang.annotation.Annotation;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
+import javax.enterprise.event.Reception;
 import javax.enterprise.event.TransactionPhase;
 import javax.enterprise.inject.spi.ObserverMethod;
 import org.jboss.jandex.AnnotationInstance;
@@ -29,6 +31,7 @@ public final class ObserverConfigurator implements Consumer<AnnotationInstance> 
     final Set<AnnotationInstance> observedQualifiers;
     int priority;
     boolean isAsync;
+    Reception reception;
     TransactionPhase transactionPhase;
     Consumer<MethodCreator> notifyConsumer;
 
@@ -37,6 +40,7 @@ public final class ObserverConfigurator implements Consumer<AnnotationInstance> 
         this.observedQualifiers = new HashSet<>();
         this.priority = ObserverMethod.DEFAULT_PRIORITY;
         this.isAsync = false;
+        this.reception = Reception.ALWAYS;
         this.transactionPhase = TransactionPhase.IN_PROGRESS;
     }
 
@@ -84,6 +88,11 @@ public final class ObserverConfigurator implements Consumer<AnnotationInstance> 
         return new QualifierConfigurator<>(this);
     }
 
+    public ObserverConfigurator qualifiers(AnnotationInstance... qualifiers) {
+        Collections.addAll(this.observedQualifiers, qualifiers);
+        return this;
+    }
+
     public ObserverConfigurator priority(int priority) {
         this.priority = priority;
         return this;
@@ -91,6 +100,11 @@ public final class ObserverConfigurator implements Consumer<AnnotationInstance> 
 
     public ObserverConfigurator async(boolean value) {
         this.isAsync = value;
+        return this;
+    }
+
+    public ObserverConfigurator reception(Reception reception) {
+        this.reception = reception;
         return this;
     }
 

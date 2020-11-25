@@ -8,6 +8,7 @@ import io.quarkus.arc.processor.BeanProcessor.BuildContextImpl;
 import io.quarkus.arc.processor.BeanRegistrar.RegistrationContext;
 import io.quarkus.arc.processor.BuildExtension.BuildContext;
 import io.quarkus.arc.processor.BuildExtension.Key;
+import io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtensions;
 import io.quarkus.gizmo.MethodCreator;
 import io.quarkus.gizmo.ResultHandle;
 import java.lang.annotation.Annotation;
@@ -30,7 +31,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.enterprise.event.Reception;
 import javax.enterprise.inject.spi.DefinitionException;
 import javax.enterprise.inject.spi.DeploymentException;
 import org.jboss.jandex.AnnotationInstance;
@@ -110,7 +110,11 @@ public class BeanDeployment {
 
     private final List<Predicate<ClassInfo>> excludeTypes;
 
+    private final CdiLiteExtensions cdiLiteExtensions;
+
     BeanDeployment(BuildContextImpl buildContext, BeanProcessor.Builder builder) {
+        this.cdiLiteExtensions = builder.cdiLiteExtensions;
+
         this.buildContext = buildContext;
         Set<BeanDefiningAnnotation> beanDefiningAnnotations = new HashSet<>();
         if (builder.additionalBeanDefiningAnnotations != null) {
@@ -1157,6 +1161,10 @@ public class BeanDeployment {
         for (BeanRegistrar registrar : beanRegistrars) {
             registrar.register(context);
         }
+        if (cdiLiteExtensions != null) {
+            cdiLiteExtensions.runSynthesis(beanArchiveIndex, beans, observers);
+            cdiLiteExtensions.registerSyntheticBeans(context);
+        }
         return context;
     }
 
@@ -1167,6 +1175,9 @@ public class BeanDeployment {
             context.extension = registrar;
             registrar.register(context);
             context.extension = null;
+        }
+        if (cdiLiteExtensions != null) {
+            cdiLiteExtensions.registerSyntheticObservers(context);
         }
         return context;
     }
@@ -1186,7 +1197,7 @@ public class BeanDeployment {
         observers.add(ObserverInfo.create(configurator.id, this, configurator.beanClass, null, null, null, null,
                 configurator.observedType,
                 configurator.observedQualifiers,
-                Reception.ALWAYS, configurator.transactionPhase, configurator.isAsync, configurator.priority,
+                configurator.reception, configurator.transactionPhase, configurator.isAsync, configurator.priority,
                 observerTransformers, buildContext,
                 jtaCapabilities, configurator.notifyConsumer));
     }

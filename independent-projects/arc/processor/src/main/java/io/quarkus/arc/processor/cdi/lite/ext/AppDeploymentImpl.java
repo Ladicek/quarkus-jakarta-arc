@@ -139,6 +139,13 @@ class AppDeploymentImpl implements AppDeployment {
             stream().forEach(consumer);
         }
 
+        @Override
+        public void ifNone(Runnable runnable) {
+            if (stream().count() == 0) {
+                runnable.run();
+            }
+        }
+
         Stream<BeanInfo<?>> stream() {
             Stream<io.quarkus.arc.processor.BeanInfo> result = beans.stream();
 
@@ -246,6 +253,13 @@ class AppDeploymentImpl implements AppDeployment {
         @Override
         public void forEach(Consumer<ObserverInfo<?>> consumer) {
             stream().forEach(consumer);
+        }
+
+        @Override
+        public void ifNone(Runnable runnable) {
+            if (stream().count() == 0) {
+                runnable.run();
+            }
         }
 
         Stream<ObserverInfo<?>> stream() {

@@ -24,9 +24,9 @@ public interface AppArchive {
      * appArchive.classes()
      *     .exactly(Foo.class)
      *     .subtypeOf(Bar.class)
-     *     .find()
+     *     .forEach(...)
      * }</pre>
-     * returns the {@code Foo} class and all subtypes of the {@code Bar} class.
+     * runs given code for the {@code Foo} class and all subtypes of the {@code Bar} class.
      * <p>
      * The {@code annotatedWith} methods are additive.
      * When called multiple times, they form a union of requested annotations (not an intersection).
@@ -35,9 +35,9 @@ public interface AppArchive {
      * appArchive.classes()
      *     .annotatedWith(Foo.class)
      *     .annotatedWith(Bar.class)
-     *     .find()
+     *     .forEach(...)
      * }</pre>
-     * returns all classes annotated either with {@code @Foo} or with {@code @Bar} (or both).
+     * runs given code for all classes annotated either with {@code @Foo} or with {@code @Bar} (or both).
      */
     interface ClassQuery {
         ClassQuery exactly(Class<?> clazz);
@@ -57,14 +57,14 @@ public interface AppArchive {
      * appArchive.methods()
      *     .declaredOn(appArchive.classes().exactly(Foo.class))
      *     .declaredOn(appArchive.classes().subtypeOf(Bar.class))
-     *     .find()
+     *     .forEach(...)
      * }</pre>
-     * returns all methods declared on the {@code Foo} class and on all subtypes of the {@code Bar} class.
+     * runs given code for all methods declared on the {@code Foo} class and on all subtypes of the {@code Bar} class.
      * Note that this example can be rewritten as
      * <pre>{@code
      * appArchive.methods()
      *     .declaredOn(appArchive.classes().exactly(Foo.class).subtypeOf(Bar.class))
-     *     .find()
+     *     .forEach(...)
      * }</pre>
      * which is probably easier to understand.
      * <p>
@@ -75,9 +75,9 @@ public interface AppArchive {
      * appArchive.methods()
      *     .withReturnType(Foo.class)
      *     .withReturnType(Bar.class)
-     *     .find()
+     *     .forEach(...)
      * }</pre>
-     * returns all methods that return either {@code Foo} or {@code Bar}.
+     * runs given code for all methods that return either {@code Foo} or {@code Bar}.
      * <p>
      * The {@code annotatedWith} methods are additive.
      * When called multiple times, they form a union of requested annotations (not an intersection).
@@ -86,9 +86,9 @@ public interface AppArchive {
      * appArchive.methods()
      *     .annotatedWith(Foo.class)
      *     .annotatedWith(Bar.class)
-     *     .find()
+     *     .forEach(...)
      * }</pre>
-     * returns all methods annotated either with {@code @Foo} or with {@code @Bar} (or both).
+     * runs given code for all methods annotated either with {@code @Foo} or with {@code @Bar} (or both).
      */
     interface MethodQuery {
         MethodQuery declaredOn(ClassQuery classes);
@@ -115,14 +115,14 @@ public interface AppArchive {
      * appArchive.fields()
      *     .declaredOn(appArchive.classes().exactly(Foo.class))
      *     .declaredOn(appArchive.classes().subtypeOf(Bar.class))
-     *     .find()
+     *     .forEach(...)
      * }</pre>
-     * returns all fields declared on the {@code Foo} class and on all subtypes of the {@code Bar} class.
+     * runs given code for all fields declared on the {@code Foo} class and on all subtypes of the {@code Bar} class.
      * Note that this example can be rewritten as
      * <pre>{@code
      * appArchive.fields()
      *     .declaredOn(appArchive.classes().exactly(Foo.class).subtypeOf(Bar.class))
-     *     .find()
+     *     .forEach()
      * }</pre>
      * which is probably easier to understand.
      * <p>
@@ -133,9 +133,9 @@ public interface AppArchive {
      * appArchive.fields()
      *     .ofType(Foo.class)
      *     .ofType(Bar.class)
-     *     .find()
+     *     .forEach()
      * }</pre>
-     * returns all fields that are of type either {@code Foo} or {@code Bar}.
+     * runs given code for all fields that are of type either {@code Foo} or {@code Bar}.
      * <p>
      * The {@code annotatedWith} methods are additive.
      * When called multiple times, they form a union of requested annotations (not an intersection).
@@ -144,9 +144,9 @@ public interface AppArchive {
      * appArchive.fields()
      *     .annotatedWith(Foo.class)
      *     .annotatedWith(Bar.class)
-     *     .find()
+     *     .forEach(...)
      * }</pre>
-     * returns all fields annotated either with {@code @Foo} or with {@code @Bar} (or both).
+     * runs given code for all fields annotated either with {@code @Foo} or with {@code @Bar} (or both).
      */
     interface FieldQuery {
         FieldQuery declaredOn(ClassQuery classes);

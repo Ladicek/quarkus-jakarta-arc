@@ -11,7 +11,11 @@ import java.lang.annotation.Target;
  * <p>
  * Methods annotated {@code @Synthesis} can define parameters of these types:
  * <ul>
- *  TODO
+ * <li>{@link cdi.lite.extension.AppArchive AppArchive}: to find declarations in the application</li>
+ * <li>{@link cdi.lite.extension.AppDeployment AppDeployment}: to find beans and observers in the application</li>
+ * <li>{@link cdi.lite.extension.Messages Messages}: to produce log messages and validation errors</li>
+ * <li>{@link cdi.lite.extension.phases.synthesis.SyntheticComponents SyntheticComponents}: to add synthetic beans
+ * and observers to the application</li>
  * </ul>
  * If you need to create instances of {@link cdi.lite.extension.model.types.Type Type}, you can also declare
  * a parameter of type {@link cdi.lite.extension.Types Types}. It provides factory methods for the void type,

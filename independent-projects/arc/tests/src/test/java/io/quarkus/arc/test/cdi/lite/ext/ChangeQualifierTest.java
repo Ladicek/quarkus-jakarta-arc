@@ -28,6 +28,7 @@ public class ChangeQualifierTest {
     public ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyQualifier.class, MyService.class, MyServiceConsumer.class)
             .additionalClasses(MyFooService.class, MyBarService.class, MyBazService.class)
+            .buildCompatibleExtensions(MyExtension.class)
             .build();
 
     @Test

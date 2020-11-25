@@ -31,6 +31,4 @@ public interface ContextBuilder {
      */
     // if called multiple times, last call wins
     ContextBuilder implementation(Class<? extends AlterableContext> implementationClass);
-
-    // TODO another way to define the context implementation?
 }

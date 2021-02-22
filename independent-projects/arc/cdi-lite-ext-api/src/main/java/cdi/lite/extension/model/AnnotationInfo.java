@@ -9,6 +9,7 @@ public interface AnnotationInfo {
      * Target of this annotation.
      * That is, the declaration, the type parameter or the type use on which this annotation is present.
      * TODO what if this annotation is a nested annotation?
+     * TODO what if this annotation doesn't have a known target (e.g. qualifier of a synthetic bean)?
      */
     AnnotationTarget target();
 

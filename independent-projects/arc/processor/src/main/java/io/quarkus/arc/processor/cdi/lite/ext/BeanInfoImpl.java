@@ -109,8 +109,8 @@ class BeanInfoImpl implements BeanInfo<Object> {
 
     @Override
     public DisposerInfo disposer() {
-        // TODO what if none?
-        return new DisposerInfoImpl(jandexIndex, annotationOverlays, arcBeanInfo.getDisposer());
+        io.quarkus.arc.processor.DisposerInfo disposer = arcBeanInfo.getDisposer();
+        return disposer != null ? new DisposerInfoImpl(jandexIndex, annotationOverlays, disposer) : null;
     }
 
     @Override

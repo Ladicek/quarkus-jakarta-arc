@@ -13,6 +13,7 @@ public interface MethodInfo<T> extends DeclarationInfo {
 
     List<ParameterInfo> parameters();
 
+    // TODO what about constructors?
     Type returnType();
 
     // TODO return Optional<Type> and only return non-empty if receiver parameter is declared,

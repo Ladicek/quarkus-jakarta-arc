@@ -63,6 +63,7 @@ class CdiLiteExtEnhancementProcessor {
 
         int numParameters = method.parameters().size();
         int numQueryParameters = 0;
+        boolean appArchiveConfigPresent = false;
         List<ExtensionMethodParameterType> parameters = new ArrayList<>(numParameters);
         for (int i = 0; i < numParameters; i++) {
             org.jboss.jandex.Type parameterType = method.parameters().get(i);
@@ -73,6 +74,10 @@ class CdiLiteExtEnhancementProcessor {
                 numQueryParameters++;
             }
 
+            if (kind == ExtensionMethodParameterType.APP_ARCHIVE_CONFIG) {
+                appArchiveConfigPresent = true;
+            }
+
             if (!kind.isAvailableIn(Phase.ENHANCEMENT)) { // we don't implement anything else yet
                 throw new IllegalArgumentException("@Enhancement methods can't declare a parameter of type "
                         + parameterType + ", found at " + method + " @ " + method.declaringClass());
@@ -80,9 +85,14 @@ class CdiLiteExtEnhancementProcessor {
         }
 
         if (numQueryParameters > 1) {
-            // TODO also AppArchive[Config]
             throw new IllegalArgumentException("More than 1 parameter of type ClassConfig, MethodConfig or FieldConfig"
                     + " for method " + method + " @ " + method.declaringClass());
+        }
+
+        if (numQueryParameters > 0 && appArchiveConfigPresent) {
+            throw new IllegalArgumentException("Parameter of type AppArchiveConfig present together with a parameter"
+                    + " of type ClassConfig, MethodConfig or FieldConfig for method " + method
+                    + " @ " + method.declaringClass());
         }
 
         if (numQueryParameters > 0 && constraintAnnotations.isEmpty()) {

@@ -38,7 +38,7 @@ public class SyntheticObserverTest {
         // expects 3 items:
         // - Hello World: unqualified event observed by unqualified observer
         // - Hello @MyQualifier SynObserver: qualified event observed by qualified observer
-        // - Hello @MyQualifier SynObserver: qualified event observed by unqualified observer -- TODO is this OK?
+        // - Hello @MyQualifier SynObserver: qualified event observed by unqualified observer
         assertEquals(3, MyObserver.observed.size());
     }
 

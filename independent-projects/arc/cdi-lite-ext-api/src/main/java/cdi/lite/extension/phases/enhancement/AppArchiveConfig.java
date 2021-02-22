@@ -5,6 +5,7 @@ import cdi.lite.extension.model.types.Type;
 import java.lang.annotation.Annotation;
 import java.util.function.Consumer;
 
+// TODO maybe AppArchiveConfig shouldn't extend AppArchive, and *ConfigQuery shouldn't extend *Query
 public interface AppArchiveConfig extends AppArchive {
     @Override
     ClassConfigQuery classes();

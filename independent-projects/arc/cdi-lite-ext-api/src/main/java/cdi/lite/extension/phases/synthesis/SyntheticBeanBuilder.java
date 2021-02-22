@@ -14,6 +14,7 @@ import java.lang.annotation.Annotation;
  */
 public interface SyntheticBeanBuilder<T> {
     // can be called multiple times and is additive
+    // TODO methods to add multiple types at once?
     SyntheticBeanBuilder<T> type(Class<?> type);
 
     SyntheticBeanBuilder<T> type(ClassInfo<?> type);
@@ -21,6 +22,7 @@ public interface SyntheticBeanBuilder<T> {
     SyntheticBeanBuilder<T> type(Type type);
 
     // can be called multiple times and is additive
+    // TODO methods to add multiple qualifiers at once?
     SyntheticBeanBuilder<T> qualifier(Class<? extends Annotation> qualifierAnnotation, AnnotationAttribute... attributes);
 
     SyntheticBeanBuilder<T> qualifier(ClassInfo<?> qualifierAnnotation, AnnotationAttribute... attributes);
@@ -28,7 +30,6 @@ public interface SyntheticBeanBuilder<T> {
     SyntheticBeanBuilder<T> qualifier(AnnotationInfo qualifierAnnotation);
 
     SyntheticBeanBuilder<T> qualifier(Annotation qualifierAnnotation);
-    // TODO methods to add multiple qualifiers at once?
 
     // if called multiple times, last call wins
     SyntheticBeanBuilder<T> scope(Class<? extends Annotation> scopeAnnotation);
@@ -50,8 +51,7 @@ public interface SyntheticBeanBuilder<T> {
 
     SyntheticBeanBuilder<T> stereotype(ClassInfo<?> stereotypeAnnotation);
 
-    // TODO how to define the creation/destruction implementation?
-
+    // params for creation and destruction functions
     SyntheticBeanBuilder<T> withParam(String key, boolean value);
 
     SyntheticBeanBuilder<T> withParam(String key, int value);

@@ -26,6 +26,7 @@ public interface SyntheticObserverBuilder {
     SyntheticObserverBuilder declaringClass(ClassInfo<?> declaringClass);
 
     // if called multiple times, last call wins
+    // TODO methods to add multiple types at once?
     SyntheticObserverBuilder type(Class<?> type);
 
     SyntheticObserverBuilder type(ClassInfo<?> type);
@@ -33,6 +34,7 @@ public interface SyntheticObserverBuilder {
     SyntheticObserverBuilder type(Type type);
 
     // can be called multiple times and is additive
+    // TODO methods to add multiple qualifiers at once?
     SyntheticObserverBuilder qualifier(Class<? extends Annotation> qualifierAnnotation, AnnotationAttribute... attributes);
 
     SyntheticObserverBuilder qualifier(ClassInfo<?> qualifierAnnotation, AnnotationAttribute... attributes);
@@ -40,7 +42,6 @@ public interface SyntheticObserverBuilder {
     SyntheticObserverBuilder qualifier(AnnotationInfo qualifierAnnotation);
 
     SyntheticObserverBuilder qualifier(Annotation qualifierAnnotation);
-    // TODO methods to add multiple qualifiers at once
 
     // if called multiple times, last call wins
     SyntheticObserverBuilder priority(int priority);

@@ -45,7 +45,7 @@ public interface BeanInfo<T> {
     // EL name (from @Named), IIUC
     String getName();
 
-    DisposerInfo disposer(); // TODO is this necessary?
+    DisposerInfo disposer(); // TODO null if not producer method/field, or return Optional?
 
     Collection<StereotypeInfo> stereotypes();
 

@@ -13,8 +13,7 @@ import java.lang.annotation.Target;
  * priority, the ordering is undefined.
  * TODO should really figure out if low number = high priority or otherwise, preferrably
  *  so that it's consistent with common usages of `@Priority`
- * TODO now that extensions are not methods but service providers for BuildCompatibleExtension,
- *  should perhaps priority be assigned on the class level? or should both be possible?
+ * TODO should perhaps priority be assigned on the class level? or should both class and method be possible?
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

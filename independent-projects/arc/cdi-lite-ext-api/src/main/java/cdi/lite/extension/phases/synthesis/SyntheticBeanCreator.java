@@ -10,5 +10,6 @@ import javax.enterprise.inject.spi.InjectionPoint;
  * @param <T> type of created instances
  */
 public interface SyntheticBeanCreator<T> {
+    // injectionPoint is only set when the synthetic bean is @Dependent
     T create(CreationalContext<T> creationalContext, InjectionPoint injectionPoint, Map<String, Object> params);
 }

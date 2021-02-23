@@ -326,7 +326,35 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
         // Make sure Arc is down
         Arc.shutdown();
 
+        ClassLoader old = Thread.currentThread()
+                .getContextClassLoader();
+
         CdiLiteExtensions cdiLiteExtensions = new CdiLiteExtensions();
+
+        File buildCompatibleExtensionsFile = new File("target/generated-arc-sources/" + nameToPath(testClass.getPackage()
+                .getName()), BuildCompatibleExtension.class.getSimpleName());
+        if (!this.buildCompatibleExtensions.isEmpty()) {
+            try {
+                buildCompatibleExtensionsFile.getParentFile().mkdirs();
+                Files.write(buildCompatibleExtensionsFile.toPath(), this.buildCompatibleExtensions.stream()
+                        .map(Class::getName)
+                        .collect(Collectors.toList()));
+            } catch (IOException e) {
+                throw new IllegalStateException("Error generating BuildCompatibleExtension list", e);
+            }
+        }
+        ClassLoader processingClassLoader = new ClassLoader(old) {
+            @Override
+            public Enumeration<URL> getResources(String name) throws IOException {
+                if (("META-INF/services/" + BuildCompatibleExtension.class.getName()).equals(name)
+                        && !buildCompatibleExtensions.isEmpty()) {
+                    return Collections.enumeration(Collections.singleton(buildCompatibleExtensionsFile.toURI()
+                            .toURL()));
+                }
+                return super.getResources(name);
+            }
+        };
+        Thread.currentThread().setContextClassLoader(processingClassLoader);
 
         // Build index
         IndexView beanArchiveIndex;
@@ -364,9 +392,6 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
             beanArchiveIndex = CompositeIndex.create(beanArchiveIndex, additionalIndex);
         }
 
-        ClassLoader old = Thread.currentThread()
-                .getContextClassLoader();
-
         try {
             String arcContainerAbsolutePath = ArcTestContainer.class.getClassLoader()
                     .getResource(ArcTestContainer.class.getName().replace(".", "/") + ".class").getFile();
@@ -380,9 +405,6 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
             File resourceReferenceProviderFile = new File(generatedSourcesDirectory + "/" + nameToPath(testClass.getPackage()
                     .getName()), ResourceReferenceProvider.class.getSimpleName());
 
-            File buildCompatibleExtensionsFile = new File(generatedSourcesDirectory + "/" + nameToPath(testClass.getPackage()
-                    .getName()), BuildCompatibleExtension.class.getSimpleName());
-
             if (!resourceReferenceProviders.isEmpty()) {
                 try {
                     resourceReferenceProviderFile.getParentFile()
@@ -394,30 +416,6 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
                     throw new IllegalStateException("Error generating resource reference providers", e);
                 }
             }
-
-            if (!this.buildCompatibleExtensions.isEmpty()) {
-                try {
-                    buildCompatibleExtensionsFile.getParentFile().mkdirs();
-                    Files.write(buildCompatibleExtensionsFile.toPath(), this.buildCompatibleExtensions.stream()
-                            .map(Class::getName)
-                            .collect(Collectors.toList()));
-                } catch (IOException e) {
-                    throw new IllegalStateException("Error generating BuildCompatibleExtension list", e);
-                }
-            }
-
-            ClassLoader processingClassLoader = new ClassLoader(old) {
-                @Override
-                public Enumeration<URL> getResources(String name) throws IOException {
-                    if (("META-INF/services/" + BuildCompatibleExtension.class.getName()).equals(name)
-                            && !buildCompatibleExtensions.isEmpty()) {
-                        return Collections.enumeration(Collections.singleton(buildCompatibleExtensionsFile.toURI()
-                                .toURL()));
-                    }
-                    return super.getResources(name);
-                }
-            };
-            Thread.currentThread().setContextClassLoader(processingClassLoader);
 
             BeanProcessor.Builder builder = BeanProcessor.builder()
                     .setName(testClass.getName().replace('.', '_'))

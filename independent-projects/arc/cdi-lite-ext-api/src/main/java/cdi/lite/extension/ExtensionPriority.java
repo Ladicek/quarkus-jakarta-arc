@@ -6,14 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Allows specifying priority of extensions.
+ * Allows specifying priority of extension methods.
  * <p>
- * Extensions with specified priority always precede extensions without any priority.
- * Extension with highest priority get invoked first. If two extensions have equal
- * priority, the ordering is undefined.
- * TODO should really figure out if low number = high priority or otherwise, preferrably
- *  so that it's consistent with common usages of `@Priority`
- * TODO should perhaps priority be assigned on the class level? or should both class and method be possible?
+ * Extension methods with smaller priority values are invoked first.
+ * Extension methods without specified priority are treated as methods with priority {@code 10_000};
+ * If two extension methods have equal priority, the ordering among them is undefined.
+ *
+ * @see BuildCompatibleExtension
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

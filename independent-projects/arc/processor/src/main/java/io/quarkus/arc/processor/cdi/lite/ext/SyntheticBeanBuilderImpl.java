@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.enterprise.context.Dependent;
 import org.jboss.jandex.DotName;
 
 class SyntheticBeanBuilderImpl<T> implements SyntheticBeanBuilder<T> {

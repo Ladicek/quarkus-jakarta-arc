@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.EventContext;
 import javax.enterprise.inject.spi.InjectionPoint;
@@ -137,15 +138,15 @@ public class CdiLiteExtensions {
                     bean.param(entry.getKey(), (Class<?>) entry.getValue());
                 }
             }
+            // TODO can't really know if the scope is @Dependent, because there may be a stereotype with default scope
+            //  but this will have to do for now
+            boolean isDependent = syntheticBean.scope == null || Dependent.class.equals(syntheticBean.scope);
             bean.creator(mc -> { // generated method signature: Object(CreationalContext)
-                // | InjectionPoint injectionPoint = InjectionPointProvider.get();
-                // | if (injectionPoint == null) {
-                // |     throw new IllegalStateException("No current injection point found");
-                // | }
-                ResultHandle injectionPoint = mc.invokeStaticMethod(MethodDescriptor.ofMethod(InjectionPointProvider.class,
-                        "get", InjectionPoint.class));
-                mc.ifNull(injectionPoint).trueBranch().throwException(IllegalStateException.class,
-                        "No current injection point found");
+                // | InjectionPoint injectionPoint = isDependent ? InjectionPointProvider.get() : null;
+                ResultHandle injectionPoint = isDependent
+                        ? mc.invokeStaticMethod(
+                                MethodDescriptor.ofMethod(InjectionPointProvider.class, "get", InjectionPoint.class))
+                        : mc.loadNull();
 
                 // | Map<String, Object> params = this.params;
                 // the generated bean class has a "params" field filled with all the data

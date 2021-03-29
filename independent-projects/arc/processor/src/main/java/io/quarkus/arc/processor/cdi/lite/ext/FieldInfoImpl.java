@@ -1,5 +1,6 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.FieldInfo;
 import cdi.lite.extension.model.types.Type;
 import java.lang.reflect.Modifier;
@@ -41,6 +42,11 @@ class FieldInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.FieldInfo> impl
     @Override
     public int modifiers() {
         return jandexDeclaration.flags();
+    }
+
+    @Override
+    public ClassInfo<Object> declaringClass() {
+        return new ClassInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration.declaringClass());
     }
 
     @Override

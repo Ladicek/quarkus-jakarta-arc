@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.enterprise.context.Dependent;
 import org.jboss.jandex.DotName;
 
 class SyntheticBeanBuilderImpl<T> implements SyntheticBeanBuilder<T> {
@@ -130,7 +129,19 @@ class SyntheticBeanBuilderImpl<T> implements SyntheticBeanBuilder<T> {
     }
 
     @Override
+    public SyntheticBeanBuilder<T> withParam(String key, boolean[] value) {
+        this.params.put(key, value);
+        return this;
+    }
+
+    @Override
     public SyntheticBeanBuilder<T> withParam(String key, int value) {
+        this.params.put(key, value);
+        return this;
+    }
+
+    @Override
+    public SyntheticBeanBuilder<T> withParam(String key, int[] value) {
         this.params.put(key, value);
         return this;
     }
@@ -142,7 +153,19 @@ class SyntheticBeanBuilderImpl<T> implements SyntheticBeanBuilder<T> {
     }
 
     @Override
+    public SyntheticBeanBuilder<T> withParam(String key, long[] value) {
+        this.params.put(key, value);
+        return this;
+    }
+
+    @Override
     public SyntheticBeanBuilder<T> withParam(String key, double value) {
+        this.params.put(key, value);
+        return this;
+    }
+
+    @Override
+    public SyntheticBeanBuilder<T> withParam(String key, double[] value) {
         this.params.put(key, value);
         return this;
     }
@@ -154,7 +177,19 @@ class SyntheticBeanBuilderImpl<T> implements SyntheticBeanBuilder<T> {
     }
 
     @Override
+    public SyntheticBeanBuilder<T> withParam(String key, String[] value) {
+        this.params.put(key, value);
+        return this;
+    }
+
+    @Override
     public SyntheticBeanBuilder<T> withParam(String key, Class<?> value) {
+        this.params.put(key, value);
+        return this;
+    }
+
+    @Override
+    public SyntheticBeanBuilder<T> withParam(String key, Class<?>[] value) {
         this.params.put(key, value);
         return this;
     }

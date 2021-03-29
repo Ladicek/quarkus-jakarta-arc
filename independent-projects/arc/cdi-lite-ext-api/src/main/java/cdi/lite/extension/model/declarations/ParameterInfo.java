@@ -7,6 +7,8 @@ public interface ParameterInfo extends DeclarationInfo {
 
     Type type();
 
+    MethodInfo<?> declaringMethod();
+
     // ---
 
     @Override

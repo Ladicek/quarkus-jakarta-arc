@@ -1,6 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
 import cdi.lite.extension.model.AnnotationInfo;
+import cdi.lite.extension.model.declarations.MethodInfo;
 import cdi.lite.extension.model.declarations.ParameterInfo;
 import cdi.lite.extension.model.types.Type;
 import java.lang.annotation.Annotation;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> implements ParameterInfo {
     // only for equals/hashCode
     private final MethodInfoImpl method;
+
     private final int position;
 
     private AnnotationSet annotationSet;
@@ -32,6 +34,11 @@ class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo>
     @Override
     public Type type() {
         return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexDeclaration.parameters().get(position));
+    }
+
+    @Override
+    public MethodInfo<?> declaringMethod() {
+        return new MethodInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration);
     }
 
     @Override

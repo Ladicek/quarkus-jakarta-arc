@@ -160,6 +160,7 @@ public class ArcProcessor {
             List<ObserverTransformerBuildItem> observerTransformers,
             List<InterceptorBindingRegistrarBuildItem> interceptorBindingRegistrars,
             List<QualifierRegistrarBuildItem> qualifierRegistrars,
+            List<StereotypeRegistrarBuildItem> stereotypeRegistrars,
             List<AdditionalStereotypeBuildItem> additionalStereotypeBuildItems,
             List<ApplicationClassPredicateBuildItem> applicationClassPredicates,
             List<AdditionalBeanBuildItem> additionalBeans,
@@ -244,6 +245,7 @@ public class ArcProcessor {
                 .map((s) -> new BeanDefiningAnnotation(s.getName(), s.getDefaultScope())).collect(Collectors.toList());
         beanDefiningAnnotations.add(new BeanDefiningAnnotation(ADDITIONAL_BEAN, null));
         builder.setAdditionalBeanDefiningAnnotations(beanDefiningAnnotations);
+        // TODO migrate to StereotypeRegistrarBuildItem -- as part of that, the commented code below should be used
         final Map<DotName, Collection<AnnotationInstance>> additionalStereotypes = new HashMap<>();
         for (final AdditionalStereotypeBuildItem item : additionalStereotypeBuildItems) {
             additionalStereotypes.putAll(item.getStereotypes());
@@ -272,6 +274,23 @@ public class ArcProcessor {
         for (QualifierRegistrarBuildItem registrar : qualifierRegistrars) {
             builder.addQualifierRegistrar(registrar.getQualifierRegistrar());
         }
+        // register additional stereotypes
+        for (StereotypeRegistrarBuildItem registrar : stereotypeRegistrars) {
+            builder.addStereotypeRegistrar(registrar.getStereotypeRegistrar());
+        }
+/*
+        // legacy AdditionalStereotypeBuildItem
+        builder.addStereotypeRegistrar(new StereotypeRegistrar() {
+            @Override
+            public Set<DotName> registerAdditionalStereotypes() {
+                Set<DotName> result = new HashSet<>();
+                for (AdditionalStereotypeBuildItem buildItem : additionalStereotypeBuildItems) {
+                    result.addAll(buildItem.getStereotypes().keySet());
+                }
+                return result;
+            }
+        });
+*/
         builder.setRemoveUnusedBeans(arcConfig.shouldEnableBeanRemoval());
         if (arcConfig.shouldOnlyKeepAppBeans()) {
             builder.addRemovalExclusion(new AbstractCompositeApplicationClassesPredicate<BeanInfo>(

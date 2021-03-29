@@ -52,12 +52,20 @@ class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> impl
 
     @Override
     public Type superClass() {
-        return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexDeclaration.superClassType());
+        org.jboss.jandex.Type jandexSuperType = jandexDeclaration.superClassType();
+        if (jandexSuperType == null) {
+            return null;
+        }
+        return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexSuperType);
     }
 
     @Override
     public ClassInfo<?> superClassDeclaration() {
-        return new ClassInfoImpl(jandexIndex, annotationOverlays, jandexIndex.getClassByName(jandexDeclaration.superName()));
+        DotName jandexSuperType = jandexDeclaration.superName();
+        if (jandexSuperType == null) {
+            return null;
+        }
+        return new ClassInfoImpl(jandexIndex, annotationOverlays, jandexIndex.getClassByName(jandexSuperType));
     }
 
     @Override
@@ -113,7 +121,7 @@ class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> impl
     }
 
     @Override
-    public Collection<MethodInfo<Object>> constructors() {
+    public Collection<? extends MethodInfo<Object>> constructors() {
         return jandexDeclaration.methods()
                 .stream()
                 .filter(MethodPredicates.IS_CONSTRUCTOR_JANDEX)
@@ -122,7 +130,7 @@ class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> impl
     }
 
     @Override
-    public Collection<MethodInfo<Object>> methods() {
+    public Collection<? extends MethodInfo<Object>> methods() {
         return jandexDeclaration.methods()
                 .stream()
                 .filter(MethodPredicates.IS_METHOD_JANDEX)
@@ -131,7 +139,7 @@ class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> impl
     }
 
     @Override
-    public Collection<FieldInfo<Object>> fields() {
+    public Collection<? extends FieldInfo<Object>> fields() {
         return jandexDeclaration.fields()
                 .stream()
                 .map(it -> new FieldInfoImpl(jandexIndex, annotationOverlays, it))

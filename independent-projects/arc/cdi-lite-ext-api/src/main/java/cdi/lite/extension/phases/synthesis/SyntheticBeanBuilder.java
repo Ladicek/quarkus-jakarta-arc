@@ -32,6 +32,7 @@ public interface SyntheticBeanBuilder<T> {
     SyntheticBeanBuilder<T> qualifier(Annotation qualifierAnnotation);
 
     // if called multiple times, last call wins
+    // if not called, defaults to @Dependent
     SyntheticBeanBuilder<T> scope(Class<? extends Annotation> scopeAnnotation);
 
     // if called with `true`, priority is automatically 0, unless `priority` is also called
@@ -54,15 +55,27 @@ public interface SyntheticBeanBuilder<T> {
     // params for creation and destruction functions
     SyntheticBeanBuilder<T> withParam(String key, boolean value);
 
+    SyntheticBeanBuilder<T> withParam(String key, boolean[] value);
+
     SyntheticBeanBuilder<T> withParam(String key, int value);
+
+    SyntheticBeanBuilder<T> withParam(String key, int[] value);
 
     SyntheticBeanBuilder<T> withParam(String key, long value);
 
+    SyntheticBeanBuilder<T> withParam(String key, long[] value);
+
     SyntheticBeanBuilder<T> withParam(String key, double value);
+
+    SyntheticBeanBuilder<T> withParam(String key, double[] value);
 
     SyntheticBeanBuilder<T> withParam(String key, String value);
 
+    SyntheticBeanBuilder<T> withParam(String key, String[] value);
+
     SyntheticBeanBuilder<T> withParam(String key, Class<?> value);
+
+    SyntheticBeanBuilder<T> withParam(String key, Class<?>[] value);
 
     SyntheticBeanBuilder<T> createWith(Class<? extends SyntheticBeanCreator<T>> creatorClass);
 

@@ -33,6 +33,7 @@ public class AutoProducerMethodsProcessor {
     void annotationTransformer(ArcConfig config, BeanArchiveIndexBuildItem beanArchiveIndex,
             CustomScopeAnnotationsBuildItem scopes,
             List<AdditionalStereotypeBuildItem> additionalStereotypes,
+            List<StereotypeRegistrarBuildItem> stereotypeRegistrars,
             BuildProducer<AnnotationsTransformerBuildItem> annotationsTransformer) throws Exception {
         if (!config.autoProducerMethods) {
             return;
@@ -46,6 +47,9 @@ public class AutoProducerMethodsProcessor {
         }
         for (AdditionalStereotypeBuildItem additionalStereotype : additionalStereotypes) {
             qualifiersAndStereotypes.addAll(additionalStereotype.getStereotypes().keySet());
+        }
+        for (StereotypeRegistrarBuildItem stereotypeRegistrar : stereotypeRegistrars) {
+            qualifiersAndStereotypes.addAll(stereotypeRegistrar.getStereotypeRegistrar().getAdditionalStereotypes());
         }
         LOGGER.debugf("Add missing @Produces to methods annotated with %s", qualifiersAndStereotypes);
         annotationsTransformer.produce(new AnnotationsTransformerBuildItem(new AnnotationsTransformer() {

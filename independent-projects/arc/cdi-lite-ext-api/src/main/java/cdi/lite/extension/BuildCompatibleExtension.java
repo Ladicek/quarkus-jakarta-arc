@@ -21,10 +21,13 @@ package cdi.lite.extension;
  * on the particular processing phase and is documented in the corresponding extension annotation.
  * All the parameters will be provided by the container when the extension is invoked.
  * <p>
- * Extension can be assigned a priority using {@link cdi.lite.extension.ExtensionPriority @ExtensionPriority}.
+ * Extension methods can be assigned a priority using {@link cdi.lite.extension.ExtensionPriority @ExtensionPriority}.
  * Note that priority only affects order of extensions in a single phase.
  * <p>
  * If the extension declares multiple methods, they are all invoked on the same instance of the class.
+ * <p>
+ * Extension classes can be annotated {@link SkipIfPortableExtensionPresent @SkipIfPortablExtensionPresent}
+ * when they are supposed to be ignored in presence of a given portable extension.
  */
 public interface BuildCompatibleExtension {
 }

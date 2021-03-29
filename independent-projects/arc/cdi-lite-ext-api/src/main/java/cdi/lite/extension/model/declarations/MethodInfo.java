@@ -32,6 +32,8 @@ public interface MethodInfo<T> extends DeclarationInfo {
 
     int modifiers();
 
+    ClassInfo<T> declaringClass();
+
     // ---
 
     @Override

@@ -111,6 +111,7 @@ class AppArchiveImpl implements AppArchive {
             if (requiredJandexClasses != null && requiredJandexAnnotations != null) {
                 return requiredJandexClasses.stream()
                         .map(jandexIndex::getClassByName)
+                        .filter(AnnotationTransformationConfig.FILTER)
                         .filter(jandexClass -> {
                             for (DotName requiredJandexAnnotation : requiredJandexAnnotations) {
                                 if (classesOverlay.hasAnnotation(jandexClass, requiredJandexAnnotation)) {
@@ -123,6 +124,7 @@ class AppArchiveImpl implements AppArchive {
             } else if (requiredJandexClasses != null) {
                 return requiredJandexClasses.stream()
                         .map(jandexIndex::getClassByName)
+                        .filter(AnnotationTransformationConfig.FILTER)
                         .map(it -> new ClassInfoImpl(jandexIndex, annotationOverlays, it));
             } else if (requiredJandexAnnotations != null) {
                 Stream<ClassInfo<?>> result = null;
@@ -131,6 +133,7 @@ class AppArchiveImpl implements AppArchive {
                             .stream()
                             .filter(it -> it.target().kind() == org.jboss.jandex.AnnotationTarget.Kind.CLASS)
                             .map(it -> it.target().asClass())
+                            .filter(AnnotationTransformationConfig.FILTER)
                             .filter(it -> classesOverlay.hasAnnotation(it, requiredJandexAnnotation))
                             .map(it -> new ClassInfoImpl(jandexIndex, annotationOverlays, it));
                     if (result == null) {
@@ -142,6 +145,7 @@ class AppArchiveImpl implements AppArchive {
                     Stream<ClassInfoImpl> fromOverlay = classesOverlay
                             .overlaidDeclarationsWithAnnotation(requiredJandexAnnotation)
                             .stream()
+                            .filter(AnnotationTransformationConfig.FILTER)
                             .map(it -> new ClassInfoImpl(jandexIndex, annotationOverlays, it));
                     result = Stream.concat(result, fromOverlay);
                 }
@@ -149,6 +153,7 @@ class AppArchiveImpl implements AppArchive {
             } else {
                 return jandexIndex.getKnownClasses()
                         .stream()
+                        .filter(AnnotationTransformationConfig.FILTER)
                         .map(it -> new ClassInfoImpl(jandexIndex, annotationOverlays, it));
             }
         }

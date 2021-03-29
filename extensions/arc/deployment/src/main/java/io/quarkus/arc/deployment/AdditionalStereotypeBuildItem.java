@@ -10,7 +10,10 @@ import io.quarkus.builder.item.MultiBuildItem;
 
 /**
  * A map of additional stereotype classes to their instances that we want to process.
+ *
+ * @deprecated use {@link StereotypeRegistrarBuildItem}
  */
+@Deprecated // TODO update documentation to use StereotypeRegistrarBuildItem, too!
 public final class AdditionalStereotypeBuildItem extends MultiBuildItem {
 
     private final Map<DotName, Collection<AnnotationInstance>> stereotypes;

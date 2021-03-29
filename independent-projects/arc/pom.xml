@@ -65,6 +65,12 @@
 
             <dependency>
                 <groupId>io.quarkus.arc</groupId>
+                <artifactId>cdi-lite-ext-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.quarkus.arc</groupId>
                 <artifactId>arc</artifactId>
                 <version>${project.version}</version>
             </dependency>

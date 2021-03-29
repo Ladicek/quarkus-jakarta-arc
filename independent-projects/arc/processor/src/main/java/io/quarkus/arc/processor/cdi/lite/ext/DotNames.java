@@ -11,7 +11,7 @@ import cdi.lite.extension.phases.Enhancement;
 import cdi.lite.extension.phases.Synthesis;
 import cdi.lite.extension.phases.Validation;
 import cdi.lite.extension.phases.discovery.AppArchiveBuilder;
-import cdi.lite.extension.phases.discovery.Contexts;
+import cdi.lite.extension.phases.discovery.MetaAnnotations;
 import cdi.lite.extension.phases.enhancement.Annotations;
 import cdi.lite.extension.phases.enhancement.AppArchiveConfig;
 import cdi.lite.extension.phases.enhancement.ClassConfig;
@@ -26,6 +26,7 @@ import org.jboss.jandex.DotName;
 
 class DotNames {
     static final DotName ANNOTATION = DotName.createSimple(Annotation.class.getName());
+    static final DotName OBJECT = DotName.createSimple(Object.class.getName());
     static final DotName REPEATABLE = DotName.createSimple(Repeatable.class.getName());
 
     static final DotName BUILD_COMPATIBLE_EXTENSION = DotName.createSimple(BuildCompatibleExtension.class.getName());
@@ -48,8 +49,8 @@ class DotNames {
     static final DotName APP_ARCHIVE_BUILDER = DotName.createSimple(AppArchiveBuilder.class.getName());
     static final DotName APP_ARCHIVE_CONFIG = DotName.createSimple(AppArchiveConfig.class.getName());
     static final DotName APP_DEPLOYMENT = DotName.createSimple(AppDeployment.class.getName());
-    static final DotName CONTEXTS = DotName.createSimple(Contexts.class.getName());
     static final DotName MESSAGES = DotName.createSimple(Messages.class.getName());
+    static final DotName META_ANNOTATIONS = DotName.createSimple(MetaAnnotations.class.getName());
     static final DotName SYNTHETIC_COMPONENTS = DotName.createSimple(SyntheticComponents.class.getName());
     static final DotName TYPES = DotName.createSimple(Types.class.getName());
 }

@@ -194,20 +194,56 @@ public class BeanGenerator extends AbstractGenerator {
             for (Entry<String, Object> entry : bean.getParams().entrySet()) {
                 ResultHandle valHandle = null;
                 if (entry.getValue() instanceof String) {
-                    valHandle = constructor.load(entry.getValue().toString());
+                    valHandle = constructor.load((String) entry.getValue());
+                } else if (entry.getValue() instanceof String[]) {
+                    String[] array = (String[]) entry.getValue();
+                    valHandle = constructor.newArray(String.class, array.length);
+                    for (int i = 0; i < array.length; i++) {
+                        constructor.writeArrayValue(valHandle, i, constructor.load(array[i]));
+                    }
                 } else if (entry.getValue() instanceof Integer) {
                     valHandle = constructor.newInstance(MethodDescriptor.ofConstructor(Integer.class, int.class),
                             constructor.load(((Integer) entry.getValue()).intValue()));
+                } else if (entry.getValue() instanceof int[]) {
+                    int[] array = (int[]) entry.getValue();
+                    valHandle = constructor.newArray(int.class, array.length);
+                    for (int i = 0; i < array.length; i++) {
+                        constructor.writeArrayValue(valHandle, i, constructor.load(array[i]));
+                    }
                 } else if (entry.getValue() instanceof Long) {
                     valHandle = constructor.newInstance(MethodDescriptor.ofConstructor(Long.class, long.class),
                             constructor.load(((Long) entry.getValue()).longValue()));
+                } else if (entry.getValue() instanceof long[]) {
+                    long[] array = (long[]) entry.getValue();
+                    valHandle = constructor.newArray(double.class, array.length);
+                    for (int i = 0; i < array.length; i++) {
+                        constructor.writeArrayValue(valHandle, i, constructor.load(array[i]));
+                    }
                 } else if (entry.getValue() instanceof Double) {
                     valHandle = constructor.newInstance(MethodDescriptor.ofConstructor(Double.class, double.class),
                             constructor.load(((Double) entry.getValue()).doubleValue()));
+                } else if (entry.getValue() instanceof double[]) {
+                    double[] array = (double[]) entry.getValue();
+                    valHandle = constructor.newArray(double.class, array.length);
+                    for (int i = 0; i < array.length; i++) {
+                        constructor.writeArrayValue(valHandle, i, constructor.load(array[i]));
+                    }
                 } else if (entry.getValue() instanceof Class) {
                     valHandle = constructor.loadClassFromTCCL((Class<?>) entry.getValue());
+                } else if (entry.getValue() instanceof Class[]) {
+                    Class<?>[] array = (Class<?>[]) entry.getValue();
+                    valHandle = constructor.newArray(Class.class, array.length);
+                    for (int i = 0; i < array.length; i++) {
+                        constructor.writeArrayValue(valHandle, i, constructor.loadClassFromTCCL(array[i]));
+                    }
                 } else if (entry.getValue() instanceof Boolean) {
                     valHandle = constructor.load((Boolean) entry.getValue());
+                } else if (entry.getValue() instanceof boolean[]) {
+                    boolean[] array = (boolean[]) entry.getValue();
+                    valHandle = constructor.newArray(boolean.class, array.length);
+                    for (int i = 0; i < array.length; i++) {
+                        constructor.writeArrayValue(valHandle, i, constructor.load(array[i]));
+                    }
                 }
                 // TODO other param types
                 constructor.invokeInterfaceMethod(MethodDescriptors.MAP_PUT, paramsHandle, constructor.load(entry.getKey()),

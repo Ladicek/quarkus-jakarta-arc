@@ -58,7 +58,7 @@ class AppArchiveConfigImpl extends AppArchiveImpl implements AppArchiveConfig {
         @Override
         public void configure(Consumer<ClassConfig<?>> consumer) {
             stream()
-                    .map(it -> new ClassConfigImpl(jandexIndex, annotationTransformations.classes,
+                    .map(it -> new ClassConfigImpl(jandexIndex, annotationTransformations,
                             ((ClassInfoImpl) it).jandexDeclaration))
                     .forEach(consumer);
         }

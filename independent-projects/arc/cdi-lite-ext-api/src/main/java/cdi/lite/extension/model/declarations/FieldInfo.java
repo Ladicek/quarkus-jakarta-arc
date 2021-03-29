@@ -16,6 +16,8 @@ public interface FieldInfo<T> extends DeclarationInfo {
 
     int modifiers();
 
+    ClassInfo<T> declaringClass();
+
     // ---
 
     @Override

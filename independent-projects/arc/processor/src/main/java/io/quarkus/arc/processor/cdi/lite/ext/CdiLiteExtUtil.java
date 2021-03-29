@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.Indexer;
+import org.jboss.jandex.Type;
 
 // TODO better name!
 class CdiLiteExtUtil {
@@ -91,8 +92,8 @@ class CdiLiteExtUtil {
         APP_ARCHIVE_BUILDER(Phase.DISCOVERY),
         APP_ARCHIVE_CONFIG(Phase.ENHANCEMENT),
         APP_DEPLOYMENT(Phase.SYNTHESIS, Phase.VALIDATION),
-        CONTEXTS(Phase.DISCOVERY),
         MESSAGES(Phase.DISCOVERY, Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
+        META_ANNOTATIONS(Phase.DISCOVERY),
         SYNTHETIC_COMPONENTS(Phase.SYNTHESIS),
         TYPES(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
 
@@ -137,14 +138,34 @@ class CdiLiteExtUtil {
                     return APP_ARCHIVE_CONFIG;
                 } else if (type.name().equals(DotNames.APP_DEPLOYMENT)) {
                     return APP_DEPLOYMENT;
-                } else if (type.name().equals(DotNames.CONTEXTS)) {
-                    return CONTEXTS;
                 } else if (type.name().equals(DotNames.MESSAGES)) {
                     return MESSAGES;
+                } else if (type.name().equals(DotNames.META_ANNOTATIONS)) {
+                    return META_ANNOTATIONS;
                 } else if (type.name().equals(DotNames.SYNTHETIC_COMPONENTS)) {
                     return SYNTHETIC_COMPONENTS;
                 } else if (type.name().equals(DotNames.TYPES)) {
                     return TYPES;
+                }
+            }
+
+            if (type.kind() == Type.Kind.PARAMETERIZED_TYPE) {
+                // for now, let's also accept {Class,Method,Field}Config<?>
+                // this will later be removed, if {Class,Method,Field}Config stops being parameterized,
+                // or will be replaced with something more complex, if we return back to expressing queries using
+                // type argument bounds
+                List<Type> typeArguments = type.asParameterizedType().arguments();
+                if (typeArguments.size() == 1
+                        && typeArguments.get(0).kind() == Type.Kind.WILDCARD_TYPE
+                        && typeArguments.get(0).asWildcardType().superBound() == null
+                        && typeArguments.get(0).asWildcardType().extendsBound().name().equals(DotNames.OBJECT)) {
+                    if (type.name().equals(DotNames.CLASS_CONFIG)) {
+                        return CLASS_CONFIG;
+                    } else if (type.name().equals(DotNames.METHOD_CONFIG)) {
+                        return METHOD_CONFIG;
+                    } else if (type.name().equals(DotNames.FIELD_CONFIG)) {
+                        return FIELD_CONFIG;
+                    }
                 }
             }
 
@@ -189,6 +210,8 @@ class CdiLiteExtUtil {
             // beware of ordering! subtypes must precede supertypes
             if (cdi.lite.extension.phases.discovery.AppArchiveBuilder.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.phases.discovery.AppArchiveBuilder.class;
+            } else if (cdi.lite.extension.phases.discovery.MetaAnnotations.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.phases.discovery.MetaAnnotations.class;
             } else if (cdi.lite.extension.phases.enhancement.ClassConfig.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.phases.enhancement.ClassConfig.class;
             } else if (cdi.lite.extension.phases.enhancement.MethodConfig.class.isAssignableFrom(argumentClass)) {
@@ -219,6 +242,7 @@ class CdiLiteExtUtil {
         Object extensionClassInstance = getExtensionClassInstance(extensionClass);
 
         Method methodReflective = extensionClass.getMethod(jandexMethod.name(), parameterTypes);
+        methodReflective.setAccessible(true);
         methodReflective.invoke(extensionClassInstance, arguments.toArray());
     }
 }

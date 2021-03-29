@@ -1,5 +1,6 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import cdi.lite.extension.model.declarations.ClassInfo;
 import cdi.lite.extension.model.declarations.MethodInfo;
 import cdi.lite.extension.model.declarations.ParameterInfo;
 import cdi.lite.extension.model.types.Type;
@@ -89,6 +90,11 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
     @Override
     public int modifiers() {
         return jandexDeclaration.flags();
+    }
+
+    @Override
+    public ClassInfo<Object> declaringClass() {
+        return new ClassInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration.declaringClass());
     }
 
     @Override

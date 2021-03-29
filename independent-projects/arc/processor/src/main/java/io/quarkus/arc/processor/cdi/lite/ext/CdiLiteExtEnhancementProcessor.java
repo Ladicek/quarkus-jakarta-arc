@@ -4,7 +4,6 @@ import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.ExtensionMeth
 import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.Phase;
 
 import cdi.lite.extension.Messages;
-import io.quarkus.arc.processor.BeanProcessor;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,27 +19,21 @@ import org.jboss.jandex.IndexView;
 class CdiLiteExtEnhancementProcessor {
     private final CdiLiteExtUtil util;
     private final org.jboss.jandex.IndexView beanArchiveIndex;
-    private final BeanProcessor.Builder builder;
     private final AllAnnotationOverlays annotationOverlays;
     private final AllAnnotationTransformations annotationTransformations;
     private final Messages messages;
 
-    CdiLiteExtEnhancementProcessor(CdiLiteExtUtil util, IndexView beanArchiveIndex, BeanProcessor.Builder builder,
-            AllAnnotationOverlays annotationOverlays, MessagesImpl messages) {
+    CdiLiteExtEnhancementProcessor(CdiLiteExtUtil util, IndexView beanArchiveIndex,
+            AllAnnotationTransformations annotationTransformations, MessagesImpl messages) {
         this.util = util;
         this.beanArchiveIndex = beanArchiveIndex;
-        this.builder = builder;
-        this.annotationOverlays = annotationOverlays;
-        this.annotationTransformations = new AllAnnotationTransformations(beanArchiveIndex, annotationOverlays);
+        this.annotationOverlays = annotationTransformations.annotationOverlays;
+        this.annotationTransformations = annotationTransformations;
         this.messages = messages;
     }
 
     void run() {
         try {
-            builder.addAnnotationTransformer(annotationTransformations.classes);
-            builder.addAnnotationTransformer(annotationTransformations.methods);
-            builder.addAnnotationTransformer(annotationTransformations.fields);
-
             doRun();
         } catch (Exception e) {
             // TODO proper diagnostics system
@@ -118,7 +111,7 @@ class CdiLiteExtEnhancementProcessor {
             List<Object> allValuesForQueryParameter;
             if (query == ExtensionMethodParameterType.CLASS_CONFIG) {
                 allValuesForQueryParameter = matchingClasses.stream()
-                        .map(it -> new ClassConfigImpl(beanArchiveIndex, annotationTransformations.classes, it))
+                        .map(it -> new ClassConfigImpl(beanArchiveIndex, annotationTransformations, it))
                         .collect(Collectors.toList());
             } else if (query == ExtensionMethodParameterType.METHOD_CONFIG) {
                 allValuesForQueryParameter = matchingClasses.stream()
@@ -218,6 +211,7 @@ class CdiLiteExtEnhancementProcessor {
 
                     return result.stream();
                 })
+                .filter(AnnotationTransformationConfig.FILTER)
                 .collect(Collectors.toList());
     }
 

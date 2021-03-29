@@ -4,9 +4,14 @@ import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.ExtensionMeth
 import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.Phase;
 
 import cdi.lite.extension.Messages;
+import cdi.lite.extension.phases.enhancement.ClassConfig;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 class CdiLiteExtDiscoveryProcessor {
     private final CdiLiteExtUtil util;
@@ -14,6 +19,9 @@ class CdiLiteExtDiscoveryProcessor {
     private final Set<String> additionalClasses;
     private final Messages messages;
 
+    final Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> qualifiers = new HashMap<>();
+    final Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> interceptorBindings = new HashMap<>();
+    final Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> stereotypes = new HashMap<>();
     final List<ContextBuilderImpl> contexts = new ArrayList<>();
 
     CdiLiteExtDiscoveryProcessor(CdiLiteExtUtil util, org.jboss.jandex.IndexView applicationIndex,
@@ -68,8 +76,8 @@ class CdiLiteExtDiscoveryProcessor {
         switch (kind) {
             case APP_ARCHIVE_BUILDER:
                 return new AppArchiveBuilderImpl(applicationIndex, additionalClasses);
-            case CONTEXTS:
-                return new ContextsImpl(contexts);
+            case META_ANNOTATIONS:
+                return new MetaAnnotationsImpl(qualifiers, interceptorBindings, stereotypes, contexts);
             case MESSAGES:
                 return messages;
 

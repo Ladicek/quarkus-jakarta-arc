@@ -15,14 +15,19 @@ public interface ClassInfo<T> extends DeclarationInfo {
 
     PackageInfo packageInfo();
 
+    // empty if class is not parameterized
     List<TypeVariable> typeParameters();
 
+    // null if this class doesn't have a superclass (e.g. is Object or an interface)
     Type superClass();
 
+    // null if this class doesn't have a superclass (e.g. is Object or an interface)
     ClassInfo<?> superClassDeclaration();
 
+    // empty if the class has no superinterfaces
     List<Type> superInterfaces();
 
+    // empty if the class has no superinterfaces
     List<ClassInfo<?>> superInterfacesDeclarations();
 
     boolean isPlainClass();
@@ -39,11 +44,16 @@ public interface ClassInfo<T> extends DeclarationInfo {
 
     int modifiers();
 
-    Collection<MethodInfo<T>> constructors(); // no static initializers
+    // only constructors declared by this class, not inherited ones
+    // no static initializers
+    Collection<? extends MethodInfo<T>> constructors();
 
-    Collection<MethodInfo<T>> methods(); // no constructors nor static initializers
+    // only methods declared by this class, not inherited ones
+    // no constructors nor static initializers
+    Collection<? extends MethodInfo<T>> methods();
 
-    Collection<FieldInfo<T>> fields();
+    // only fields declared by this class, not inherited ones
+    Collection<? extends FieldInfo<T>> fields();
 
     // ---
 

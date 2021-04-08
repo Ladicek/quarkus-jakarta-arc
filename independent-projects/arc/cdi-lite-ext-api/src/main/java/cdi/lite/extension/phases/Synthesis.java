@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 3rd phase of CDI Lite extension processing.
+ * 4th phase of CDI Lite extension processing.
  * Allows registering synthetic beans and observers.
  * <p>
  * Methods annotated {@code @Synthesis} can define parameters of these types:

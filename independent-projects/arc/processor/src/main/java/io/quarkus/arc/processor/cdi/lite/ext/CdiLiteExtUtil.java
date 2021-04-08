@@ -78,6 +78,7 @@ class CdiLiteExtUtil {
     enum Phase {
         DISCOVERY,
         ENHANCEMENT,
+        PROCESSING,
         SYNTHESIS,
         VALIDATION
     }
@@ -87,15 +88,18 @@ class CdiLiteExtUtil {
         METHOD_CONFIG(Phase.ENHANCEMENT),
         FIELD_CONFIG(Phase.ENHANCEMENT),
 
+        BEAN_INFO(Phase.PROCESSING),
+        OBSERVER_INFO(Phase.PROCESSING),
+
         ANNOTATIONS(Phase.ENHANCEMENT),
-        APP_ARCHIVE(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
+        APP_ARCHIVE(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION), // TODO remove @Enhancement?
         APP_ARCHIVE_BUILDER(Phase.DISCOVERY),
         APP_ARCHIVE_CONFIG(Phase.ENHANCEMENT),
         APP_DEPLOYMENT(Phase.SYNTHESIS, Phase.VALIDATION),
-        MESSAGES(Phase.DISCOVERY, Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
+        MESSAGES(Phase.DISCOVERY, Phase.ENHANCEMENT, Phase.PROCESSING, Phase.SYNTHESIS, Phase.VALIDATION),
         META_ANNOTATIONS(Phase.DISCOVERY),
         SYNTHETIC_COMPONENTS(Phase.SYNTHESIS),
-        TYPES(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION),
+        TYPES(Phase.ENHANCEMENT, Phase.PROCESSING, Phase.SYNTHESIS, Phase.VALIDATION),
 
         UNKNOWN,
         ;
@@ -113,7 +117,9 @@ class CdiLiteExtUtil {
         boolean isQuery() {
             return this == CLASS_CONFIG
                     || this == METHOD_CONFIG
-                    || this == FIELD_CONFIG;
+                    || this == FIELD_CONFIG
+                    || this == BEAN_INFO
+                    || this == OBSERVER_INFO;
         }
 
         boolean isAvailableIn(Phase phase) {
@@ -128,6 +134,10 @@ class CdiLiteExtUtil {
                     return METHOD_CONFIG;
                 } else if (type.name().equals(DotNames.FIELD_CONFIG)) {
                     return FIELD_CONFIG;
+                } else if (type.name().equals(DotNames.BEAN_INFO)) {
+                    return BEAN_INFO;
+                } else if (type.name().equals(DotNames.OBSERVER_INFO)) {
+                    return OBSERVER_INFO;
                 } else if (type.name().equals(DotNames.ANNOTATIONS)) {
                     return ANNOTATIONS;
                 } else if (type.name().equals(DotNames.APP_ARCHIVE)) {
@@ -150,10 +160,10 @@ class CdiLiteExtUtil {
             }
 
             if (type.kind() == Type.Kind.PARAMETERIZED_TYPE) {
-                // for now, let's also accept {Class,Method,Field}Config<?>
-                // this will later be removed, if {Class,Method,Field}Config stops being parameterized,
+                // for now, let's also accept {Class,Method,Field}Config<?> and {Bean,Observer}Info<?>
+                // this will later be removed, if {Class,Method,Field}Config and {Bean,Observer}Info stop being parameterized,
                 // or will be replaced with something more complex, if we return back to expressing queries using
-                // type argument bounds
+                // type parameter bounds
                 List<Type> typeArguments = type.asParameterizedType().arguments();
                 if (typeArguments.size() == 1
                         && typeArguments.get(0).kind() == Type.Kind.WILDCARD_TYPE
@@ -165,6 +175,10 @@ class CdiLiteExtUtil {
                         return METHOD_CONFIG;
                     } else if (type.name().equals(DotNames.FIELD_CONFIG)) {
                         return FIELD_CONFIG;
+                    } else if (type.name().equals(DotNames.BEAN_INFO)) {
+                        return BEAN_INFO;
+                    } else if (type.name().equals(DotNames.OBSERVER_INFO)) {
+                        return OBSERVER_INFO;
                     }
                 }
             }
@@ -224,6 +238,10 @@ class CdiLiteExtUtil {
                 parameterTypes[i] = cdi.lite.extension.phases.enhancement.AppArchiveConfig.class;
             } else if (cdi.lite.extension.phases.synthesis.SyntheticComponents.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.phases.synthesis.SyntheticComponents.class;
+            } else if (cdi.lite.extension.beans.BeanInfo.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.beans.BeanInfo.class;
+            } else if (cdi.lite.extension.beans.ObserverInfo.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = cdi.lite.extension.beans.ObserverInfo.class;
             } else if (cdi.lite.extension.AppArchive.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = cdi.lite.extension.AppArchive.class;
             } else if (cdi.lite.extension.AppDeployment.class.isAssignableFrom(argumentClass)) {

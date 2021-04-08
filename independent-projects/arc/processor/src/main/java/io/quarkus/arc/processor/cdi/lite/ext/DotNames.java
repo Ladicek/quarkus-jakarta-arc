@@ -6,8 +6,11 @@ import cdi.lite.extension.BuildCompatibleExtension;
 import cdi.lite.extension.ExtensionPriority;
 import cdi.lite.extension.Messages;
 import cdi.lite.extension.Types;
+import cdi.lite.extension.beans.BeanInfo;
+import cdi.lite.extension.beans.ObserverInfo;
 import cdi.lite.extension.phases.Discovery;
 import cdi.lite.extension.phases.Enhancement;
+import cdi.lite.extension.phases.Processing;
 import cdi.lite.extension.phases.Synthesis;
 import cdi.lite.extension.phases.Validation;
 import cdi.lite.extension.phases.discovery.AppArchiveBuilder;
@@ -33,6 +36,7 @@ class DotNames {
 
     static final DotName DISCOVERY = DotName.createSimple(Discovery.class.getName());
     static final DotName ENHANCEMENT = DotName.createSimple(Enhancement.class.getName());
+    static final DotName PROCESSING = DotName.createSimple(Processing.class.getName());
     static final DotName SYNTHESIS = DotName.createSimple(Synthesis.class.getName());
     static final DotName VALIDATION = DotName.createSimple(Validation.class.getName());
 
@@ -43,6 +47,9 @@ class DotNames {
     static final DotName CLASS_CONFIG = DotName.createSimple(ClassConfig.class.getName());
     static final DotName METHOD_CONFIG = DotName.createSimple(MethodConfig.class.getName());
     static final DotName FIELD_CONFIG = DotName.createSimple(FieldConfig.class.getName());
+
+    static final DotName BEAN_INFO = DotName.createSimple(BeanInfo.class.getName());
+    static final DotName OBSERVER_INFO = DotName.createSimple(ObserverInfo.class.getName());
 
     static final DotName ANNOTATIONS = DotName.createSimple(Annotations.class.getName());
     static final DotName APP_ARCHIVE = DotName.createSimple(AppArchive.class.getName());

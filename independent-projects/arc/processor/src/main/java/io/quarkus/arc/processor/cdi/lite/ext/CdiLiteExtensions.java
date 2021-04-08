@@ -37,7 +37,6 @@ import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.EventContext;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.util.Nonbinding;
-
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
 
@@ -97,7 +96,8 @@ public class CdiLiteExtensions {
                         DotName annotationName = DotName.createSimple(entry.getKey().getName());
 
                         org.jboss.jandex.ClassInfo jandexAnnotation = beanArchiveIndex.getClassByName(annotationName);
-                        ClassConfigImpl config = new ClassConfigImpl(beanArchiveIndex, annotationTransformations, jandexAnnotation);
+                        ClassConfigImpl config = new ClassConfigImpl(beanArchiveIndex, annotationTransformations,
+                                jandexAnnotation);
                         entry.getValue().accept(config);
 
                         Set<String> nonbindingMembers = config.methods()
@@ -121,7 +121,8 @@ public class CdiLiteExtensions {
                         DotName annotationName = DotName.createSimple(entry.getKey().getName());
 
                         org.jboss.jandex.ClassInfo jandexAnnotation = beanArchiveIndex.getClassByName(annotationName);
-                        ClassConfigImpl config = new ClassConfigImpl(beanArchiveIndex, annotationTransformations, jandexAnnotation);
+                        ClassConfigImpl config = new ClassConfigImpl(beanArchiveIndex, annotationTransformations,
+                                jandexAnnotation);
                         entry.getValue().accept(config);
 
                         Set<String> nonbindingMembers = config.methods()
@@ -145,7 +146,8 @@ public class CdiLiteExtensions {
                         DotName annotationName = DotName.createSimple(entry.getKey().getName());
 
                         org.jboss.jandex.ClassInfo jandexAnnotation = beanArchiveIndex.getClassByName(annotationName);
-                        ClassConfigImpl config = new ClassConfigImpl(beanArchiveIndex, annotationTransformations, jandexAnnotation);
+                        ClassConfigImpl config = new ClassConfigImpl(beanArchiveIndex, annotationTransformations,
+                                jandexAnnotation);
                         entry.getValue().accept(config);
 
                         result.add(annotationName);
@@ -191,10 +193,26 @@ public class CdiLiteExtensions {
         }
     }
 
+    /**
+     * Must be called <i>after</i> {@code registerMetaAnnotations} and <i>before</i> {@code runProcessing}.
+     */
     public void runEnhancement(org.jboss.jandex.IndexView beanArchiveIndex) {
         new CdiLiteExtEnhancementProcessor(util, beanArchiveIndex, annotationTransformations, messages).run();
     }
 
+    /**
+     * Must be called <i>after</i> {@code runEnhancement} and <i>before</i> {@code runSynthesis}.
+     */
+    public void runProcessing(IndexView beanArchiveIndex, Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
+            Collection<io.quarkus.arc.processor.ObserverInfo> allObservers) {
+        CdiLiteExtProcessingProcessor processing = new CdiLiteExtProcessingProcessor(util, beanArchiveIndex,
+                annotationOverlays, allBeans, allObservers, messages);
+        processing.run();
+    }
+
+    /**
+     * Must be called <i>after</i> {@code runProcessing} and <i>before</i> {@code registerSyntheticBeans}.
+     */
     public void runSynthesis(IndexView beanArchiveIndex, Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
             Collection<io.quarkus.arc.processor.ObserverInfo> allObservers) {
         CdiLiteExtSynthesisProcessor synthesis = new CdiLiteExtSynthesisProcessor(util, beanArchiveIndex,
@@ -336,7 +354,8 @@ public class CdiLiteExtensions {
     }
 
     /**
-     * Must be called <i>after</i> {@code registerSynthetic{Beans,Observers}} and <i>before</i> {@code registerValidationErrors}.
+     * Must be called <i>after</i> {@code registerSynthetic{Beans,Observers}} and <i>before</i>
+     * {@code registerValidationErrors}.
      */
     public void runValidation(IndexView beanArchiveIndex, Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
             Collection<io.quarkus.arc.processor.ObserverInfo> allObservers) {

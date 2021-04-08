@@ -16,6 +16,9 @@ import java.lang.annotation.Target;
  * If the {@code annotatedWith} attribute is set, only types that use given annotations are considered.
  * The annotations can appear on the type, or on any member of the type, or any parameter of any member of the type.
  */
+// TODO it is an open question whether the given type itself should also match
+//  in theory, subtyping is reflexive, but the current Quarkus implementation doesn't respect that
+//  so for now, the present implementation also doesn't respect it (easy to change, see the Subtyping class)
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SubtypesOf {

@@ -71,7 +71,7 @@ class CdiLiteExtEnhancementProcessor {
                 appArchiveConfigPresent = true;
             }
 
-            if (!kind.isAvailableIn(Phase.ENHANCEMENT)) { // we don't implement anything else yet
+            if (!kind.isAvailableIn(Phase.ENHANCEMENT)) {
                 throw new IllegalArgumentException("@Enhancement methods can't declare a parameter of type "
                         + parameterType + ", found at " + method + " @ " + method.declaringClass());
             }

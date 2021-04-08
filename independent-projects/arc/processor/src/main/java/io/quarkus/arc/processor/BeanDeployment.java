@@ -256,6 +256,10 @@ public class BeanDeployment {
         this.injectionPoints.addAll(injectionPoints);
         buildContextPut(Key.INJECTION_POINTS.asString(), Collections.unmodifiableList(this.injectionPoints));
 
+        if (cdiLiteExtensions != null) {
+            cdiLiteExtensions.runProcessing(beanArchiveIndex, beans, observers);
+        }
+
         return registerSyntheticBeans(beanRegistrars, buildContext);
     }
 

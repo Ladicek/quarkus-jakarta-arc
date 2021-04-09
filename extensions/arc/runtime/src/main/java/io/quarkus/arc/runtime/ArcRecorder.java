@@ -17,6 +17,7 @@ import io.quarkus.arc.ArcContainer;
 import io.quarkus.arc.InjectableBean;
 import io.quarkus.arc.InjectableBean.Kind;
 import io.quarkus.arc.impl.ArcContainerImpl;
+import io.quarkus.arc.impl.cdi.lite.lifecycle.AfterStartupImpl;
 import io.quarkus.arc.runtime.test.PreloadedTestApplicationClassPredicate;
 import io.quarkus.runtime.LaunchMode;
 import io.quarkus.runtime.RuntimeValue;
@@ -95,6 +96,7 @@ public class ArcRecorder {
         }
 
         fireLifecycleEvent(container, new StartupEvent(), mockBeanClasses);
+        fireLifecycleEvent(container, new AfterStartupImpl(), mockBeanClasses);
 
         context.addShutdownTask(new Runnable() {
             @Override

@@ -117,7 +117,8 @@ public class CdiLiteExtensions {
                 @Override
                 public Map<DotName, Set<String>> registerAdditionalBindings() {
                     Map<DotName, Set<String>> result = new HashMap<>();
-                    for (Map.Entry<Class<? extends Annotation>, Consumer<ClassConfig<?>>> entry : qualifiers.entrySet()) {
+                    for (Map.Entry<Class<? extends Annotation>, Consumer<ClassConfig<?>>> entry : interceptorBindings
+                            .entrySet()) {
                         DotName annotationName = DotName.createSimple(entry.getKey().getName());
 
                         org.jboss.jandex.ClassInfo jandexAnnotation = beanArchiveIndex.getClassByName(annotationName);
@@ -142,7 +143,7 @@ public class CdiLiteExtensions {
                 @Override
                 public Set<DotName> getAdditionalStereotypes() {
                     Set<DotName> result = new HashSet<>();
-                    for (Map.Entry<Class<? extends Annotation>, Consumer<ClassConfig<?>>> entry : qualifiers.entrySet()) {
+                    for (Map.Entry<Class<? extends Annotation>, Consumer<ClassConfig<?>>> entry : stereotypes.entrySet()) {
                         DotName annotationName = DotName.createSimple(entry.getKey().getName());
 
                         org.jboss.jandex.ClassInfo jandexAnnotation = beanArchiveIndex.getClassByName(annotationName);
@@ -205,6 +206,11 @@ public class CdiLiteExtensions {
      */
     public void runProcessing(IndexView beanArchiveIndex, Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
             Collection<io.quarkus.arc.processor.ObserverInfo> allObservers) {
+
+        // the annotation transformation callbacks registered in `registerMetaAnnotations`
+        // run _after_ `runEnhancement` finishes, so we'll freeze annotation transformations here
+        annotationTransformations.freeze();
+
         CdiLiteExtProcessingProcessor processing = new CdiLiteExtProcessingProcessor(util, beanArchiveIndex,
                 annotationOverlays, allBeans, allObservers, messages);
         processing.run();
@@ -302,24 +308,26 @@ public class CdiLiteExtensions {
                 // | return instance;
                 mc.returnValue(instance);
             });
-            bean.destroyer(mc -> { // generated method signature: void(Object, CreationalContext)
-                // | Map<String, Object> params = this.params;
-                // the generated bean class has a "params" field filled with all the data
-                ResultHandle params = mc.readInstanceField(
-                        FieldDescriptor.of(mc.getMethodDescriptor().getDeclaringClass(), "params", Map.class),
-                        mc.getThis());
+            if (syntheticBean.disposerClass != null) {
+                bean.destroyer(mc -> { // generated method signature: void(Object, CreationalContext)
+                    // | Map<String, Object> params = this.params;
+                    // the generated bean class has a "params" field filled with all the data
+                    ResultHandle params = mc.readInstanceField(
+                            FieldDescriptor.of(mc.getMethodDescriptor().getDeclaringClass(), "params", Map.class),
+                            mc.getThis());
 
-                // | SyntheticBeanDisposer disposer = new ConfiguredSyntheticBeanDisposer();
-                ResultHandle disposer = mc.newInstance(MethodDescriptor.ofConstructor(syntheticBean.disposerClass));
+                    // | SyntheticBeanDisposer disposer = new ConfiguredSyntheticBeanDisposer();
+                    ResultHandle disposer = mc.newInstance(MethodDescriptor.ofConstructor(syntheticBean.disposerClass));
 
-                // | disposer.dispose(instance, creationalContext, params);
-                ResultHandle[] args = { mc.getMethodParam(0), mc.getMethodParam(1), params };
-                mc.invokeInterfaceMethod(MethodDescriptor.ofMethod(SyntheticBeanDisposer.class, "dispose",
-                        void.class, Object.class, CreationalContext.class, Map.class), disposer, args);
+                    // | disposer.dispose(instance, creationalContext, params);
+                    ResultHandle[] args = { mc.getMethodParam(0), mc.getMethodParam(1), params };
+                    mc.invokeInterfaceMethod(MethodDescriptor.ofMethod(SyntheticBeanDisposer.class, "dispose",
+                            void.class, Object.class, CreationalContext.class, Map.class), disposer, args);
 
-                // return type is void
-                mc.returnValue(null);
-            });
+                    // return type is void
+                    mc.returnValue(null);
+                });
+            }
             bean.done();
         }
     }
@@ -369,5 +377,8 @@ public class CdiLiteExtensions {
         for (Throwable error : messages.errors) {
             context.addDeploymentProblem(error);
         }
+
+        // at the very end
+        annotationOverlays.invalidate();
     }
 }

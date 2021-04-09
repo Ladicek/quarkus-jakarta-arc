@@ -38,8 +38,6 @@ class CdiLiteExtEnhancementProcessor {
         } catch (Exception e) {
             // TODO proper diagnostics system
             throw new RuntimeException(e);
-        } finally {
-            annotationTransformations.freeze();
         }
     }
 

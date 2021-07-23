@@ -1,6 +1,5 @@
 package io.quarkus.arc.test;
 
-import cdi.lite.extension.BuildCompatibleExtension;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.ComponentsProvider;
 import io.quarkus.arc.ResourceReferenceProvider;
@@ -38,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import org.jboss.jandex.CompositeIndex;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.Index;
@@ -329,8 +329,6 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
         ClassLoader old = Thread.currentThread()
                 .getContextClassLoader();
 
-        CdiLiteExtensions cdiLiteExtensions = new CdiLiteExtensions();
-
         File buildCompatibleExtensionsFile = new File("target/generated-arc-sources/" + nameToPath(testClass.getPackage()
                 .getName()), BuildCompatibleExtension.class.getSimpleName());
         if (!this.buildCompatibleExtensions.isEmpty()) {
@@ -355,6 +353,8 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
             }
         };
         Thread.currentThread().setContextClassLoader(processingClassLoader);
+
+        CdiLiteExtensions cdiLiteExtensions = new CdiLiteExtensions();
 
         // Build index
         IndexView beanArchiveIndex;

@@ -3,13 +3,13 @@ package io.quarkus.arc.test.cdi.lite.ext;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import cdi.lite.extension.BuildCompatibleExtension;
-import cdi.lite.extension.phases.Enhancement;
-import cdi.lite.extension.phases.enhancement.ClassConfig;
-import cdi.lite.extension.phases.enhancement.ExactType;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.test.ArcTestContainer;
 import java.lang.annotation.Retention;
+import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
+import javax.enterprise.inject.build.compatible.spi.ClassConfig;
+import javax.enterprise.inject.build.compatible.spi.Enhancement;
+import javax.enterprise.inject.build.compatible.spi.ExactType;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 import javax.inject.Singleton;

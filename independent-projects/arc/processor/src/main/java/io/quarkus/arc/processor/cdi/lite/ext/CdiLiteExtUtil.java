@@ -1,6 +1,5 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.BuildCompatibleExtension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -14,6 +13,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
 import org.jboss.jandex.Indexer;
@@ -204,34 +204,34 @@ class CdiLiteExtUtil {
             Class<?> argumentClass = argument.getClass();
 
             // beware of ordering! subtypes must precede supertypes
-            if (cdi.lite.extension.phases.discovery.AppArchiveBuilder.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.discovery.AppArchiveBuilder.class;
-            } else if (cdi.lite.extension.phases.discovery.MetaAnnotations.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.discovery.MetaAnnotations.class;
-            } else if (cdi.lite.extension.phases.enhancement.ClassConfig.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.enhancement.ClassConfig.class;
-            } else if (cdi.lite.extension.phases.enhancement.MethodConfig.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.enhancement.MethodConfig.class;
-            } else if (cdi.lite.extension.phases.enhancement.FieldConfig.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.enhancement.FieldConfig.class;
-            } else if (cdi.lite.extension.phases.enhancement.Annotations.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.enhancement.Annotations.class;
-            } else if (cdi.lite.extension.phases.enhancement.AppArchiveConfig.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.enhancement.AppArchiveConfig.class;
-            } else if (cdi.lite.extension.phases.synthesis.SyntheticComponents.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.phases.synthesis.SyntheticComponents.class;
-            } else if (cdi.lite.extension.beans.BeanInfo.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.beans.BeanInfo.class;
-            } else if (cdi.lite.extension.beans.ObserverInfo.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.beans.ObserverInfo.class;
-            } else if (cdi.lite.extension.AppArchive.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.AppArchive.class;
-            } else if (cdi.lite.extension.AppDeployment.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.AppDeployment.class;
-            } else if (cdi.lite.extension.Messages.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.Messages.class;
-            } else if (cdi.lite.extension.Types.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = cdi.lite.extension.Types.class;
+            if (javax.enterprise.inject.build.compatible.spi.AppArchiveBuilder.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.AppArchiveBuilder.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.MetaAnnotations.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.MetaAnnotations.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.ClassConfig.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.ClassConfig.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.MethodConfig.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.MethodConfig.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.FieldConfig.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.FieldConfig.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.Annotations.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.Annotations.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.AppArchiveConfig.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.AppArchiveConfig.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.SyntheticComponents.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.SyntheticComponents.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.BeanInfo.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.BeanInfo.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.ObserverInfo.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.ObserverInfo.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.AppArchive.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.AppArchive.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.AppDeployment.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.AppDeployment.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.Messages.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.Messages.class;
+            } else if (javax.enterprise.inject.build.compatible.spi.Types.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.Types.class;
             } else {
                 // should never happen, internal error (or missing error handling) if it does
                 throw new IllegalArgumentException("Unexpected extension method argument: " + argument);

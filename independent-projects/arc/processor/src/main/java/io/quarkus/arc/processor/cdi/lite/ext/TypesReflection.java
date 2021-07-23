@@ -1,6 +1,6 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.types.PrimitiveType;
+import javax.enterprise.lang.model.types.PrimitiveType;
 import org.jboss.jandex.DotName;
 
 class TypesReflection {

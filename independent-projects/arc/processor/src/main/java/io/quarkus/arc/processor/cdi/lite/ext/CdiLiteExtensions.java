@@ -1,10 +1,5 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.declarations.MethodInfo;
-import cdi.lite.extension.phases.enhancement.ClassConfig;
-import cdi.lite.extension.phases.synthesis.SyntheticBeanCreator;
-import cdi.lite.extension.phases.synthesis.SyntheticBeanDisposer;
-import cdi.lite.extension.phases.synthesis.SyntheticObserver;
 import io.quarkus.arc.InjectableContext;
 import io.quarkus.arc.impl.InjectionPointProvider;
 import io.quarkus.arc.processor.BeanConfigurator;
@@ -34,8 +29,13 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.build.compatible.spi.ClassConfig;
+import javax.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
+import javax.enterprise.inject.build.compatible.spi.SyntheticBeanDisposer;
+import javax.enterprise.inject.build.compatible.spi.SyntheticObserver;
 import javax.enterprise.inject.spi.EventContext;
 import javax.enterprise.inject.spi.InjectionPoint;
+import javax.enterprise.lang.model.declarations.MethodInfo;
 import javax.enterprise.util.Nonbinding;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;

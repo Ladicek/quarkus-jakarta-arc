@@ -1,13 +1,13 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.AnnotationAttribute;
-import cdi.lite.extension.model.AnnotationAttributeValue;
-import cdi.lite.extension.model.AnnotationInfo;
-import cdi.lite.extension.model.AnnotationTarget;
-import cdi.lite.extension.model.declarations.ClassInfo;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.enterprise.lang.model.AnnotationAttribute;
+import javax.enterprise.lang.model.AnnotationAttributeValue;
+import javax.enterprise.lang.model.AnnotationInfo;
+import javax.enterprise.lang.model.AnnotationTarget;
+import javax.enterprise.lang.model.declarations.ClassInfo;
 import org.jboss.jandex.DotName;
 
 class AnnotationInfoImpl implements AnnotationInfo {

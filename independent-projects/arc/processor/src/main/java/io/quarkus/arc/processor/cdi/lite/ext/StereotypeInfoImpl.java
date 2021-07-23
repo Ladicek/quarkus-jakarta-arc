@@ -1,10 +1,10 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.beans.ScopeInfo;
-import cdi.lite.extension.beans.StereotypeInfo;
-import cdi.lite.extension.model.AnnotationInfo;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import javax.enterprise.inject.build.compatible.spi.ScopeInfo;
+import javax.enterprise.inject.build.compatible.spi.StereotypeInfo;
+import javax.enterprise.lang.model.AnnotationInfo;
 import org.jboss.jandex.IndexView;
 
 class StereotypeInfoImpl implements StereotypeInfo {

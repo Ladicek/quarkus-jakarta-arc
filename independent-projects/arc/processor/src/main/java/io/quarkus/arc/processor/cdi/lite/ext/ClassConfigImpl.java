@@ -1,15 +1,15 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.AnnotationAttribute;
-import cdi.lite.extension.model.AnnotationInfo;
-import cdi.lite.extension.model.declarations.ClassInfo;
-import cdi.lite.extension.phases.enhancement.ClassConfig;
-import cdi.lite.extension.phases.enhancement.FieldConfig;
-import cdi.lite.extension.phases.enhancement.MethodConfig;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.enterprise.inject.build.compatible.spi.ClassConfig;
+import javax.enterprise.inject.build.compatible.spi.FieldConfig;
+import javax.enterprise.inject.build.compatible.spi.MethodConfig;
+import javax.enterprise.lang.model.AnnotationAttribute;
+import javax.enterprise.lang.model.AnnotationInfo;
+import javax.enterprise.lang.model.declarations.ClassInfo;
 
 class ClassConfigImpl extends ClassInfoImpl implements ClassConfig<Object> {
     private final AllAnnotationTransformations allTransformations;

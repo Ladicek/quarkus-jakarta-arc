@@ -1,13 +1,13 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.AnnotationInfo;
-import cdi.lite.extension.model.declarations.PackageInfo;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import javax.enterprise.lang.model.AnnotationInfo;
+import javax.enterprise.lang.model.declarations.PackageInfo;
 
 class PackageInfoImpl implements PackageInfo {
     private final String name;

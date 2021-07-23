@@ -1,10 +1,10 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.declarations.ClassInfo;
-import cdi.lite.extension.model.declarations.FieldInfo;
-import cdi.lite.extension.model.types.Type;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
+import javax.enterprise.lang.model.declarations.ClassInfo;
+import javax.enterprise.lang.model.declarations.FieldInfo;
+import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
 class FieldInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.FieldInfo> implements FieldInfo<Object> {

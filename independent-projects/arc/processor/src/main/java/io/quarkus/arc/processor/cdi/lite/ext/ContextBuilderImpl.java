@@ -1,8 +1,8 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.phases.discovery.ContextBuilder;
 import java.lang.annotation.Annotation;
 import javax.enterprise.context.spi.AlterableContext;
+import javax.enterprise.inject.build.compatible.spi.ContextBuilder;
 
 class ContextBuilderImpl implements ContextBuilder {
     Class<? extends AlterableContext> implementationClass;

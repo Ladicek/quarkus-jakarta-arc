@@ -1,12 +1,12 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.types.Type;
-import cdi.lite.extension.phases.enhancement.AppArchiveConfig;
-import cdi.lite.extension.phases.enhancement.ClassConfig;
-import cdi.lite.extension.phases.enhancement.FieldConfig;
-import cdi.lite.extension.phases.enhancement.MethodConfig;
 import java.lang.annotation.Annotation;
 import java.util.function.Consumer;
+import javax.enterprise.inject.build.compatible.spi.AppArchiveConfig;
+import javax.enterprise.inject.build.compatible.spi.ClassConfig;
+import javax.enterprise.inject.build.compatible.spi.FieldConfig;
+import javax.enterprise.inject.build.compatible.spi.MethodConfig;
+import javax.enterprise.lang.model.types.Type;
 
 class AppArchiveConfigImpl extends AppArchiveImpl implements AppArchiveConfig {
     final AllAnnotationTransformations annotationTransformations;

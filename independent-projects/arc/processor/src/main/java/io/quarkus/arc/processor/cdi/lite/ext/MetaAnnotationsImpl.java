@@ -1,12 +1,12 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.phases.discovery.ContextBuilder;
-import cdi.lite.extension.phases.discovery.MetaAnnotations;
-import cdi.lite.extension.phases.enhancement.ClassConfig;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import javax.enterprise.inject.build.compatible.spi.ClassConfig;
+import javax.enterprise.inject.build.compatible.spi.ContextBuilder;
+import javax.enterprise.inject.build.compatible.spi.MetaAnnotations;
 
 class MetaAnnotationsImpl implements MetaAnnotations {
     final Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> qualifiers;

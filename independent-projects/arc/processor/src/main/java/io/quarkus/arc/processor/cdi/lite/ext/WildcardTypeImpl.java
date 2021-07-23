@@ -1,8 +1,8 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.types.Type;
-import cdi.lite.extension.model.types.WildcardType;
 import java.util.Optional;
+import javax.enterprise.lang.model.types.Type;
+import javax.enterprise.lang.model.types.WildcardType;
 
 class WildcardTypeImpl extends TypeImpl<org.jboss.jandex.WildcardType> implements WildcardType {
     private final boolean hasUpperBound;

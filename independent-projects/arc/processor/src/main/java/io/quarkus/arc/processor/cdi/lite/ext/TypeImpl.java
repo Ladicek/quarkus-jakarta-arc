@@ -1,7 +1,5 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.AnnotationInfo;
-import cdi.lite.extension.model.types.Type;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,6 +7,8 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.enterprise.lang.model.AnnotationInfo;
+import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
 // TODO all subclasses must have equals, hashCode and perhaps also their own toString (though the current one is fine)

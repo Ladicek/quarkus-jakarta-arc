@@ -1,10 +1,5 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.AppArchive;
-import cdi.lite.extension.model.declarations.ClassInfo;
-import cdi.lite.extension.model.declarations.FieldInfo;
-import cdi.lite.extension.model.declarations.MethodInfo;
-import cdi.lite.extension.model.types.Type;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +7,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import javax.enterprise.inject.build.compatible.spi.AppArchive;
+import javax.enterprise.lang.model.declarations.ClassInfo;
+import javax.enterprise.lang.model.declarations.FieldInfo;
+import javax.enterprise.lang.model.declarations.MethodInfo;
+import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
 class AppArchiveImpl implements AppArchive {

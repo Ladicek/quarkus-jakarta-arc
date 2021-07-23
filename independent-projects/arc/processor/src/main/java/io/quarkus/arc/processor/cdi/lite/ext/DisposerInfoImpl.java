@@ -1,8 +1,8 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.beans.DisposerInfo;
-import cdi.lite.extension.model.declarations.MethodInfo;
-import cdi.lite.extension.model.declarations.ParameterInfo;
+import javax.enterprise.inject.build.compatible.spi.DisposerInfo;
+import javax.enterprise.lang.model.declarations.MethodInfo;
+import javax.enterprise.lang.model.declarations.ParameterInfo;
 import org.jboss.jandex.IndexView;
 
 class DisposerInfoImpl implements DisposerInfo {

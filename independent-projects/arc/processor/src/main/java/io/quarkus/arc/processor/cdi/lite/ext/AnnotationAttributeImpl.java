@@ -1,8 +1,8 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.AnnotationAttribute;
-import cdi.lite.extension.model.AnnotationAttributeValue;
 import java.util.Objects;
+import javax.enterprise.lang.model.AnnotationAttribute;
+import javax.enterprise.lang.model.AnnotationAttributeValue;
 
 class AnnotationAttributeImpl implements AnnotationAttribute {
     final org.jboss.jandex.IndexView jandexIndex;

@@ -1,7 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.phases.discovery.AppArchiveBuilder;
 import java.util.Set;
+import javax.enterprise.inject.build.compatible.spi.AppArchiveBuilder;
 import org.jboss.jandex.DotName;
 
 class AppArchiveBuilderImpl implements AppArchiveBuilder {

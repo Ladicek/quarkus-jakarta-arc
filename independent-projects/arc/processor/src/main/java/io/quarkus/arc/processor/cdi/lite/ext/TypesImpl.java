@@ -1,10 +1,10 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.Types;
-import cdi.lite.extension.model.declarations.ClassInfo;
-import cdi.lite.extension.model.types.PrimitiveType;
-import cdi.lite.extension.model.types.Type;
 import java.util.Arrays;
+import javax.enterprise.inject.build.compatible.spi.Types;
+import javax.enterprise.lang.model.declarations.ClassInfo;
+import javax.enterprise.lang.model.types.PrimitiveType;
+import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
 class TypesImpl implements Types {

@@ -3,7 +3,6 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.ExtensionMethodParameterType;
 import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.Phase;
 
-import cdi.lite.extension.Messages;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.enterprise.inject.build.compatible.spi.Messages;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
 

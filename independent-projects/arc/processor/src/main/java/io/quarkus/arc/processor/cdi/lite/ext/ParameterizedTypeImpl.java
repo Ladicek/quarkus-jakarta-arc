@@ -1,10 +1,10 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.declarations.ClassInfo;
-import cdi.lite.extension.model.types.ParameterizedType;
-import cdi.lite.extension.model.types.Type;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.enterprise.lang.model.declarations.ClassInfo;
+import javax.enterprise.lang.model.types.ParameterizedType;
+import javax.enterprise.lang.model.types.Type;
 
 class ParameterizedTypeImpl extends TypeImpl<org.jboss.jandex.ParameterizedType> implements ParameterizedType {
     ParameterizedTypeImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,

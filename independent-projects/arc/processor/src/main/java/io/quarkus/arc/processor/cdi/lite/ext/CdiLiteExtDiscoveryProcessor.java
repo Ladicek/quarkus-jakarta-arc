@@ -3,8 +3,6 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.ExtensionMethodParameterType;
 import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.Phase;
 
-import cdi.lite.extension.Messages;
-import cdi.lite.extension.phases.enhancement.ClassConfig;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import javax.enterprise.inject.build.compatible.spi.ClassConfig;
+import javax.enterprise.inject.build.compatible.spi.Messages;
 
 class CdiLiteExtDiscoveryProcessor {
     private final CdiLiteExtUtil util;

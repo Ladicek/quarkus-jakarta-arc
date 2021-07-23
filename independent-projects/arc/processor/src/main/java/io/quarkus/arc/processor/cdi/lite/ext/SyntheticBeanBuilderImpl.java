@@ -1,18 +1,18 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.AnnotationAttribute;
-import cdi.lite.extension.model.AnnotationInfo;
-import cdi.lite.extension.model.declarations.ClassInfo;
-import cdi.lite.extension.model.types.Type;
-import cdi.lite.extension.phases.synthesis.SyntheticBeanBuilder;
-import cdi.lite.extension.phases.synthesis.SyntheticBeanCreator;
-import cdi.lite.extension.phases.synthesis.SyntheticBeanDisposer;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.enterprise.inject.build.compatible.spi.SyntheticBeanBuilder;
+import javax.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
+import javax.enterprise.inject.build.compatible.spi.SyntheticBeanDisposer;
+import javax.enterprise.lang.model.AnnotationAttribute;
+import javax.enterprise.lang.model.AnnotationInfo;
+import javax.enterprise.lang.model.declarations.ClassInfo;
+import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
 class SyntheticBeanBuilderImpl<T> implements SyntheticBeanBuilder<T> {

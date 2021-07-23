@@ -1,16 +1,16 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.AppDeployment;
-import cdi.lite.extension.beans.BeanInfo;
-import cdi.lite.extension.beans.ObserverInfo;
-import cdi.lite.extension.model.declarations.ClassInfo;
-import cdi.lite.extension.model.types.Type;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import javax.enterprise.inject.build.compatible.spi.AppDeployment;
+import javax.enterprise.inject.build.compatible.spi.BeanInfo;
+import javax.enterprise.inject.build.compatible.spi.ObserverInfo;
+import javax.enterprise.lang.model.declarations.ClassInfo;
+import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
 

@@ -2,15 +2,15 @@ package io.quarkus.arc.test.cdi.lite.ext;
 
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
-import cdi.lite.extension.BuildCompatibleExtension;
-import cdi.lite.extension.ExtensionPriority;
-import cdi.lite.extension.phases.Discovery;
-import cdi.lite.extension.phases.Enhancement;
-import cdi.lite.extension.phases.Validation;
 import io.quarkus.arc.test.ArcTestContainer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
+import javax.enterprise.inject.build.compatible.spi.Discovery;
+import javax.enterprise.inject.build.compatible.spi.Enhancement;
+import javax.enterprise.inject.build.compatible.spi.ExtensionPriority;
+import javax.enterprise.inject.build.compatible.spi.Validation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

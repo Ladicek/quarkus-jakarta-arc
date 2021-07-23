@@ -1,16 +1,16 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import cdi.lite.extension.model.declarations.ClassInfo;
-import cdi.lite.extension.model.declarations.FieldInfo;
-import cdi.lite.extension.model.declarations.MethodInfo;
-import cdi.lite.extension.model.declarations.PackageInfo;
-import cdi.lite.extension.model.types.Type;
-import cdi.lite.extension.model.types.TypeVariable;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.enterprise.lang.model.declarations.ClassInfo;
+import javax.enterprise.lang.model.declarations.FieldInfo;
+import javax.enterprise.lang.model.declarations.MethodInfo;
+import javax.enterprise.lang.model.declarations.PackageInfo;
+import javax.enterprise.lang.model.types.Type;
+import javax.enterprise.lang.model.types.TypeVariable;
 import org.jboss.jandex.DotName;
 
 class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> implements ClassInfo<Object> {

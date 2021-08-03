@@ -7,11 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.jboss.jandex.DotName;
-import org.jboss.jandex.IndexView;
 
 class CdiLiteExtSynthesisProcessor {
     private final CdiLiteExtUtil util;
-    private final IndexView beanArchiveIndex;
+    private final org.jboss.jandex.IndexView beanArchiveIndex;
     private final AllAnnotationOverlays annotationOverlays;
     private final Collection<io.quarkus.arc.processor.BeanInfo> allBeans;
     private final Collection<io.quarkus.arc.processor.ObserverInfo> allObservers;
@@ -20,7 +19,8 @@ class CdiLiteExtSynthesisProcessor {
     final List<SyntheticBeanBuilderImpl<?>> syntheticBeans = new ArrayList<>();
     final List<SyntheticObserverBuilderImpl> syntheticObservers = new ArrayList<>();
 
-    CdiLiteExtSynthesisProcessor(CdiLiteExtUtil util, IndexView beanArchiveIndex, AllAnnotationOverlays annotationOverlays,
+    CdiLiteExtSynthesisProcessor(CdiLiteExtUtil util, org.jboss.jandex.IndexView beanArchiveIndex,
+            AllAnnotationOverlays annotationOverlays,
             Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
             Collection<io.quarkus.arc.processor.ObserverInfo> allObservers,
             MessagesImpl messages) {
@@ -76,10 +76,6 @@ class CdiLiteExtSynthesisProcessor {
 
     private Object createArgumentForExtensionMethodParameter(ExtensionMethodParameterType kind, DotName extensionClass) {
         switch (kind) {
-            case APP_ARCHIVE:
-                return new AppArchiveImpl(beanArchiveIndex, annotationOverlays);
-            case APP_DEPLOYMENT:
-                return new AppDeploymentImpl(beanArchiveIndex, annotationOverlays, allBeans, allObservers);
             case MESSAGES:
                 return messages;
             case SYNTHETIC_COMPONENTS:

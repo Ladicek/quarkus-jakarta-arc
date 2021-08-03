@@ -6,7 +6,6 @@ import static io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtUtil.Phase;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.jboss.jandex.IndexView;
 
 class CdiLiteExtValidationProcessor {
     private final CdiLiteExtUtil util;
@@ -16,7 +15,8 @@ class CdiLiteExtValidationProcessor {
     private final Collection<io.quarkus.arc.processor.ObserverInfo> allObservers;
     private final MessagesImpl messages;
 
-    CdiLiteExtValidationProcessor(CdiLiteExtUtil util, IndexView beanArchiveIndex, AllAnnotationOverlays annotationOverlays,
+    CdiLiteExtValidationProcessor(CdiLiteExtUtil util, org.jboss.jandex.IndexView beanArchiveIndex,
+            AllAnnotationOverlays annotationOverlays,
             Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
             Collection<io.quarkus.arc.processor.ObserverInfo> allObservers,
             MessagesImpl messages) {
@@ -70,10 +70,6 @@ class CdiLiteExtValidationProcessor {
 
     private Object createArgumentForExtensionMethodParameter(ExtensionMethodParameterType kind) {
         switch (kind) {
-            case APP_ARCHIVE:
-                return new AppArchiveImpl(beanArchiveIndex, annotationOverlays);
-            case APP_DEPLOYMENT:
-                return new AppDeploymentImpl(beanArchiveIndex, annotationOverlays, allBeans, allObservers);
             case MESSAGES:
                 return messages;
             case TYPES:

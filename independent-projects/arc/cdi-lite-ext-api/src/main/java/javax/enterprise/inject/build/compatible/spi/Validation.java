@@ -11,13 +11,13 @@ import java.lang.annotation.Target;
  * <p>
  * Methods annotated {@code @Validation} can define parameters of these types:
  * <ul>
- * <li>{@link AppArchive}: to find declarations in the application</li>
- * <li>{@link AppDeployment}: to find beans and observers in the application</li>
  * <li>{@link Messages}: to produce log messages and validation errors</li>
  * </ul>
  * If you need to create instances of {@link javax.enterprise.lang.model.types.Type Type}, you can also declare
- * a parameter of type {@link Types}. It provides factory methods for the void type, primitive types, class types,
- * array types, parameterized types and wildcard types.
+ * a parameter of type {@link Types}. It provides factory methods for the void pseudo-type, primitive types,
+ * class types, array types, parameterized types and wildcard types.
+ *
+ * @since 4.0
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

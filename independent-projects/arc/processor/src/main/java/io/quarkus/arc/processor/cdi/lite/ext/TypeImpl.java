@@ -53,37 +53,37 @@ abstract class TypeImpl<JandexType extends org.jboss.jandex.Type> implements Typ
     }
 
     @Override
-    public boolean hasAnnotation(Predicate<AnnotationInfo> predicate) {
+    public boolean hasAnnotation(Predicate<AnnotationInfo<?>> predicate) {
         return jandexType.annotations()
                 .stream()
-                .anyMatch(it -> predicate.test(new AnnotationInfoImpl(jandexIndex, annotationOverlays, it)));
+                .anyMatch(it -> predicate.test(new AnnotationInfoImpl<>(jandexIndex, annotationOverlays, it)));
     }
 
     @Override
-    public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
-        return new AnnotationInfoImpl(jandexIndex, annotationOverlays,
+    public <T extends Annotation> AnnotationInfo<T> annotation(Class<T> annotationType) {
+        return new AnnotationInfoImpl<T>(jandexIndex, annotationOverlays,
                 jandexType.annotation(DotName.createSimple(annotationType.getName())));
     }
 
     @Override
-    public Collection<AnnotationInfo> repeatableAnnotation(Class<? extends Annotation> annotationType) {
+    public <T extends Annotation> Collection<AnnotationInfo<T>> repeatableAnnotation(Class<T> annotationType) {
         return annotationsWithRepeatable(jandexType, DotName.createSimple(annotationType.getName()), jandexIndex)
                 .stream()
-                .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
+                .map(it -> new AnnotationInfoImpl<T>(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Collection<AnnotationInfo> annotations(Predicate<AnnotationInfo> predicate) {
+    public Collection<AnnotationInfo<?>> annotations(Predicate<AnnotationInfo<?>> predicate) {
         return jandexType.annotations()
                 .stream()
-                .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
+                .map(it -> new AnnotationInfoImpl<>(jandexIndex, annotationOverlays, it))
                 .filter(predicate)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Collection<AnnotationInfo> annotations() {
+    public Collection<AnnotationInfo<?>> annotations() {
         return annotations(it -> true);
     }
 

@@ -5,19 +5,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.enterprise.inject.build.compatible.spi.ClassConfig;
-import javax.enterprise.inject.build.compatible.spi.ContextBuilder;
+import javax.enterprise.inject.build.compatible.spi.ContextConfig;
 import javax.enterprise.inject.build.compatible.spi.MetaAnnotations;
 
 class MetaAnnotationsImpl implements MetaAnnotations {
     final Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> qualifiers;
     final Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> interceptorBindings;
     final Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> stereotypes;
-    final List<ContextBuilderImpl> contexts;
+    final List<ContextConfigImpl> contexts;
 
     MetaAnnotationsImpl(Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> qualifiers,
             Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> interceptorBindings,
             Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> stereotypes,
-            List<ContextBuilderImpl> contexts) {
+            List<ContextConfigImpl> contexts) {
         this.qualifiers = qualifiers;
         this.interceptorBindings = interceptorBindings;
         this.stereotypes = stereotypes;
@@ -40,8 +40,8 @@ class MetaAnnotationsImpl implements MetaAnnotations {
     }
 
     @Override
-    public ContextBuilder addContext() {
-        ContextBuilderImpl contextBuilder = new ContextBuilderImpl();
+    public ContextConfig addContext() {
+        ContextConfigImpl contextBuilder = new ContextConfigImpl();
         contexts.add(contextBuilder);
         return contextBuilder;
     }

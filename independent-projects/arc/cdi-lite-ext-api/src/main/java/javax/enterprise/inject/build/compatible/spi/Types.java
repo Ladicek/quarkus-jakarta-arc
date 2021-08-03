@@ -1,13 +1,25 @@
 package javax.enterprise.inject.build.compatible.spi;
 
 import javax.enterprise.lang.model.declarations.ClassInfo;
+import javax.enterprise.lang.model.types.ArrayType;
+import javax.enterprise.lang.model.types.ClassType;
+import javax.enterprise.lang.model.types.ParameterizedType;
 import javax.enterprise.lang.model.types.PrimitiveType;
 import javax.enterprise.lang.model.types.Type;
+import javax.enterprise.lang.model.types.VoidType;
+import javax.enterprise.lang.model.types.WildcardType;
 
 // TODO move to javax.enterprise.lang.model.types? probably not, it doesn't model any part of Java language
+
+/**
+ * A factory interface for creating instances of {@link Type}.
+ *
+ * @since 4.0
+ */
 public interface Types {
     /**
-     * Returns a type from given class literal.
+     * Returns a type from the given class literal.
+     *
      * For example:
      * <ul>
      * <li>{@code of(void.class)}: same as {@code ofVoid()}</li>
@@ -17,45 +29,118 @@ public interface Types {
      * <li>{@code of(String[][].class)}: same as {@code ofArray(ofClass(... ClassInfo for String ...), 2)}</li>
      * </ul>
      *
-     * @param clazz class literal
+     * @param clazz the class literal, must not be {@code null}
      * @return {@link Type} object representing the given class literal
      */
     Type of(Class<?> clazz);
 
-    Type ofVoid();
-
-    Type ofPrimitive(PrimitiveType.PrimitiveKind kind);
-
-    Type ofClass(ClassInfo<?> clazz);
-
-    Type ofArray(Type componentType, int dimensions);
-
-    Type parameterized(Class<?> parameterizedType, Class<?>... typeArguments);
-
-    Type parameterized(Class<?> parameterizedType, Type... typeArguments);
-
-    Type parameterized(Type parameterizedType, Type... typeArguments);
+    /**
+     * Returns a {@link VoidType}, representing the {@code void} pseudo-type.
+     *
+     * @return the {@link VoidType}, never {@code null}
+     */
+    VoidType ofVoid();
 
     /**
-     * Equivalent of {@code ? extends upperBound}.
+     * Returns a {@link PrimitiveType} for the given {@linkplain PrimitiveType.PrimitiveKind kind} of primitive type.
      *
-     * @param upperBound upper bound type
-     * @return {@link Type} object representing a wildcard type with given upper bound
+     * @param kind the primitive type kind, must not be {@code null}
+     * @return the {@link PrimitiveType}, never {@code null}
      */
-    Type wildcardWithUpperBound(Type upperBound);
+    PrimitiveType ofPrimitive(PrimitiveType.PrimitiveKind kind);
 
     /**
-     * Equivalent of {@code ? super lowerBound}.
+     * Returns a {@link ClassType} for the given binary name, as defined by <cite>The Java&trade; Language Specification</cite>;
+     * in other words, the class name as returned by {@link Class#getName()}.
+     * <p>
+     * Note that this method returns {@link ClassType}, so {@code name} can only be a name of a class.
+     * For primitives, use {@link #ofPrimitive(PrimitiveType.PrimitiveKind)}. For arrays, use {@link #ofArray(Type, int)}.
      *
-     * @param lowerBound lower bound type
-     * @return {@link Type} object representing a wildcard type with given lower bound
+     * @param name the binary name of the class, must not be {@code null}
+     * @return the {@link ClassType} or {@code null} if the type doesn't exist on the application classpath
      */
-    Type wildcardWithLowerBound(Type lowerBound);
+    ClassType ofClass(String name);
 
     /**
-     * Equivalent of {@code ?}.
+     * Returns a {@link ClassType} for the given {@linkplain ClassInfo class declaration}.
      *
-     * @return {@link Type} object representing an unbounded wildcard type
+     * @param clazz the {@link ClassInfo}, must not be {@code null}
+     * @return the {@link ClassType}, never {@code null}
      */
-    Type wildcardUnbounded();
+    ClassType ofClass(ClassInfo clazz);
+
+    /**
+     * Returns an {@link ArrayType} for the given {@linkplain Type element type} and number of dimensions.
+     *
+     * @param elementType the element {@link Type}, must not be {@code null}
+     * @param dimensions the number of dimensions
+     * @return the {@link ArrayType}, never {@code null}
+     * @throws IllegalArgumentException if the element type is an array type
+     */
+    // TODO more error conditions? e.g. void array doesn't make sense either
+    ArrayType ofArray(Type elementType, int dimensions);
+
+    /**
+     * Returns a {@link ParameterizedType} for the given generic type and type arguments.
+     * The array of type arguments must have the same shape as the generic type's
+     * list of type parameters.
+     *
+     * @param genericType the type to parameterize, must not be {@code null}
+     * @param typeArguments one or more type arguments
+     * @return the parameterized type, never {@code null}
+     * @throws IllegalArgumentException if given {@code genericType} is not generic or if the number of type arguments
+     * doesn't match the number of type parameters declared by {@code genericType}
+     */
+    ParameterizedType parameterized(Class<?> genericType, Class<?>... typeArguments);
+
+    /**
+     * Returns a {@link ParameterizedType} for the given generic type and type arguments.
+     * The array of type arguments must have the same shape as the generic type's
+     * list of type parameters.
+     *
+     * @param genericType the type to parameterize, must not be {@code null}
+     * @param typeArguments one or more type arguments
+     * @return the parameterized type, never {@code null}
+     * @throws IllegalArgumentException if given {@code genericType} is not generic or if the number of type arguments
+     * doesn't match the number of type parameters declared by {@code genericType}
+     */
+    ParameterizedType parameterized(Class<?> genericType, Type... typeArguments);
+
+    /**
+     * Returns a  {@link ParameterizedType} for the given generic type and type arguments.
+     * The array of type arguments must have the same shape as the generic type's
+     * list of type parameters.
+     *
+     * @param genericType the type to parameterize, must not be {@code null}
+     * @param typeArguments one or more type arguments
+     * @return the parameterized type, never {@code null}
+     * @throws IllegalArgumentException if given {@code genericType} is not generic or if the number of type arguments
+     * doesn't match the number of type parameters declared by {@code genericType}
+     */
+    ParameterizedType parameterized(ClassType genericType, Type... typeArguments);
+
+    /**
+     * Returns a {@link WildcardType} that represents an equivalent of {@code ? extends upperBound}.
+     * Note that if {@code upperBound} represents the {@code java.lang.Object} type, then the result
+     * is equivalent to {@link #wildcardUnbounded()}.
+     *
+     * @param upperBound upper bound type, must not be {@code null}
+     * @return a {@link WildcardType} object representing a wildcard type with given upper bound
+     */
+    WildcardType wildcardWithUpperBound(Type upperBound);
+
+    /**
+     * Returns a {@link WildcardType} that represents an equivalent of {@code ? super lowerBound}.
+     *
+     * @param lowerBound lower bound type, must not be {@code null}
+     * @return a {@link WildcardType} object representing a wildcard type with given upper bound
+     */
+    WildcardType wildcardWithLowerBound(Type lowerBound);
+
+    /**
+     * Returns a {@link WildcardType} that represents an equivalent of {@code ?}.
+     *
+     * @return a {@link WildcardType} object representing an unbounded wildcard type
+     */
+    WildcardType wildcardUnbounded();
 }

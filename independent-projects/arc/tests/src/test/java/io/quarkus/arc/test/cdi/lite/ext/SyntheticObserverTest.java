@@ -9,13 +9,11 @@ import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.List;
 import javax.enterprise.event.Event;
-import javax.enterprise.inject.build.compatible.spi.AppDeployment;
+import javax.enterprise.inject.build.compatible.spi.AnnotationBuilder;
 import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
-import javax.enterprise.inject.build.compatible.spi.Messages;
 import javax.enterprise.inject.build.compatible.spi.Synthesis;
 import javax.enterprise.inject.build.compatible.spi.SyntheticComponents;
 import javax.enterprise.inject.build.compatible.spi.SyntheticObserver;
-import javax.enterprise.inject.build.compatible.spi.Validation;
 import javax.enterprise.inject.spi.EventContext;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
@@ -51,16 +49,19 @@ public class SyntheticObserverTest {
 
             syn.addObserver()
                     .type(MyEvent.class)
-                    .qualifier(MyQualifier.class)
+                    .qualifier(AnnotationBuilder.of(MyQualifier.class).build())
                     .observeWith(MyObserver.class);
         }
 
+        // TODO uncomment and rewrite when @Processing is applied for synthetic beans
+/*
         @Validation
         public void validate(AppDeployment deployment, Messages messages) {
             deployment.observers().forEach(observer -> {
                 messages.info("observer has type " + observer.observedType(), observer);
             });
         }
+*/
     }
 
     // ---

@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.enterprise.inject.build.compatible.spi.Messages;
 import org.jboss.jandex.DotName;
-import org.jboss.jandex.IndexView;
 
 class CdiLiteExtEnhancementProcessor {
     private final CdiLiteExtUtil util;
@@ -23,7 +22,7 @@ class CdiLiteExtEnhancementProcessor {
     private final AllAnnotationTransformations annotationTransformations;
     private final Messages messages;
 
-    CdiLiteExtEnhancementProcessor(CdiLiteExtUtil util, IndexView beanArchiveIndex,
+    CdiLiteExtEnhancementProcessor(CdiLiteExtUtil util, org.jboss.jandex.IndexView beanArchiveIndex,
             AllAnnotationTransformations annotationTransformations, MessagesImpl messages) {
         this.util = util;
         this.beanArchiveIndex = beanArchiveIndex;
@@ -54,7 +53,6 @@ class CdiLiteExtEnhancementProcessor {
 
         int numParameters = method.parameters().size();
         int numQueryParameters = 0;
-        boolean appArchiveConfigPresent = false;
         List<ExtensionMethodParameterType> parameters = new ArrayList<>(numParameters);
         for (int i = 0; i < numParameters; i++) {
             org.jboss.jandex.Type parameterType = method.parameters().get(i);
@@ -65,14 +63,15 @@ class CdiLiteExtEnhancementProcessor {
                 numQueryParameters++;
             }
 
-            if (kind == ExtensionMethodParameterType.APP_ARCHIVE_CONFIG) {
-                appArchiveConfigPresent = true;
-            }
-
             if (!kind.isAvailableIn(Phase.ENHANCEMENT)) {
                 throw new IllegalArgumentException("@Enhancement methods can't declare a parameter of type "
                         + parameterType + ", found at " + method + " @ " + method.declaringClass());
             }
+        }
+
+        if (numQueryParameters == 0) {
+            throw new IllegalArgumentException("No parameter of type ClassConfig, MethodConfig or FieldConfig"
+                    + " for method " + method + " @ " + method.declaringClass());
         }
 
         if (numQueryParameters > 1) {
@@ -80,64 +79,48 @@ class CdiLiteExtEnhancementProcessor {
                     + " for method " + method + " @ " + method.declaringClass());
         }
 
-        if (numQueryParameters > 0 && appArchiveConfigPresent) {
-            throw new IllegalArgumentException("Parameter of type AppArchiveConfig present together with a parameter"
-                    + " of type ClassConfig, MethodConfig or FieldConfig for method " + method
-                    + " @ " + method.declaringClass());
-        }
-
-        if (numQueryParameters > 0 && constraintAnnotations.isEmpty()) {
+        if (constraintAnnotations.isEmpty()) {
             throw new IllegalArgumentException("Missing constraint annotation (@ExactType, @SubtypesOf) for method "
                     + method + " @ " + method.declaringClass());
         }
 
-        if (numQueryParameters == 0) {
-            List<Object> arguments = new ArrayList<>(numParameters);
+        ExtensionMethodParameterType query = parameters.stream()
+                .filter(ExtensionMethodParameterType::isQuery)
+                .findAny()
+                .get(); // guaranteed to be there
+
+        List<org.jboss.jandex.ClassInfo> matchingClasses = matchingClassesForExtensionMethod(constraintAnnotations);
+        List<Object> allValuesForQueryParameter;
+        if (query == ExtensionMethodParameterType.CLASS_CONFIG) {
+            allValuesForQueryParameter = matchingClasses.stream()
+                    .map(it -> new ClassConfigImpl(beanArchiveIndex, annotationTransformations, it))
+                    .collect(Collectors.toList());
+        } else if (query == ExtensionMethodParameterType.METHOD_CONFIG) {
+            allValuesForQueryParameter = matchingClasses.stream()
+                    .flatMap(it -> it.methods().stream())
+                    .filter(MethodPredicates.IS_METHOD_OR_CONSTRUCTOR_JANDEX)
+                    .map(it -> new MethodConfigImpl(beanArchiveIndex, annotationTransformations.methods, it))
+                    .collect(Collectors.toList());
+        } else if (query == ExtensionMethodParameterType.FIELD_CONFIG) {
+            allValuesForQueryParameter = matchingClasses.stream()
+                    .flatMap(it -> it.fields().stream())
+                    .map(it -> new FieldConfigImpl(beanArchiveIndex, annotationTransformations.fields, it))
+                    .collect(Collectors.toList());
+        } else {
+            // TODO internal error
+            allValuesForQueryParameter = Collections.emptyList();
+        }
+
+        for (Object queryParameterValue : allValuesForQueryParameter) {
+            List<Object> arguments = new ArrayList<>();
             for (ExtensionMethodParameterType parameter : parameters) {
-                Object argument = createArgumentForExtensionMethodParameter(parameter);
+                Object argument = parameter.isQuery()
+                        ? queryParameterValue
+                        : createArgumentForExtensionMethodParameter(parameter);
                 arguments.add(argument);
             }
 
             util.callExtensionMethod(method, arguments);
-        } else {
-            ExtensionMethodParameterType query = parameters.stream()
-                    .filter(ExtensionMethodParameterType::isQuery)
-                    .findAny()
-                    .get(); // guaranteed to be there
-
-            List<org.jboss.jandex.ClassInfo> matchingClasses = matchingClassesForExtensionMethod(constraintAnnotations);
-            List<Object> allValuesForQueryParameter;
-            if (query == ExtensionMethodParameterType.CLASS_CONFIG) {
-                allValuesForQueryParameter = matchingClasses.stream()
-                        .map(it -> new ClassConfigImpl(beanArchiveIndex, annotationTransformations, it))
-                        .collect(Collectors.toList());
-            } else if (query == ExtensionMethodParameterType.METHOD_CONFIG) {
-                allValuesForQueryParameter = matchingClasses.stream()
-                        .flatMap(it -> it.methods().stream())
-                        .filter(MethodPredicates.IS_METHOD_OR_CONSTRUCTOR_JANDEX)
-                        .map(it -> new MethodConfigImpl(beanArchiveIndex, annotationTransformations.methods, it))
-                        .collect(Collectors.toList());
-            } else if (query == ExtensionMethodParameterType.FIELD_CONFIG) {
-                allValuesForQueryParameter = matchingClasses.stream()
-                        .flatMap(it -> it.fields().stream())
-                        .map(it -> new FieldConfigImpl(beanArchiveIndex, annotationTransformations.fields, it))
-                        .collect(Collectors.toList());
-            } else {
-                // TODO internal error
-                allValuesForQueryParameter = Collections.emptyList();
-            }
-
-            for (Object queryParameterValue : allValuesForQueryParameter) {
-                List<Object> arguments = new ArrayList<>();
-                for (ExtensionMethodParameterType parameter : parameters) {
-                    Object argument = parameter.isQuery()
-                            ? queryParameterValue
-                            : createArgumentForExtensionMethodParameter(parameter);
-                    arguments.add(argument);
-                }
-
-                util.callExtensionMethod(method, arguments);
-            }
         }
     }
 
@@ -190,7 +173,7 @@ class CdiLiteExtEnhancementProcessor {
                     } else if (DotNames.SUBTYPES_OF.equals(constraintAnnotation.name())) {
                         org.jboss.jandex.Type upperBound = constraintAnnotation.value("type").asClass();
                         org.jboss.jandex.ClassInfo clazz = beanArchiveIndex.getClassByName(upperBound.name());
-                        // if clazz is null, should report an error here
+                        // TODO if clazz is null, should report an error here
                         result = Modifier.isInterface(clazz.flags())
                                 ? beanArchiveIndex.getAllKnownImplementors(upperBound.name())
                                 : beanArchiveIndex.getAllKnownSubclasses(upperBound.name());
@@ -215,16 +198,10 @@ class CdiLiteExtEnhancementProcessor {
 
     private Object createArgumentForExtensionMethodParameter(ExtensionMethodParameterType kind) {
         switch (kind) {
-            case ANNOTATIONS:
-                return new AnnotationsImpl(beanArchiveIndex, annotationOverlays);
-            case APP_ARCHIVE:
-                return new AppArchiveImpl(beanArchiveIndex, annotationOverlays);
-            case APP_ARCHIVE_CONFIG:
-                return new AppArchiveConfigImpl(beanArchiveIndex, annotationTransformations);
-            case TYPES:
-                return new TypesImpl(beanArchiveIndex, annotationOverlays);
             case MESSAGES:
                 return messages;
+            case TYPES:
+                return new TypesImpl(beanArchiveIndex, annotationOverlays);
 
             default:
                 // TODO should report an error here

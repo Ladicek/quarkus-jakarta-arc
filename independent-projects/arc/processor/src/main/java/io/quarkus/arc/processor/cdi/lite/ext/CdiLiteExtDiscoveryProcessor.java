@@ -22,7 +22,7 @@ class CdiLiteExtDiscoveryProcessor {
     final Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> qualifiers = new HashMap<>();
     final Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> interceptorBindings = new HashMap<>();
     final Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> stereotypes = new HashMap<>();
-    final List<ContextBuilderImpl> contexts = new ArrayList<>();
+    final List<ContextConfigImpl> contexts = new ArrayList<>();
 
     CdiLiteExtDiscoveryProcessor(CdiLiteExtUtil util, org.jboss.jandex.IndexView applicationIndex,
             Set<String> additionalClasses, Messages messages) {
@@ -74,12 +74,12 @@ class CdiLiteExtDiscoveryProcessor {
 
     private Object createArgumentForExtensionMethodParameter(ExtensionMethodParameterType kind) {
         switch (kind) {
-            case APP_ARCHIVE_BUILDER:
-                return new AppArchiveBuilderImpl(applicationIndex, additionalClasses);
             case META_ANNOTATIONS:
                 return new MetaAnnotationsImpl(qualifiers, interceptorBindings, stereotypes, contexts);
             case MESSAGES:
                 return messages;
+            case SCANNED_CLASSES:
+                return new ScannedClassesImpl(additionalClasses);
 
             default:
                 // TODO should report an error here

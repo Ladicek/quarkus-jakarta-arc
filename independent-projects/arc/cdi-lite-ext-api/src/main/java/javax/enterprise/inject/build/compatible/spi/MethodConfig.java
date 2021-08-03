@@ -3,10 +3,19 @@ package javax.enterprise.inject.build.compatible.spi;
 import javax.enterprise.lang.model.declarations.MethodInfo;
 
 /**
- * @param <T> type of whomever declares the configured method or constructor
+ * Allows adding annotations to and removing annotations from a method.
+ * Note that the method is not physically altered, the modifications
+ * are only seen by the CDI container.
+ *
+ * @see Enhancement
+ * @since 4.0
  */
-public interface MethodConfig<T> extends MethodInfo<T>, AnnotationConfig {
-    // TODO remove the type parameter?
-    // TODO split MethodConfig into MethodConfig/ConstructorConfig?
-    // TODO even if MethodInfo has equals/hashCode, MethodConfig probably shouldn't
+public interface MethodConfig extends DeclarationConfig<MethodConfig> {
+    /**
+     * Returns the {@link MethodInfo} corresponding to this transformed method.
+     *
+     * @return the {@link MethodInfo} corresponding to this transformed method, never {@code null}
+     */
+    @Override
+    MethodInfo info();
 }

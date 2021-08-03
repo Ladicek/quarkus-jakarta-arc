@@ -4,15 +4,18 @@ import javax.enterprise.lang.model.AnnotationTarget;
 import javax.enterprise.lang.model.types.Type;
 
 /**
+ * Declarations directly correspond to an element of a program source code.
  * Declarations are:
  *
  * <ul>
- * <li>a <i>package</i>, as declared in {@code package-info.java}</li>
- * <li>a <i>class</i>, including interfaces, enums, and annotations</li>
- * <li>a <i>field</i></li>
- * <li>a <i>method</i>, including constructors</li>
- * <li>a <i>method parameter</i></li>
+ * <li>{@linkplain PackageInfo packages}</li>
+ * <li>{@linkplain ClassInfo classes}, including interfaces, enums, and annotations</li>
+ * <li>{@linkplain FieldInfo fields}</li>
+ * <li>{@linkplain MethodInfo methods}, including constructors</li>
+ * <li>{@linkplain ParameterInfo method parameters}, including constructor parameters</li>
  * </ul>
+ *
+ * @since 4.0
  */
 public interface DeclarationInfo extends AnnotationTarget {
     // TODO reevaluate the is*/as*/kind() approach (everywhere!); maybe type checks and casts are better, maybe
@@ -39,7 +42,6 @@ public interface DeclarationInfo extends AnnotationTarget {
     }
 
     enum Kind {
-        /** Packages can be annotated in {@code package-info.java}. */
         PACKAGE,
         CLASS,
         METHOD,
@@ -47,45 +49,105 @@ public interface DeclarationInfo extends AnnotationTarget {
         FIELD,
     }
 
+    /**
+     * Returns the {@linkplain Kind kind} of this declaration.
+     *
+     * @return the kind of this declaration
+     */
     Kind kind();
 
+    /**
+     * Returns whether this declaration is a {@linkplain PackageInfo package}.
+     *
+     * @return {@code true} if this is a package, {@code false} otherwise
+     */
     default boolean isPackage() {
         return kind() == Kind.PACKAGE;
     }
 
+    /**
+     * Returns whether this declaration is a {@linkplain ClassInfo class}.
+     *
+     * @return {@code true} if this is a class, {@code false} otherwise
+     */
     default boolean isClass() {
         return kind() == Kind.CLASS;
     }
 
+    /**
+     * Returns whether this declaration is a {@linkplain MethodInfo method}.
+     *
+     * @return {@code true} if this is a method, {@code false} otherwise
+     */
     default boolean isMethod() {
         return kind() == Kind.METHOD;
     }
 
+    /**
+     * Returns whether this declaration is a {@linkplain ParameterInfo method parameter}.
+     *
+     * @return {@code true} if this is a parameter, {@code false} otherwise
+     */
     default boolean isParameter() {
         return kind() == Kind.PARAMETER;
     }
 
+    /**
+     * Returns whether this declaration is a {@linkplain FieldInfo field}.
+     *
+     * @return {@code true} if this is a field, {@code false} otherwise
+     */
     default boolean isField() {
         return kind() == Kind.FIELD;
     }
 
+    /**
+     * Returns this declaration as a {@linkplain PackageInfo package}.
+     *
+     * @return this package, never {@code null}
+     * @throws IllegalStateException if {@link #isPackage()} returns {@code false}
+     */
     default PackageInfo asPackage() {
         throw new IllegalStateException("Not a package");
     }
 
-    default ClassInfo<?> asClass() {
+    /**
+     * Returns this declaration as a {@linkplain ClassInfo class}.
+     *
+     * @return this class, never {@code null}
+     * @throws IllegalStateException if {@link #isClass()} returns {@code false}
+     */
+    default ClassInfo asClass() {
         throw new IllegalStateException("Not a class");
     }
 
-    default MethodInfo<?> asMethod() {
+    /**
+     * Returns this declaration as a {@linkplain MethodInfo method}.
+     *
+     * @return this method, never {@code null}
+     * @throws IllegalStateException if {@link #isMethod()} returns {@code false}
+     */
+    default MethodInfo asMethod() {
         throw new IllegalStateException("Not a method");
     }
 
+    /**
+     * Returns this declaration as a {@linkplain ParameterInfo method parameter}.
+     *
+     * @return this parameter, never {@code null}
+     * @throws IllegalStateException if {@link #isParameter()} returns {@code false}
+     */
     default ParameterInfo asParameter() {
         throw new IllegalStateException("Not a parameter");
     }
 
-    default FieldInfo<?> asField() {
+    /**
+     * Returns this declaration as a {@linkplain FieldInfo field}.
+     *
+     * @return this field, never {@code null}
+     * @throws IllegalStateException if {@link #isField()} returns {@code false}
+     */
+    default FieldInfo asField() {
         throw new IllegalStateException("Not a field");
     }
 }

@@ -2,8 +2,19 @@ package javax.enterprise.lang.model.types;
 
 import javax.enterprise.lang.model.declarations.ClassInfo;
 
+/**
+ * A class type, including interface types, enum types and annotation types.
+ * Class types are introduced by class {@linkplain #declaration() declarations}.
+ *
+ * @since 4.0
+ */
 public interface ClassType extends Type {
-    ClassInfo<?> declaration();
+    /**
+     * Returns the {@linkplain ClassInfo declaration} of this class type.
+     *
+     * @return the {@linkplain ClassInfo declaration} of this class type
+     */
+    ClassInfo declaration();
 
     // ---
 

@@ -38,7 +38,6 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.lang.model.declarations.MethodInfo;
 import javax.enterprise.util.Nonbinding;
 import org.jboss.jandex.DotName;
-import org.jboss.jandex.IndexView;
 
 public class CdiLiteExtensions {
     private final CdiLiteExtUtil util = new CdiLiteExtUtil();
@@ -48,7 +47,7 @@ public class CdiLiteExtensions {
     private Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> qualifiers;
     private Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> interceptorBindings;
     private Map<Class<? extends Annotation>, Consumer<ClassConfig<?>>> stereotypes;
-    private List<ContextBuilderImpl> contexts;
+    private List<ContextConfigImpl> contexts;
 
     private AllAnnotationTransformations annotationTransformations;
 
@@ -71,7 +70,9 @@ public class CdiLiteExtensions {
     /**
      * Must be called <i>after</i> {@code runDiscovery} and <i>before</i> {@code registerMetaAnnotations}.
      */
-    public void initializeAnnotationTransformations(IndexView beanArchiveIndex, BeanProcessor.Builder builder) {
+    public void initializeAnnotationTransformations(org.jboss.jandex.IndexView beanArchiveIndex, BeanProcessor.Builder builder) {
+        AnnotationBuilderFactoryImpl.init(beanArchiveIndex, annotationOverlays);
+
         this.annotationTransformations = new AllAnnotationTransformations(beanArchiveIndex, annotationOverlays);
         builder.addAnnotationTransformer(annotationTransformations.classes);
         builder.addAnnotationTransformer(annotationTransformations.methods);
@@ -81,7 +82,7 @@ public class CdiLiteExtensions {
     /**
      * Must be called <i>after</i> {@code initializeAnnotationTransformations} and <i>before</i> {@code runEnhancement}.
      */
-    public void registerMetaAnnotations(IndexView beanArchiveIndex, BeanProcessor.Builder builder) {
+    public void registerMetaAnnotations(org.jboss.jandex.IndexView beanArchiveIndex, BeanProcessor.Builder builder) {
         this.annotationTransformations = new AllAnnotationTransformations(beanArchiveIndex, annotationOverlays);
         builder.addAnnotationTransformer(annotationTransformations.classes);
         builder.addAnnotationTransformer(annotationTransformations.methods);
@@ -115,25 +116,26 @@ public class CdiLiteExtensions {
         if (interceptorBindings != null && !interceptorBindings.isEmpty()) {
             builder.addInterceptorBindingRegistrar(new InterceptorBindingRegistrar() {
                 @Override
-                public Map<DotName, Set<String>> registerAdditionalBindings() {
-                    Map<DotName, Set<String>> result = new HashMap<>();
-                    for (Map.Entry<Class<? extends Annotation>, Consumer<ClassConfig<?>>> entry : interceptorBindings
-                            .entrySet()) {
-                        DotName annotationName = DotName.createSimple(entry.getKey().getName());
+                public List<InterceptorBinding> getAdditionalBindings() {
+                    return interceptorBindings.entrySet()
+                            .stream()
+                            .map(entry -> {
+                                DotName annotationName = DotName.createSimple(entry.getKey().getName());
 
-                        org.jboss.jandex.ClassInfo jandexAnnotation = beanArchiveIndex.getClassByName(annotationName);
-                        ClassConfigImpl config = new ClassConfigImpl(beanArchiveIndex, annotationTransformations,
-                                jandexAnnotation);
-                        entry.getValue().accept(config);
+                                org.jboss.jandex.ClassInfo jandexAnnotation = beanArchiveIndex.getClassByName(annotationName);
+                                ClassConfigImpl config = new ClassConfigImpl(beanArchiveIndex, annotationTransformations,
+                                        jandexAnnotation);
+                                entry.getValue().accept(config);
 
-                        Set<String> nonbindingMembers = config.methods()
-                                .stream()
-                                .filter(it -> it.hasAnnotation(Nonbinding.class))
-                                .map(MethodInfo::name)
-                                .collect(Collectors.toSet());
-                        result.put(annotationName, nonbindingMembers);
-                    }
-                    return result;
+                                Set<String> nonbindingMembers = config.methods()
+                                        .stream()
+                                        .filter(it -> it.hasAnnotation(Nonbinding.class))
+                                        .map(MethodInfo::name)
+                                        .collect(Collectors.toSet());
+
+                                return InterceptorBinding.of(annotationName, nonbindingMembers);
+                            })
+                            .collect(Collectors.toList());
                 }
             });
         }
@@ -159,7 +161,7 @@ public class CdiLiteExtensions {
         }
 
         if (contexts != null) {
-            for (ContextBuilderImpl context : contexts) {
+            for (ContextConfigImpl context : contexts) {
                 if (context.implementationClass == null) {
                     // TODO proper diagnostics
                     throw new IllegalArgumentException("Context implementation class not set");
@@ -204,7 +206,7 @@ public class CdiLiteExtensions {
     /**
      * Must be called <i>after</i> {@code runEnhancement} and <i>before</i> {@code runSynthesis}.
      */
-    public void runProcessing(IndexView beanArchiveIndex, Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
+    public void runProcessing(org.jboss.jandex.IndexView beanArchiveIndex, Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
             Collection<io.quarkus.arc.processor.ObserverInfo> allObservers) {
 
         // the annotation transformation callbacks registered in `registerMetaAnnotations`
@@ -219,7 +221,7 @@ public class CdiLiteExtensions {
     /**
      * Must be called <i>after</i> {@code runProcessing} and <i>before</i> {@code registerSyntheticBeans}.
      */
-    public void runSynthesis(IndexView beanArchiveIndex, Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
+    public void runSynthesis(org.jboss.jandex.IndexView beanArchiveIndex, Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
             Collection<io.quarkus.arc.processor.ObserverInfo> allObservers) {
         CdiLiteExtSynthesisProcessor synthesis = new CdiLiteExtSynthesisProcessor(util, beanArchiveIndex,
                 annotationOverlays, allBeans, allObservers, messages);
@@ -365,7 +367,8 @@ public class CdiLiteExtensions {
      * Must be called <i>after</i> {@code registerSynthetic{Beans,Observers}} and <i>before</i>
      * {@code registerValidationErrors}.
      */
-    public void runValidation(IndexView beanArchiveIndex, Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
+    public void runValidation(org.jboss.jandex.IndexView beanArchiveIndex,
+            Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
             Collection<io.quarkus.arc.processor.ObserverInfo> allObservers) {
         new CdiLiteExtValidationProcessor(util, beanArchiveIndex, annotationOverlays, allBeans, allObservers, messages).run();
     }
@@ -377,6 +380,8 @@ public class CdiLiteExtensions {
         for (Throwable error : messages.errors) {
             context.addDeploymentProblem(error);
         }
+
+        AnnotationBuilderFactoryImpl.reset();
 
         // at the very end
         annotationOverlays.invalidate();

@@ -5,14 +5,13 @@ import java.util.stream.Collectors;
 import javax.enterprise.inject.build.compatible.spi.ScopeInfo;
 import javax.enterprise.inject.build.compatible.spi.StereotypeInfo;
 import javax.enterprise.lang.model.AnnotationInfo;
-import org.jboss.jandex.IndexView;
 
 class StereotypeInfoImpl implements StereotypeInfo {
-    private final IndexView jandexIndex;
+    private final org.jboss.jandex.IndexView jandexIndex;
     private final AllAnnotationOverlays annotationOverlays;
     private final io.quarkus.arc.processor.StereotypeInfo arcStereotype;
 
-    StereotypeInfoImpl(IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+    StereotypeInfoImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
             io.quarkus.arc.processor.StereotypeInfo arcStereotype) {
         this.jandexIndex = jandexIndex;
         this.annotationOverlays = annotationOverlays;

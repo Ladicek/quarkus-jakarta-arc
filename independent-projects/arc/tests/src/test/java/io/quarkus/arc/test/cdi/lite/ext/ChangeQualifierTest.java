@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.test.ArcTestContainer;
 import java.lang.annotation.Retention;
-import javax.enterprise.inject.build.compatible.spi.AppArchive;
-import javax.enterprise.inject.build.compatible.spi.AppArchiveBuilder;
-import javax.enterprise.inject.build.compatible.spi.AppDeployment;
+import java.util.ArrayList;
+import java.util.List;
+import javax.enterprise.inject.build.compatible.spi.BeanInfo;
 import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import javax.enterprise.inject.build.compatible.spi.ClassConfig;
 import javax.enterprise.inject.build.compatible.spi.Discovery;
@@ -16,7 +16,11 @@ import javax.enterprise.inject.build.compatible.spi.Enhancement;
 import javax.enterprise.inject.build.compatible.spi.ExactType;
 import javax.enterprise.inject.build.compatible.spi.FieldConfig;
 import javax.enterprise.inject.build.compatible.spi.Messages;
+import javax.enterprise.inject.build.compatible.spi.Processing;
+import javax.enterprise.inject.build.compatible.spi.ScannedClasses;
+import javax.enterprise.inject.build.compatible.spi.SubtypesOf;
 import javax.enterprise.inject.build.compatible.spi.Validation;
+import javax.enterprise.lang.model.declarations.ClassInfo;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 import javax.inject.Singleton;
@@ -38,9 +42,14 @@ public class ChangeQualifierTest {
     }
 
     public static class MyExtension implements BuildCompatibleExtension {
+        private final List<ClassInfo> classes = new ArrayList<>();
+        private final List<BeanInfo> beans = new ArrayList<>();
+
         @Discovery
-        public void services(AppArchiveBuilder app, Messages messages) {
-            app.addSubtypesOf(MyService.class.getName());
+        public void services(ScannedClasses classes, Messages messages) {
+            classes.add(MyFooService.class.getName());
+            classes.add(MyBarService.class.getName());
+            classes.add(MyBazService.class.getName());
             messages.info("discovery complete");
         }
 
@@ -70,15 +79,27 @@ public class ChangeQualifierTest {
             }
         }
 
-        @Validation
-        public void validate(AppArchive archive, AppDeployment deployment, Messages messages) {
-            archive.classes().subtypeOf(MyService.class).forEach(clazz -> {
-                messages.info("class has annotations " + clazz.annotations(), clazz);
-            });
+        @Enhancement
+        @SubtypesOf(type = MyService.class)
+        public void rememberClasses(ClassConfig clazz) {
+            classes.add(clazz);
+        }
 
-            deployment.beans().type(MyService.class).forEach(bean -> {
+        @Processing
+        @ExactType(type = MyService.class)
+        public void rememberBeans(BeanInfo bean) {
+            beans.add(bean);
+        }
+
+        @Validation
+        public void validate(Messages messages) {
+            for (ClassInfo clazz : classes) {
+                messages.info("class has annotations " + clazz.annotations(), clazz);
+            }
+
+            for (BeanInfo bean : beans) {
                 messages.info("bean has types " + bean.types(), bean);
-            });
+            }
         }
     }
 

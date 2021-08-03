@@ -2,11 +2,6 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
-import javax.enterprise.inject.build.compatible.spi.Annotations;
-import javax.enterprise.inject.build.compatible.spi.AppArchive;
-import javax.enterprise.inject.build.compatible.spi.AppArchiveBuilder;
-import javax.enterprise.inject.build.compatible.spi.AppArchiveConfig;
-import javax.enterprise.inject.build.compatible.spi.AppDeployment;
 import javax.enterprise.inject.build.compatible.spi.BeanInfo;
 import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import javax.enterprise.inject.build.compatible.spi.ClassConfig;
@@ -20,6 +15,7 @@ import javax.enterprise.inject.build.compatible.spi.MetaAnnotations;
 import javax.enterprise.inject.build.compatible.spi.MethodConfig;
 import javax.enterprise.inject.build.compatible.spi.ObserverInfo;
 import javax.enterprise.inject.build.compatible.spi.Processing;
+import javax.enterprise.inject.build.compatible.spi.ScannedClasses;
 import javax.enterprise.inject.build.compatible.spi.SubtypesOf;
 import javax.enterprise.inject.build.compatible.spi.Synthesis;
 import javax.enterprise.inject.build.compatible.spi.SyntheticComponents;
@@ -51,13 +47,9 @@ class DotNames {
     static final DotName BEAN_INFO = DotName.createSimple(BeanInfo.class.getName());
     static final DotName OBSERVER_INFO = DotName.createSimple(ObserverInfo.class.getName());
 
-    static final DotName ANNOTATIONS = DotName.createSimple(Annotations.class.getName());
-    static final DotName APP_ARCHIVE = DotName.createSimple(AppArchive.class.getName());
-    static final DotName APP_ARCHIVE_BUILDER = DotName.createSimple(AppArchiveBuilder.class.getName());
-    static final DotName APP_ARCHIVE_CONFIG = DotName.createSimple(AppArchiveConfig.class.getName());
-    static final DotName APP_DEPLOYMENT = DotName.createSimple(AppDeployment.class.getName());
     static final DotName MESSAGES = DotName.createSimple(Messages.class.getName());
     static final DotName META_ANNOTATIONS = DotName.createSimple(MetaAnnotations.class.getName());
+    static final DotName SCANNED_CLASSES = DotName.createSimple(ScannedClasses.class.getName());
     static final DotName SYNTHETIC_COMPONENTS = DotName.createSimple(SyntheticComponents.class.getName());
     static final DotName TYPES = DotName.createSimple(Types.class.getName());
 }

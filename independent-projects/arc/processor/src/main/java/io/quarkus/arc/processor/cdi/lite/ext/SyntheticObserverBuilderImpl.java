@@ -1,7 +1,6 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import javax.enterprise.event.Reception;
@@ -9,7 +8,6 @@ import javax.enterprise.event.TransactionPhase;
 import javax.enterprise.inject.build.compatible.spi.SyntheticObserver;
 import javax.enterprise.inject.build.compatible.spi.SyntheticObserverBuilder;
 import javax.enterprise.inject.spi.ObserverMethod;
-import javax.enterprise.lang.model.AnnotationAttribute;
 import javax.enterprise.lang.model.AnnotationInfo;
 import javax.enterprise.lang.model.declarations.ClassInfo;
 import javax.enterprise.lang.model.types.Type;
@@ -62,23 +60,9 @@ class SyntheticObserverBuilderImpl implements SyntheticObserverBuilder {
     }
 
     @Override
-    public SyntheticObserverBuilder qualifier(Class<? extends Annotation> qualifierAnnotation,
-            AnnotationAttribute... attributes) {
+    public SyntheticObserverBuilder qualifier(Class<? extends Annotation> qualifierAnnotation) {
         DotName annotationName = DotName.createSimple(qualifierAnnotation.getName());
-        org.jboss.jandex.AnnotationValue[] annotationAttributes = Arrays.stream(attributes)
-                .map(it -> ((AnnotationAttributeImpl) it).jandexAnnotationAttribute)
-                .toArray(org.jboss.jandex.AnnotationValue[]::new);
-        this.qualifiers.add(org.jboss.jandex.AnnotationInstance.create(annotationName, null, annotationAttributes));
-        return this;
-    }
-
-    @Override
-    public SyntheticObserverBuilder qualifier(ClassInfo<?> qualifierAnnotation, AnnotationAttribute... attributes) {
-        DotName annotationName = ((ClassInfoImpl) qualifierAnnotation).jandexDeclaration.name();
-        org.jboss.jandex.AnnotationValue[] annotationAttributes = Arrays.stream(attributes)
-                .map(it -> ((AnnotationAttributeImpl) it).jandexAnnotationAttribute)
-                .toArray(org.jboss.jandex.AnnotationValue[]::new);
-        this.qualifiers.add(org.jboss.jandex.AnnotationInstance.create(annotationName, null, annotationAttributes));
+        this.qualifiers.add(org.jboss.jandex.AnnotationInstance.create(annotationName, null, AnnotationValueArray.EMPTY));
         return this;
     }
 

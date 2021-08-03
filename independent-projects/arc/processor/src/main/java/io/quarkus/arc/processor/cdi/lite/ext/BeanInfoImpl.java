@@ -12,14 +12,13 @@ import javax.enterprise.lang.model.declarations.ClassInfo;
 import javax.enterprise.lang.model.declarations.FieldInfo;
 import javax.enterprise.lang.model.declarations.MethodInfo;
 import javax.enterprise.lang.model.types.Type;
-import org.jboss.jandex.IndexView;
 
 class BeanInfoImpl implements BeanInfo<Object> {
-    private final IndexView jandexIndex;
+    private final org.jboss.jandex.IndexView jandexIndex;
     private final AllAnnotationOverlays annotationOverlays;
     private final io.quarkus.arc.processor.BeanInfo arcBeanInfo;
 
-    BeanInfoImpl(IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+    BeanInfoImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
             io.quarkus.arc.processor.BeanInfo arcBeanInfo) {
         this.jandexIndex = jandexIndex;
         this.annotationOverlays = annotationOverlays;
@@ -43,7 +42,7 @@ class BeanInfoImpl implements BeanInfo<Object> {
     public Collection<AnnotationInfo> qualifiers() {
         return arcBeanInfo.getQualifiers()
                 .stream()
-                .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
+                .map(it -> new AnnotationInfoImpl<>(jandexIndex, annotationOverlays, it))
                 .collect(Collectors.toList());
     }
 

@@ -3,22 +3,53 @@ package javax.enterprise.lang.model.declarations;
 import javax.enterprise.lang.model.types.Type;
 
 /**
- * @param <T> type of whomever declares the inspected field
+ * A field, {@linkplain #declaringClass() declared} in some class.
+ *
+ * @since 4.0
  */
-public interface FieldInfo<T> extends DeclarationInfo {
-    // TODO remove the type parameter?
-
+public interface FieldInfo extends DeclarationInfo {
+    /**
+     * Returns the name of this field.
+     *
+     * @return the name of this field, never {@code null}
+     */
     String name();
 
+    /**
+     * Returns the {@linkplain Type type} of this field.
+     *
+     * @return the {@linkplain Type type} of this field, never {@code null}
+     */
     Type type();
 
+    /**
+     * Returns whether this field is {@code static}.
+     *
+     * @return whether this field is {@code static}.
+     */
     boolean isStatic();
 
+    /**
+     * Returns whether this field is {@code final}.
+     *
+     * @return whether this field is {@code final}.
+     */
     boolean isFinal();
 
+    /**
+     * Returns the modifiers of this field as an {@code int}.
+     * Use {@link java.lang.reflect.Modifier Modifier} to inspect the value.
+     *
+     * @return the modifiers of this field
+     */
     int modifiers();
 
-    ClassInfo<T> declaringClass();
+    /**
+     * Returns the {@linkplain ClassInfo class} that declares this field.
+     *
+     * @return the {@linkplain ClassInfo class} that declares this field, never {@code null}
+     */
+    ClassInfo declaringClass();
 
     // ---
 
@@ -28,7 +59,7 @@ public interface FieldInfo<T> extends DeclarationInfo {
     }
 
     @Override
-    default FieldInfo<?> asField() {
+    default FieldInfo asField() {
         return this;
     }
 }

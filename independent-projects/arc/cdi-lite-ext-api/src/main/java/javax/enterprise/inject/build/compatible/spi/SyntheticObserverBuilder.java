@@ -1,16 +1,18 @@
 package javax.enterprise.inject.build.compatible.spi;
 
-import javax.enterprise.lang.model.AnnotationAttribute;
+import javax.enterprise.event.Reception;
+import javax.enterprise.event.TransactionPhase;
 import javax.enterprise.lang.model.AnnotationInfo;
 import javax.enterprise.lang.model.declarations.ClassInfo;
 import javax.enterprise.lang.model.types.Type;
+
 import java.lang.annotation.Annotation;
-import javax.enterprise.event.Reception;
-import javax.enterprise.event.TransactionPhase;
 
 /**
  * Instances are not reusable. For each synthetic observer, new instance
  * must be created by {@link SyntheticComponents#addObserver()}.
+ *
+ * @since 4.0
  */
 public interface SyntheticObserverBuilder {
     // TODO should add a type parameter? (see also SyntheticBeanBuilder and SyntheticComponents)
@@ -28,21 +30,19 @@ public interface SyntheticObserverBuilder {
     // if called multiple times, last call wins
     SyntheticObserverBuilder declaringClass(Class<?> declaringClass);
 
-    SyntheticObserverBuilder declaringClass(ClassInfo<?> declaringClass);
+    SyntheticObserverBuilder declaringClass(ClassInfo declaringClass);
 
     // if called multiple times, last call wins
     // TODO methods to add multiple types at once?
     SyntheticObserverBuilder type(Class<?> type);
 
-    SyntheticObserverBuilder type(ClassInfo<?> type);
+    SyntheticObserverBuilder type(ClassInfo type);
 
     SyntheticObserverBuilder type(Type type);
 
     // can be called multiple times and is additive
     // TODO methods to add multiple qualifiers at once?
-    SyntheticObserverBuilder qualifier(Class<? extends Annotation> qualifierAnnotation, AnnotationAttribute... attributes);
-
-    SyntheticObserverBuilder qualifier(ClassInfo<?> qualifierAnnotation, AnnotationAttribute... attributes);
+    SyntheticObserverBuilder qualifier(Class<? extends Annotation> annotationType); // for marker annotations
 
     SyntheticObserverBuilder qualifier(AnnotationInfo qualifierAnnotation);
 

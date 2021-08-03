@@ -10,35 +10,108 @@ import javax.enterprise.event.Reception;
 import javax.enterprise.event.TransactionPhase;
 
 /**
- * @param <T> type observed by the inspected observer
+ * Observers are:
+ *
+ * <ul>
+ * <li>observer methods</li>
+ * <li>synthetic observers</li>
+ * </ul>
+ *
+ * Observer methods directly correspond to a method declaration in program source code.
+ * Synthetic observers don't and are instead defined through other mechanisms, such as
+ * {@linkplain BuildCompatibleExtension extensions}.
+ *
+ * @since 4.0
  */
-public interface ObserverInfo<T> {
-    // TODO remove the type parameter?
-
-    String id(); // TODO remove entirely?
-
+public interface ObserverInfo {
+    /**
+     * Returns the type of events observed by this observer.
+     *
+     * @return the type of events observed by this observer, never {@code null}
+     */
     Type observedType();
 
+    /**
+     * Returns a collection of this observer's qualifiers, represented as {@link AnnotationInfo}.
+     *
+     * @return immutable collection of qualifiers, never {@code null}
+     */
     // TODO method(s) for getting AnnotationInfo for given qualifier class?
     Collection<AnnotationInfo> qualifiers();
 
-    ClassInfo<?> declaringClass(); // never null, even if synthetic
+    /**
+     * Returns the {@linkplain ClassInfo class} that declares this observer.
+     * In case of synthetic observers, returns the class that was designated
+     * as a declaring class during synthetic observer registration.
+     *
+     * @return the class that declares this observer, never {@code null}
+     */
+    ClassInfo declaringClass();
 
-    MethodInfo<?> observerMethod(); // TODO null for synthetic observers, or return Optional? see also isSynthetic below
+    /**
+     * Returns the {@linkplain MethodInfo declaration} of this observer method.
+     * Returns {@code null} if this is a synthetic observer.
+     *
+     * @return this observer method, or {@code null} if this is a synthetic observer
+     */
+    MethodInfo observerMethod();
 
-    ParameterInfo eventParameter(); // TODO null for synthetic observers, or return Optional? see also isSynthetic below
+    /**
+     * Returns the {@linkplain ParameterInfo event parameter} of this observer method.
+     * Returns {@code null} if this is a synthetic observer.
+     *
+     * @return the event parameter of this observer method, or {@code null} if this is a synthetic observer
+     */
+    ParameterInfo eventParameter();
 
-    BeanInfo<?> bean(); // TODO null for synthetic observers, or return Optional? see also isSynthetic below
+    /**
+     * Returns the {@link BeanInfo bean} that declares this observer method.
+     * Returns {@code null} if this is a synthetic observer.
+     *
+     * @return the bean declaring this observer method, or {@code null} if this is a synthetic observer
+     */
+    BeanInfo bean();
 
+    /**
+     * Returns whether this observer is synthetic.
+     *
+     * @return whether this observer is synthetic
+     */
     default boolean isSynthetic() {
         return bean() == null;
     }
 
+    /**
+     * Returns the priority of this observer. This is typically defined by adding
+     * the {@link jakarta.annotation.Priority @Priority} annotation to the event parameter of the observer method.
+     * If the annotation is not used, the default priority, as defined by the CDI specification, is returned,
+     *
+     * @return the priority of this observer
+     */
     int priority();
 
+    /**
+     * Returns whether this observer is asynchronous. For observer methods, this means whether
+     * this observer method uses {@link javax.enterprise.event.ObservesAsync @ObservesAsync}.
+     *
+     * @return whether this observer is asynchronous
+     */
     boolean isAsync();
 
+    /**
+     * Returns the {@link Reception reception type} of this observer. Allows distinguishing
+     * conditional observer methods from always notified observer methods.
+     *
+     * @return the reception type of this observer
+     */
     Reception reception();
 
+    /**
+     * Returns the {@link TransactionPhase transaction phase} of this transactional observer.
+     * Returns {@link TransactionPhase#IN_PROGRESS} if this is a regular synchronous observer.
+     * Returns {@code null} if this is an asynchronous observer.
+     *
+     * @return the transaction phase of this observer, or {@code null} if this is an asynchronous observer
+     */
     TransactionPhase transactionPhase();
 }

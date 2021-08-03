@@ -3,16 +3,13 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 import io.quarkus.arc.processor.AnnotationsTransformer;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import javax.enterprise.lang.model.AnnotationAttribute;
 import javax.enterprise.lang.model.AnnotationInfo;
-import javax.enterprise.lang.model.declarations.ClassInfo;
 import org.jboss.jandex.DotName;
 
 // this must be symmetric with AnnotationsOverlay
@@ -49,25 +46,11 @@ abstract class AnnotationsTransformation<Key, JandexDeclaration extends org.jbos
         transformations.computeIfAbsent(key, ignored -> new ArrayList<>()).add(transformation);
     }
 
-    private void addAnnotation(JandexDeclaration jandexDeclaration, DotName name, AnnotationAttribute[] attributes) {
-        org.jboss.jandex.AnnotationValue[] jandexAnnotationAttributes = Arrays.stream(attributes)
-                .map(it -> ((AnnotationAttributeImpl) it).jandexAnnotationAttribute)
-                .toArray(org.jboss.jandex.AnnotationValue[]::new);
-        org.jboss.jandex.AnnotationInstance jandexAnnotation = org.jboss.jandex.AnnotationInstance.create(name,
-                null, jandexAnnotationAttributes);
+    void addAnnotation(JandexDeclaration jandexDeclaration, Class<? extends Annotation> clazz) {
+        org.jboss.jandex.AnnotationInstance jandexAnnotation = org.jboss.jandex.AnnotationInstance.create(
+                DotName.createSimple(clazz.getName()), null, AnnotationValueArray.EMPTY);
 
         addAnnotation(jandexDeclaration, jandexAnnotation);
-    }
-
-    void addAnnotation(JandexDeclaration jandexDeclaration, Class<? extends Annotation> clazz,
-            AnnotationAttribute... attributes) {
-        DotName name = DotName.createSimple(clazz.getName());
-        addAnnotation(jandexDeclaration, name, attributes);
-    }
-
-    void addAnnotation(JandexDeclaration jandexDeclaration, ClassInfo<?> clazz, AnnotationAttribute... attributes) {
-        DotName name = ((ClassInfoImpl) clazz).jandexDeclaration.name();
-        addAnnotation(jandexDeclaration, name, attributes);
     }
 
     void addAnnotation(JandexDeclaration jandexDeclaration, AnnotationInfo annotation) {
@@ -95,11 +78,11 @@ abstract class AnnotationsTransformation<Key, JandexDeclaration extends org.jbos
         transformations.computeIfAbsent(key, ignored -> new ArrayList<>()).add(transformation);
     }
 
-    void removeAnnotation(JandexDeclaration declaration, Predicate<AnnotationInfo> predicate) {
+    void removeAnnotation(JandexDeclaration declaration, Predicate<AnnotationInfo<?>> predicate) {
         removeMatchingAnnotations(declaration, new Predicate<org.jboss.jandex.AnnotationInstance>() {
             @Override
             public boolean test(org.jboss.jandex.AnnotationInstance jandexAnnotation) {
-                return predicate.test(new AnnotationInfoImpl(jandexIndex, annotationOverlays, jandexAnnotation));
+                return predicate.test(new AnnotationInfoImpl<>(jandexIndex, annotationOverlays, jandexAnnotation));
             }
         });
     }

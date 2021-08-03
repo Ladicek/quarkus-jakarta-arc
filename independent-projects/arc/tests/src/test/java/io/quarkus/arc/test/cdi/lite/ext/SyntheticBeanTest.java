@@ -8,14 +8,11 @@ import io.quarkus.arc.test.ArcTestContainer;
 import java.lang.annotation.Retention;
 import java.util.Map;
 import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.build.compatible.spi.AppDeployment;
 import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
-import javax.enterprise.inject.build.compatible.spi.Messages;
 import javax.enterprise.inject.build.compatible.spi.Synthesis;
 import javax.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
 import javax.enterprise.inject.build.compatible.spi.SyntheticBeanDisposer;
 import javax.enterprise.inject.build.compatible.spi.SyntheticComponents;
-import javax.enterprise.inject.build.compatible.spi.Validation;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
@@ -54,12 +51,15 @@ public class SyntheticBeanTest {
                     .disposeWith(MyPojoDisposer.class);
         }
 
+        // TODO uncomment and rewrite when @Processing is applied for synthetic beans
+/*
         @Validation
         public void validate(AppDeployment deployment, Messages messages) {
             deployment.beans().type(MyPojo.class).forEach(bean -> {
                 messages.info("bean has types " + bean.types(), bean);
             });
         }
+*/
     }
 
     // ---

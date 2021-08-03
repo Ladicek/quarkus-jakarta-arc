@@ -15,21 +15,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import org.jboss.jandex.DotName;
-import org.jboss.jandex.IndexView;
-import org.jboss.jandex.Indexer;
-import org.jboss.jandex.Type;
 
 // TODO better name!
 class CdiLiteExtUtil {
     private final Map<String, Class<?>> extensionClasses = new HashMap<>();
     private final Map<Class<?>, Object> extensionClassInstances = new HashMap<>();
 
-    private final IndexView extensionsIndex;
+    private final org.jboss.jandex.IndexView extensionsIndex;
 
     public CdiLiteExtUtil() {
         // TODO this is silly and we should just use reflection,
         //  I only do this to reuse previously written code
-        Indexer extensionsIndexer = new Indexer();
+        org.jboss.jandex.Indexer extensionsIndexer = new org.jboss.jandex.Indexer();
         for (BuildCompatibleExtension extension : ServiceLoader.load(BuildCompatibleExtension.class)) {
             Class<? extends BuildCompatibleExtension> extensionClass = extension.getClass();
             extensionClasses.put(extensionClass.getName(), extensionClass);
@@ -95,13 +92,9 @@ class CdiLiteExtUtil {
         BEAN_INFO(Phase.PROCESSING),
         OBSERVER_INFO(Phase.PROCESSING),
 
-        ANNOTATIONS(Phase.ENHANCEMENT),
-        APP_ARCHIVE(Phase.ENHANCEMENT, Phase.SYNTHESIS, Phase.VALIDATION), // TODO remove @Enhancement?
-        APP_ARCHIVE_BUILDER(Phase.DISCOVERY),
-        APP_ARCHIVE_CONFIG(Phase.ENHANCEMENT),
-        APP_DEPLOYMENT(Phase.SYNTHESIS, Phase.VALIDATION),
         MESSAGES(Phase.DISCOVERY, Phase.ENHANCEMENT, Phase.PROCESSING, Phase.SYNTHESIS, Phase.VALIDATION),
         META_ANNOTATIONS(Phase.DISCOVERY),
+        SCANNED_CLASSES(Phase.DISCOVERY),
         SYNTHETIC_COMPONENTS(Phase.SYNTHESIS),
         TYPES(Phase.ENHANCEMENT, Phase.PROCESSING, Phase.SYNTHESIS, Phase.VALIDATION),
 
@@ -142,20 +135,12 @@ class CdiLiteExtUtil {
                     return BEAN_INFO;
                 } else if (type.name().equals(DotNames.OBSERVER_INFO)) {
                     return OBSERVER_INFO;
-                } else if (type.name().equals(DotNames.ANNOTATIONS)) {
-                    return ANNOTATIONS;
-                } else if (type.name().equals(DotNames.APP_ARCHIVE)) {
-                    return APP_ARCHIVE;
-                } else if (type.name().equals(DotNames.APP_ARCHIVE_BUILDER)) {
-                    return APP_ARCHIVE_BUILDER;
-                } else if (type.name().equals(DotNames.APP_ARCHIVE_CONFIG)) {
-                    return APP_ARCHIVE_CONFIG;
-                } else if (type.name().equals(DotNames.APP_DEPLOYMENT)) {
-                    return APP_DEPLOYMENT;
                 } else if (type.name().equals(DotNames.MESSAGES)) {
                     return MESSAGES;
                 } else if (type.name().equals(DotNames.META_ANNOTATIONS)) {
                     return META_ANNOTATIONS;
+                } else if (type.name().equals(DotNames.SCANNED_CLASSES)) {
+                    return SCANNED_CLASSES;
                 } else if (type.name().equals(DotNames.SYNTHETIC_COMPONENTS)) {
                     return SYNTHETIC_COMPONENTS;
                 } else if (type.name().equals(DotNames.TYPES)) {
@@ -163,14 +148,14 @@ class CdiLiteExtUtil {
                 }
             }
 
-            if (type.kind() == Type.Kind.PARAMETERIZED_TYPE) {
+            if (type.kind() == org.jboss.jandex.Type.Kind.PARAMETERIZED_TYPE) {
                 // for now, let's also accept {Class,Method,Field}Config<?> and {Bean,Observer}Info<?>
                 // this will later be removed, if {Class,Method,Field}Config and {Bean,Observer}Info stop being parameterized,
                 // or will be replaced with something more complex, if we return back to expressing queries using
                 // type parameter bounds
-                List<Type> typeArguments = type.asParameterizedType().arguments();
+                List<org.jboss.jandex.Type> typeArguments = type.asParameterizedType().arguments();
                 if (typeArguments.size() == 1
-                        && typeArguments.get(0).kind() == Type.Kind.WILDCARD_TYPE
+                        && typeArguments.get(0).kind() == org.jboss.jandex.Type.Kind.WILDCARD_TYPE
                         && typeArguments.get(0).asWildcardType().superBound() == null
                         && typeArguments.get(0).asWildcardType().extendsBound().name().equals(DotNames.OBJECT)) {
                     if (type.name().equals(DotNames.CLASS_CONFIG)) {
@@ -204,8 +189,8 @@ class CdiLiteExtUtil {
             Class<?> argumentClass = argument.getClass();
 
             // beware of ordering! subtypes must precede supertypes
-            if (javax.enterprise.inject.build.compatible.spi.AppArchiveBuilder.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.AppArchiveBuilder.class;
+            if (javax.enterprise.inject.build.compatible.spi.ScannedClasses.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.ScannedClasses.class;
             } else if (javax.enterprise.inject.build.compatible.spi.MetaAnnotations.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.MetaAnnotations.class;
             } else if (javax.enterprise.inject.build.compatible.spi.ClassConfig.class.isAssignableFrom(argumentClass)) {
@@ -214,20 +199,12 @@ class CdiLiteExtUtil {
                 parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.MethodConfig.class;
             } else if (javax.enterprise.inject.build.compatible.spi.FieldConfig.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.FieldConfig.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.Annotations.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.Annotations.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.AppArchiveConfig.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.AppArchiveConfig.class;
             } else if (javax.enterprise.inject.build.compatible.spi.SyntheticComponents.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.SyntheticComponents.class;
             } else if (javax.enterprise.inject.build.compatible.spi.BeanInfo.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.BeanInfo.class;
             } else if (javax.enterprise.inject.build.compatible.spi.ObserverInfo.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.ObserverInfo.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.AppArchive.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.AppArchive.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.AppDeployment.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.AppDeployment.class;
             } else if (javax.enterprise.inject.build.compatible.spi.Messages.class.isAssignableFrom(argumentClass)) {
                 parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.Messages.class;
             } else if (javax.enterprise.inject.build.compatible.spi.Types.class.isAssignableFrom(argumentClass)) {

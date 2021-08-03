@@ -11,23 +11,23 @@ import java.lang.annotation.Target;
  * <p>
  * Methods annotated {@code @Enhancement} must define exactly one parameter of one of these types:
  * <ul>
- * <li>{@link ClassConfig ClassConfig}</li>
- * <li>{@link MethodConfig MethodConfig}</li>
- * <li>{@link FieldConfig FieldConfig}</li>
- * <li>{@link AppArchiveConfig AppArchiveConfig}</li>
+ * <li>{@link DeclarationConfig} or {@link javax.enterprise.lang.model.declarations.DeclarationInfo DeclarationInfo}</li>
+ * <li>{@link ClassConfig} or {@link javax.enterprise.lang.model.declarations.ClassInfo ClassInfo}</li>
+ * <li>{@link MethodConfig} or {@link javax.enterprise.lang.model.declarations.MethodInfo MethodInfo}</li>
+ * <li>{@link FieldConfig} or {@link javax.enterprise.lang.model.declarations.FieldInfo FieldInfo}</li>
  * </ul>
- * If the parameter is {@code ClassConfig}, {@code MethodConfig} or {@code FieldConfig}, the method
- * must have at least one annotation {@link ExactType @ExactType} or {@link SubtypesOf @SubtypesOf}.
+ * The method must also have at least one annotation {@link ExactType @ExactType} or {@link SubtypesOf @SubtypesOf}.
  * <p>
  * You can also declare a parameter of type {@link Messages Messages} to produce log messages and validation errors.
  * <p>
  * If you need to create instances of {@link javax.enterprise.lang.model.types.Type Type}, you can also declare
- * a parameter of type {@link Types Types}. It provides factory methods for the void type, primitive types,
+ * a parameter of type {@link Types}. It provides factory methods for the void pseudo-type, primitive types,
  * class types, array types, parameterized types and wildcard types.
  * <p>
- * If you need to create instances of {@link javax.enterprise.lang.model.AnnotationAttribute AnnotationAttribute} or
- * {@link javax.enterprise.lang.model.AnnotationAttributeValue AnnotationAttributeValue}, you can also declare
- * a parameter of type {@link Annotations Annotations}. It provides factory methods for all kinds of annotation attributes.
+ * If you need to create instances of {@link javax.enterprise.lang.model.AnnotationInfo AnnotationInfo},
+ * use {@link AnnotationBuilder}.
+ *
+ * @since 4.0
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

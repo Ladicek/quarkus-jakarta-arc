@@ -1,32 +1,38 @@
 package javax.enterprise.lang.model;
 
 import javax.enterprise.lang.model.declarations.ClassInfo;
-import java.lang.annotation.Repeatable;
-import java.util.Collection;
 
+import java.lang.annotation.Repeatable;
+import java.util.Map;
+
+/**
+ * An annotation instance, typically obtained from an {@link AnnotationTarget}.
+ * Provides access to annotation members and their values.
+ * <p>
+ * Implementations of this interface are required to define the {@code equals} and {@code hashCode} methods.
+ * Implementations of this interface are encouraged to define the {@code toString} method such that
+ * it returns a text resembling the corresponding Java&trade; syntax.
+ * <p>
+ * There is no guarantee that any particular annotation instance, represented by an implementation of this interface,
+ * will always be represented by the same object. That includes natural singletons such as the {@code jakarta.inject.Singleton}
+ * annotation. Instances should always be compared using {@code equals}.
+ *
+ * @since 4.0
+ */
 public interface AnnotationInfo {
     /**
-     * Target of this annotation.
-     * That is, the declaration, the type parameter or the type use on which this annotation is present.
-     * TODO what if this annotation is a nested annotation?
-     * TODO what if this annotation doesn't have a known target (e.g. qualifier of a synthetic bean)?
+     * Returns the {@linkplain ClassInfo declaration} of this annotation's type.
      *
-     * @return target of this annotation
+     * @return the {@linkplain ClassInfo declaration} of this annotation's type, never {@code null}
      */
-    AnnotationTarget target();
+    ClassInfo declaration();
 
     /**
-     * Declaration of this annotation's type.
-     *
-     * @return declaration of this annotation
-     */
-    ClassInfo<?> declaration();
-
-    /**
-     * Fully qualified name of this annotation.
+     * Binary name of this annotation's type, as defined by <cite>The Java&trade; Language Specification</cite>;
+     * in other words, the annotation type name as returned by {@link Class#getName()}.
      * Equivalent to {@code declaration().name()}.
      *
-     * @return fully qualified name of this annotation
+     * @return binary name of this annotation's type, never {@code null}
      */
     default String name() {
         return declaration().name();
@@ -34,7 +40,7 @@ public interface AnnotationInfo {
 
     /**
      * Returns whether this annotation is repeatable. In other words, returns whether
-     * this annotation's type is meta-annotated with {@code @Repeatable}.
+     * this annotation's type is meta-annotated {@code @Repeatable}.
      *
      * @return whether this annotation is repeatable
      */
@@ -43,34 +49,44 @@ public interface AnnotationInfo {
     }
 
     /**
-     * Whether this annotation has an attribute with given {@code name}.
+     * Returns whether this annotation has a member with given {@code name}.
      *
-     * @param name attribute name
-     * @return whether this annotation has an attribute with given {@code name}
+     * @param name member name, must not be {@code null}
+     * @return {@code true} if this annotation has a member with given {@code name}, {@code false} otherwise
      */
-    boolean hasAttribute(String name);
+    boolean hasMember(String name);
 
     /**
-     * Value of this annotation's attribute with given {@code name}.
-     * TODO what if it doesn't exist? null, exception, or change return type to Optional
+     * Returns the {@linkplain AnnotationMember value} of this annotation's member with given {@code name}.
      *
-     * @param name attribute name
-     * @return value of this annotation's attribute with given {@code name}
+     * @param name member name, must not be {@code null}
+     * @return value of this annotation's member with given {@code name} or {@code null} if such member doesn't exist
      */
-    AnnotationAttributeValue attribute(String name);
+    AnnotationMember member(String name);
 
+    /**
+     * Returns whether this annotation has the {@link AnnotationMember#VALUE value} member.
+     *
+     * @return {@code true} if this annotation has the {@link AnnotationMember#VALUE value} member, {@code false} otherwise
+     */
     default boolean hasValue() {
-        return hasAttribute("value");
-    }
-
-    default AnnotationAttributeValue value() {
-        return attribute("value");
+        return hasMember(AnnotationMember.VALUE);
     }
 
     /**
-     * All attributes of this annotation.
+     * Returns the {@linkplain AnnotationMember value} of this annotation's {@link AnnotationMember#VALUE value} member.
      *
-     * @return all attributes of this annotation
+     * @return value of this annotation's {@link AnnotationMember#VALUE value} member or {@code null} if the member doesn't exist
      */
-    Collection<AnnotationAttribute> attributes();
+    default AnnotationMember value() {
+        return member(AnnotationMember.VALUE);
+    }
+
+    /**
+     * Returns all members of this annotation as a map, where the key is the member name
+     * and the value is the member value. Returns an empty map if this annotation has no members.
+     *
+     * @return an immutable map of all members of this annotation, never {@code null}
+     */
+    Map<String, AnnotationMember> members();
 }

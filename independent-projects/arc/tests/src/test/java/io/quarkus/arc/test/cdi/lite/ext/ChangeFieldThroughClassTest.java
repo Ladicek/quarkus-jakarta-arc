@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.test.ArcTestContainer;
 import java.lang.annotation.Retention;
+import javax.enterprise.inject.build.compatible.spi.AnnotationBuilder;
 import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import javax.enterprise.inject.build.compatible.spi.ClassConfig;
 import javax.enterprise.inject.build.compatible.spi.Enhancement;
@@ -36,7 +37,7 @@ public class ChangeFieldThroughClassTest {
             clazz.fields()
                     .stream()
                     .filter(it -> "myService".equals(it.name()))
-                    .forEach(field -> field.addAnnotation(MyQualifier.class));
+                    .forEach(field -> field.addAnnotation(AnnotationBuilder.of(MyQualifier.class).build()));
         }
     }
 

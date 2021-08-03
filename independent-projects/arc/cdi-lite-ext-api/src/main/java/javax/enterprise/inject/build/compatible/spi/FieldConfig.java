@@ -3,9 +3,19 @@ package javax.enterprise.inject.build.compatible.spi;
 import javax.enterprise.lang.model.declarations.FieldInfo;
 
 /**
- * @param <T> type of whomever declares the configured field
+ * Allows adding annotations to and removing annotations from a field.
+ * Note that the field is not physically altered, the modifications
+ * are only seen by the CDI container.
+ *
+ * @see Enhancement
+ * @since 4.0
  */
-public interface FieldConfig<T> extends FieldInfo<T>, AnnotationConfig {
-    // TODO remove the type parameter?
-    // TODO even if FieldInfo has equals/hashCode, FieldConfig probably shouldn't
+public interface FieldConfig extends DeclarationConfig<FieldConfig> {
+    /**
+     * Returns the {@link FieldInfo} corresponding to this transformed field.
+     *
+     * @return the {@link FieldInfo} corresponding to this transformed field, never {@code null}
+     */
+    @Override
+    FieldInfo info();
 }

@@ -3,9 +3,7 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 import java.lang.annotation.Annotation;
 import java.util.function.Predicate;
 import javax.enterprise.inject.build.compatible.spi.FieldConfig;
-import javax.enterprise.lang.model.AnnotationAttribute;
 import javax.enterprise.lang.model.AnnotationInfo;
-import javax.enterprise.lang.model.declarations.ClassInfo;
 
 class FieldConfigImpl extends FieldInfoImpl implements FieldConfig<Object> {
     private final AnnotationsTransformation.Fields transformations;
@@ -17,13 +15,8 @@ class FieldConfigImpl extends FieldInfoImpl implements FieldConfig<Object> {
     }
 
     @Override
-    public void addAnnotation(Class<? extends Annotation> annotationType, AnnotationAttribute... attributes) {
-        transformations.addAnnotation(jandexDeclaration, annotationType, attributes);
-    }
-
-    @Override
-    public void addAnnotation(ClassInfo<?> annotationType, AnnotationAttribute... attributes) {
-        transformations.addAnnotation(jandexDeclaration, annotationType, attributes);
+    public void addAnnotation(Class<? extends Annotation> annotationType) {
+        transformations.addAnnotation(jandexDeclaration, annotationType);
     }
 
     @Override
@@ -38,7 +31,8 @@ class FieldConfigImpl extends FieldInfoImpl implements FieldConfig<Object> {
 
     @Override
     public void removeAnnotation(Predicate<AnnotationInfo> predicate) {
-        transformations.removeAnnotation(jandexDeclaration, predicate);
+        // TODO remove cast once AnnotationInfo is no longer parameterized
+        transformations.removeAnnotation(jandexDeclaration, (Predicate) predicate);
     }
 
     @Override

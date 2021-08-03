@@ -1,9 +1,9 @@
 package javax.enterprise.inject.build.compatible.spi;
 
-import javax.enterprise.lang.model.AnnotationAttribute;
 import javax.enterprise.lang.model.AnnotationInfo;
 import javax.enterprise.lang.model.declarations.ClassInfo;
 import javax.enterprise.lang.model.types.Type;
+
 import java.lang.annotation.Annotation;
 
 /**
@@ -11,6 +11,7 @@ import java.lang.annotation.Annotation;
  * must be created by {@link SyntheticComponents#addBean(Class)}.
  *
  * @param <T> type of bean instances
+ * @since 4.0
  */
 public interface SyntheticBeanBuilder<T> {
     // TODO should have the type parameter? (see also SyntheticObserverBuilder and SyntheticComponents)
@@ -19,15 +20,13 @@ public interface SyntheticBeanBuilder<T> {
     // TODO methods to add multiple types at once?
     SyntheticBeanBuilder<T> type(Class<?> type);
 
-    SyntheticBeanBuilder<T> type(ClassInfo<?> type);
+    SyntheticBeanBuilder<T> type(ClassInfo type);
 
     SyntheticBeanBuilder<T> type(Type type);
 
     // can be called multiple times and is additive
     // TODO methods to add multiple qualifiers at once?
-    SyntheticBeanBuilder<T> qualifier(Class<? extends Annotation> qualifierAnnotation, AnnotationAttribute... attributes);
-
-    SyntheticBeanBuilder<T> qualifier(ClassInfo<?> qualifierAnnotation, AnnotationAttribute... attributes);
+    SyntheticBeanBuilder<T> qualifier(Class<? extends Annotation> annotationType); // for marker annotations
 
     SyntheticBeanBuilder<T> qualifier(AnnotationInfo qualifierAnnotation);
 
@@ -52,7 +51,7 @@ public interface SyntheticBeanBuilder<T> {
     // can be called multiple times and is additive
     SyntheticBeanBuilder<T> stereotype(Class<? extends Annotation> stereotypeAnnotation);
 
-    SyntheticBeanBuilder<T> stereotype(ClassInfo<?> stereotypeAnnotation);
+    SyntheticBeanBuilder<T> stereotype(ClassInfo stereotypeAnnotation);
 
     // params for creation and destruction functions
     SyntheticBeanBuilder<T> withParam(String key, boolean value);

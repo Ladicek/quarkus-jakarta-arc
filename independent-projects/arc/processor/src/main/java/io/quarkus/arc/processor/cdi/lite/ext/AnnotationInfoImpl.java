@@ -1,16 +1,16 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import java.util.Collection;
+import java.lang.annotation.Annotation;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import javax.enterprise.lang.model.AnnotationAttribute;
-import javax.enterprise.lang.model.AnnotationAttributeValue;
 import javax.enterprise.lang.model.AnnotationInfo;
-import javax.enterprise.lang.model.AnnotationTarget;
+import javax.enterprise.lang.model.AnnotationMember;
 import javax.enterprise.lang.model.declarations.ClassInfo;
 import org.jboss.jandex.DotName;
 
-class AnnotationInfoImpl implements AnnotationInfo {
+class AnnotationInfoImpl<T extends Annotation> implements AnnotationInfo<T> {
     final org.jboss.jandex.IndexView jandexIndex;
     final AllAnnotationOverlays annotationOverlays;
     final org.jboss.jandex.AnnotationInstance jandexAnnotation;
@@ -23,45 +23,35 @@ class AnnotationInfoImpl implements AnnotationInfo {
     }
 
     @Override
-    public AnnotationTarget target() {
-        org.jboss.jandex.AnnotationTarget jandexAnnotationTarget = jandexAnnotation.target();
-        if (jandexAnnotationTarget == null) {
-            // TODO
-            return null;
-        } else if (jandexAnnotationTarget.kind() == org.jboss.jandex.AnnotationTarget.Kind.TYPE) {
-            return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexAnnotationTarget.asType().target());
-        } else {
-            return DeclarationInfoImpl.fromJandexDeclaration(jandexIndex, annotationOverlays, jandexAnnotation.target());
-        }
-    }
-
-    @Override
-    public ClassInfo<?> declaration() {
+    public ClassInfo<T> declaration() {
         DotName annotationClassName = jandexAnnotation.name();
         org.jboss.jandex.ClassInfo annotationClass = jandexIndex.getClassByName(annotationClassName);
         if (annotationClass == null) {
             throw new IllegalStateException("Class " + annotationClassName + " not found in Jandex");
         }
-        return new ClassInfoImpl(jandexIndex, annotationOverlays, annotationClass);
+        // TODO ClassInfo should lose its type parameter
+        return (ClassInfo) new ClassInfoImpl(jandexIndex, annotationOverlays, annotationClass);
     }
 
     @Override
-    public boolean hasAttribute(String name) {
+    public boolean hasMember(String name) {
         return jandexAnnotation.valueWithDefault(jandexIndex, name) != null;
     }
 
     @Override
-    public AnnotationAttributeValue attribute(String name) {
-        return new AnnotationAttributeValueImpl(jandexIndex, annotationOverlays,
+    public AnnotationMember member(String name) {
+        return new AnnotationMemberImpl(jandexIndex, annotationOverlays,
                 jandexAnnotation.valueWithDefault(jandexIndex, name));
     }
 
     @Override
-    public Collection<AnnotationAttribute> attributes() {
-        return jandexAnnotation.valuesWithDefaults(jandexIndex)
-                .stream()
-                .map(it -> new AnnotationAttributeImpl(jandexIndex, annotationOverlays, it))
-                .collect(Collectors.toList());
+    public Map<String, AnnotationMember> members() {
+        Map<String, AnnotationMember> result = new HashMap<>();
+        for (org.jboss.jandex.AnnotationValue jandexAnnotationMember : jandexAnnotation.valuesWithDefaults(jandexIndex)) {
+            result.put(jandexAnnotationMember.name(),
+                    new AnnotationMemberImpl(jandexIndex, annotationOverlays, jandexAnnotationMember));
+        }
+        return Collections.unmodifiableMap(result);
     }
 
     @Override
@@ -72,12 +62,12 @@ class AnnotationInfoImpl implements AnnotationInfo {
             return false;
         AnnotationInfoImpl that = (AnnotationInfoImpl) o;
         return Objects.equals(jandexAnnotation.name(), that.jandexAnnotation.name())
-                && Objects.equals(attributes(), that.attributes());
+                && Objects.equals(members(), that.members());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(jandexAnnotation.name(), attributes());
+        return Objects.hash(jandexAnnotation.name(), members());
     }
 
     @Override

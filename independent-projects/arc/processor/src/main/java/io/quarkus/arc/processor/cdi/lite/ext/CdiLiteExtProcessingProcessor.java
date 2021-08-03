@@ -14,21 +14,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.enterprise.inject.build.compatible.spi.BeanInfo;
 import javax.enterprise.inject.build.compatible.spi.ObserverInfo;
-import org.jboss.jandex.AnnotationInstance;
-import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
-import org.jboss.jandex.IndexView;
-import org.jboss.jandex.Type;
 
 class CdiLiteExtProcessingProcessor {
     private final CdiLiteExtUtil util;
-    private final IndexView beanArchiveIndex;
+    private final org.jboss.jandex.IndexView beanArchiveIndex;
     private final AllAnnotationOverlays annotationOverlays;
     private final Collection<io.quarkus.arc.processor.BeanInfo> allBeans;
     private final Collection<io.quarkus.arc.processor.ObserverInfo> allObservers;
     private final MessagesImpl messages;
 
-    CdiLiteExtProcessingProcessor(CdiLiteExtUtil util, IndexView beanArchiveIndex, AllAnnotationOverlays annotationOverlays,
+    CdiLiteExtProcessingProcessor(CdiLiteExtUtil util, org.jboss.jandex.IndexView beanArchiveIndex,
+            AllAnnotationOverlays annotationOverlays,
             Collection<io.quarkus.arc.processor.BeanInfo> allBeans,
             Collection<io.quarkus.arc.processor.ObserverInfo> allObservers,
             MessagesImpl messages) {
@@ -133,7 +130,7 @@ class CdiLiteExtProcessingProcessor {
         Set<DotName> allMatchingTypes = allTypesMatchingConstraintAnnotations(constraintAnnotations);
         return allBeans.stream()
                 .filter(bean -> {
-                    for (Type type : bean.getTypes()) {
+                    for (org.jboss.jandex.Type type : bean.getTypes()) {
                         if (allMatchingTypes.contains(type.name())) {
                             return true;
                         }
@@ -152,21 +149,21 @@ class CdiLiteExtProcessingProcessor {
                 .collect(Collectors.toList());
     }
 
-    private Set<DotName> allTypesMatchingConstraintAnnotations(List<AnnotationInstance> constraintAnnotations) {
+    private Set<DotName> allTypesMatchingConstraintAnnotations(List<org.jboss.jandex.AnnotationInstance> constraintAnnotations) {
         Set<DotName> result = new HashSet<>();
-        for (AnnotationInstance constraintAnnotation : constraintAnnotations) {
+        for (org.jboss.jandex.AnnotationInstance constraintAnnotation : constraintAnnotations) {
             if (DotNames.EXACT_TYPE.equals(constraintAnnotation.name())) {
-                Type type = constraintAnnotation.value("type").asClass();
+                org.jboss.jandex.Type type = constraintAnnotation.value("type").asClass();
                 result.add(type.name());
             } else if (DotNames.SUBTYPES_OF.equals(constraintAnnotation.name())) {
-                Type upperBound = constraintAnnotation.value("type").asClass();
-                ClassInfo clazz = beanArchiveIndex.getClassByName(upperBound.name());
+                org.jboss.jandex.Type upperBound = constraintAnnotation.value("type").asClass();
+                org.jboss.jandex.ClassInfo clazz = beanArchiveIndex.getClassByName(upperBound.name());
                 // if clazz is null, should report an error here
-                Collection<ClassInfo> allSubclasses = Modifier.isInterface(clazz.flags())
+                Collection<org.jboss.jandex.ClassInfo> allSubclasses = Modifier.isInterface(clazz.flags())
                         ? beanArchiveIndex.getAllKnownImplementors(upperBound.name())
                         : beanArchiveIndex.getAllKnownSubclasses(upperBound.name());
                 // TODO index.getAllKnown* is not reflexive; should add the original type ourselves?
-                for (ClassInfo allSubclass : allSubclasses) {
+                for (org.jboss.jandex.ClassInfo allSubclass : allSubclasses) {
                     result.add(allSubclass.name());
                 }
             }
@@ -177,10 +174,10 @@ class CdiLiteExtProcessingProcessor {
     private Object createArgumentForExtensionMethodParameter(org.jboss.jandex.MethodInfo method,
             ExtensionMethodParameterType kind) {
         switch (kind) {
-            case TYPES:
-                return new TypesImpl(beanArchiveIndex, annotationOverlays);
             case MESSAGES:
                 return messages;
+            case TYPES:
+                return new TypesImpl(beanArchiveIndex, annotationOverlays);
 
             default:
                 throw new IllegalArgumentException(kind + " parameter declared for @Processing method "

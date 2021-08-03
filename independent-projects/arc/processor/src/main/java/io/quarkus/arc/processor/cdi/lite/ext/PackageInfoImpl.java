@@ -3,7 +3,6 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import javax.enterprise.lang.model.AnnotationInfo;
@@ -34,27 +33,27 @@ class PackageInfoImpl implements PackageInfo {
     }
 
     @Override
-    public boolean hasAnnotation(Predicate<AnnotationInfo> predicate) {
+    public boolean hasAnnotation(Predicate<AnnotationInfo<?>> predicate) {
         return false;
     }
 
     @Override
-    public AnnotationInfo annotation(Class<? extends Annotation> annotationType) {
+    public <T extends Annotation> AnnotationInfo<T> annotation(Class<T> annotationType) {
         return null;
     }
 
     @Override
-    public List<AnnotationInfo> repeatableAnnotation(Class<? extends Annotation> annotationType) {
+    public <T extends Annotation> Collection<AnnotationInfo<T>> repeatableAnnotation(Class<T> annotationType) {
         return Collections.emptyList();
     }
 
     @Override
-    public Collection<AnnotationInfo> annotations(Predicate<AnnotationInfo> predicate) {
+    public Collection<AnnotationInfo<?>> annotations(Predicate<AnnotationInfo<?>> predicate) {
         return Collections.emptyList();
     }
 
     @Override
-    public Collection<AnnotationInfo> annotations() {
+    public Collection<AnnotationInfo<?>> annotations() {
         return Collections.emptyList();
     }
 

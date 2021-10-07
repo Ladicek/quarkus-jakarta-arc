@@ -21,7 +21,6 @@ import io.quarkus.arc.processor.BeanArchives;
 import io.quarkus.arc.processor.BeanDefiningAnnotation;
 import io.quarkus.arc.processor.BeanDeployment;
 import io.quarkus.arc.processor.DotNames;
-import io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtDiscoveryProcessor;
 import io.quarkus.deployment.ApplicationArchive;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -119,7 +118,6 @@ public class BeanArchiveProcessor {
         // Also include archives that are not bean archives but contain qualifiers or interceptor bindings
         beanDefiningAnnotations.add(DotNames.QUALIFIER);
         beanDefiningAnnotations.add(DotNames.INTERCEPTOR_BINDING);
-        // TODO maybe also CDI Lite extension annotations?
 
         List<IndexView> indexes = new ArrayList<>();
 
@@ -144,6 +142,7 @@ public class BeanArchiveProcessor {
     private boolean isImplicitBeanArchive(IndexView index, Set<DotName> beanDefiningAnnotations) {
         // NOTE: Implicit bean archive without beans.xml contains one or more bean classes with a bean defining annotation and no extension
         return index.getAllKnownImplementors(DotNames.EXTENSION).isEmpty()
+                && index.getAllKnownImplementors(DotNames.BUILD_COMPATIBLE_EXTENSION).isEmpty()
                 && containsBeanDefiningAnnotation(index, beanDefiningAnnotations);
     }
 

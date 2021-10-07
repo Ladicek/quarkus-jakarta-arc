@@ -6,14 +6,13 @@ import javax.enterprise.inject.build.compatible.spi.InjectionPointInfo;
 import javax.enterprise.lang.model.AnnotationInfo;
 import javax.enterprise.lang.model.declarations.DeclarationInfo;
 import javax.enterprise.lang.model.types.Type;
-import org.jboss.jandex.IndexView;
 
 class InjectionPointInfoImpl implements InjectionPointInfo {
     private final org.jboss.jandex.IndexView jandexIndex;
     private final AllAnnotationOverlays annotationOverlays;
     private final io.quarkus.arc.processor.InjectionPointInfo arcInjectionPointInfo;
 
-    InjectionPointInfoImpl(IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+    InjectionPointInfoImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
             io.quarkus.arc.processor.InjectionPointInfo arcInjectionPointInfo) {
         this.jandexIndex = jandexIndex;
         this.annotationOverlays = annotationOverlays;
@@ -30,7 +29,7 @@ class InjectionPointInfoImpl implements InjectionPointInfo {
         return arcInjectionPointInfo.getRequiredQualifiers()
                 .stream()
                 .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
@@ -41,7 +40,9 @@ class InjectionPointInfoImpl implements InjectionPointInfo {
         } else if (arcInjectionPointInfo.isParam()) {
             org.jboss.jandex.MethodInfo jandexMethod = arcInjectionPointInfo.getTarget().asMethod();
             int parameterPosition = arcInjectionPointInfo.getPosition();
-            return new ParameterInfoImpl(jandexIndex, annotationOverlays, jandexMethod, parameterPosition);
+            org.jboss.jandex.MethodParameterInfo jandexParameter = org.jboss.jandex.MethodParameterInfo.create(
+                    jandexMethod, (short) parameterPosition);
+            return new ParameterInfoImpl(jandexIndex, annotationOverlays, jandexParameter);
         } else {
             throw new IllegalStateException("Unknown injection point: " + arcInjectionPointInfo);
         }

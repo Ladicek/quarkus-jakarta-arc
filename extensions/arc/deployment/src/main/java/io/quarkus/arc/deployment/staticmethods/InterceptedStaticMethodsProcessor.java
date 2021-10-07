@@ -344,9 +344,9 @@ public class InterceptedStaticMethodsProcessor {
     }
 
     private ResultHandle createBindingLiteral(IndexView index, ClassOutput classOutput, BytecodeCreator init,
-            AnnotationInstance binding, AnnotationLiteralProcessor annotationLiteralProcessor) {
+            AnnotationInstance binding, AnnotationLiteralProcessor annotationLiterals) {
         ClassInfo bindingClass = index.getClassByName(binding.name());
-        return annotationLiteralProcessor.process(init, classOutput, bindingClass, binding,
+        return annotationLiterals.create(init, classOutput, bindingClass, binding,
                 "io.quarkus.arc.runtime");
     }
 

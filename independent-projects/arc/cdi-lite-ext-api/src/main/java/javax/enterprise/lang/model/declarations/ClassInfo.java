@@ -7,12 +7,13 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A class. Four kinds of classes are distinguished:
+ * A class. Five kinds of classes are distinguished:
  * <ul>
  * <li>plain classes</li>
  * <li>interfaces</li>
- * <li>enums (specialized kind of plain classes)</li>
+ * <li>enums (restricted kind of classes)</li>
  * <li>annotations (specialized kind of interfaces)</li>
+ * <li>records (restricted kind of classes)</li>
  * </ul>
  *
  * Classes are represented as isolated units. That is, if this class is nested, it is not possible
@@ -20,12 +21,12 @@ import java.util.List;
  * nested in this class.
  * <p>
  * At the same time, it is possible to obtain the set of {@linkplain #constructors() constructors},
- * {@linkplain #methods() methods} and {@linkplain #fields() fields} declared in this class.
+ * {@linkplain #methods() methods} and {@linkplain #fields() fields} declared in this class, as well
+ * as the set of {@linkplain #recordComponents() record components} if this class is a record.
  * It is also possible to obtain the {@linkplain #packageInfo() package} this class is declared in.
  *
  * @since 4.0
  */
-// TODO maybe support records already?
 public interface ClassInfo extends DeclarationInfo {
     /**
      * Returns the binary name of this class, as defined by <cite>The Java&trade; Language Specification</cite>;
@@ -53,7 +54,7 @@ public interface ClassInfo extends DeclarationInfo {
 
     /**
      * Returns a list of {@linkplain TypeVariable type parameters} declared on this class.
-     * Returns an empty list if this class isn't generic and so doesn't declare type parameters.
+     * Returns an empty list if this class is not generic and so does not declare type parameters.
      *
      * @return immutable list of this class's type parameters, never {@code null}
      */
@@ -61,7 +62,7 @@ public interface ClassInfo extends DeclarationInfo {
 
     /**
      * Returns the {@linkplain Type type} of this class's superclass. Returns {@code null} if this class
-     * doesn't have a superclass; that is, if this class is {@code java.lang.Object} or an interface.
+     * does not have a superclass; that is, if this class is {@code java.lang.Object} or an interface.
      *
      * @return the type of this class's superclass, or {@code null} if there's no superclass
      */
@@ -69,7 +70,7 @@ public interface ClassInfo extends DeclarationInfo {
 
     /**
      * Returns the {@linkplain ClassInfo declaration} of this class's superclass. Returns {@code null} if this class
-     * doesn't have a superclass; that is, if this class is {@code java.lang.Object} or an interface.
+     * does not have a superclass; that is, if this class is {@code java.lang.Object} or an interface.
      *
      * @return the declaration of this class's superclass, or {@code null} if there's no superclass
      */
@@ -93,15 +94,15 @@ public interface ClassInfo extends DeclarationInfo {
 
     /**
      * Returns whether this class is a plain class. That is, not an interface,
-     * not an enum, and not an annotation.
+     * not an enum, not an annotation, and not a record.
      *
      * @return whether this class is a plain class
      */
-    // TODO better name? "plain class" is my invention
     boolean isPlainClass();
 
     /**
      * Returns whether this class is an interface.
+     * If this class is an annotation, returns {@code false}.
      *
      * @return whether this class is an interface
      */
@@ -122,7 +123,19 @@ public interface ClassInfo extends DeclarationInfo {
     boolean isAnnotation();
 
     /**
-     * Returns whether this class is {@code abstract}.
+     * Returns whether this class is a record.
+     *
+     * @return whether this class is a record
+     */
+    boolean isRecord();
+
+    /**
+     * Returns whether this class is abstract.
+     * <p>
+     * A plain class is abstract if declared {@code abstract}.
+     * An enum is abstract if it declares {@code abstract} methods.
+     * An interface or an annotation is always abstract.
+     * A record is never abstract.
      *
      * @return whether this class is {@code abstract}
      */
@@ -144,38 +157,56 @@ public interface ClassInfo extends DeclarationInfo {
     int modifiers();
 
     /**
-     * Returns a collection of {@linkplain MethodInfo constructors} declared in this class.
-     * Constructors declared in direct or indirect superclasses are not included.
+     * Returns a collection of {@linkplain MethodInfo constructors} declared or implicitly declared
+     * in this class. Constructors declared in direct or indirect superclasses are not included.
+     * <p>
+     * If this class is an interface or an annotation, returns an empty collection.
      *
      * @return immutable collection of constructors, never {@code null}
      */
     Collection<MethodInfo> constructors();
 
     /**
-     * Returns a collection of {@linkplain MethodInfo methods} declared in this class and all
-     * its superclasses up to and excluding {@code java.lang.Object}. This includes
-     * {@code private} methods declared by superclasses. Constructors are not included.
+     * Returns a collection of {@linkplain MethodInfo methods} declared or implicitly declared
+     * in this class and all its superclasses up to and excluding {@code java.lang.Object},
+     * as well as all direct and indirect superinterfaces. If this class is an interface,
+     * only superinterfaces are considered. Methods implicitly declared in interfaces are omitted.
      * <p>
-     * Also, {@code default} methods declared in all direct and indirect superinterfaces
-     * of this class are included. Abstract or {@code private} methods declared in interfaces
-     * are not included.
-     * TODO this rule about interface methods comes from current Weld implementation and needs more thinking
+     * If the collection of methods described above contains multiple methods with the same signature,
+     * all such methods are returned. {@link MethodInfo#declaringClass() MethodInfo.declaringClass}
+     * should be used to distinguish such methods.
+     * <p>
+     * Iteration order of the resulting collection is not defined and does not have to correspond
+     * to the inheritance hierarchy of this class.
      *
      * @return immutable collection of methods, never {@code null}
      */
     Collection<MethodInfo> methods();
 
     /**
-     * Returns a collection of {@link FieldInfo fields} declared in this class and all
-     * its superclasses up to and excluding {@code java.lang.Object}. This includes
-     * {@code private} fields declared in superclasses.
+     * Returns a collection of {@linkplain FieldInfo fields} declared or implicitly declared
+     * in this class and all its superclasses up to and excluding {@code java.lang.Object},
+     * as well as all direct and indirect superinterfaces. If this class is an interface,
+     * only superinterfaces are considered.
      * <p>
-     * Fields declared in superinterfaces are not included.
-     * TODO this rule about interface fields comes from current Weld implementation and needs more thinking
+     * If the collection of fields described above contains multiple fields with the same name,
+     * all such fields are returned. {@link FieldInfo#declaringClass() FieldInfo.declaringClass}
+     * should be used to distinguish such fields
+     * <p>
+     * Iteration order of the resulting collection is not defined and does not have to correspond
+     * to the inheritance hierarchy of this class.
      *
      * @return immutable collection of fields, never {@code null}
      */
     Collection<FieldInfo> fields();
+
+    /**
+     * Returns a collection of {@linkplain RecordComponentInfo record components} declared in this class.
+     * If this class is not a record, returns an empty collection.
+     *
+     * @return immutable collection of record components, never {@code nul}
+     */
+    Collection<RecordComponentInfo> recordComponents();
 
     // ---
 

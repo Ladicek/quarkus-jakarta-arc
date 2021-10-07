@@ -25,18 +25,17 @@ import javax.enterprise.event.TransactionPhase;
  */
 public interface ObserverInfo {
     /**
-     * Returns the type of events observed by this observer.
+     * Returns the observed event type of this observer.
      *
-     * @return the type of events observed by this observer, never {@code null}
+     * @return the observed event type of this observer, never {@code null}
      */
-    Type observedType();
+    Type eventType();
 
     /**
-     * Returns a collection of this observer's qualifiers, represented as {@link AnnotationInfo}.
+     * Returns a collection of observed event qualifiers, represented as {@link AnnotationInfo}.
      *
-     * @return immutable collection of qualifiers, never {@code null}
+     * @return immutable collection of observed event qualifiers, never {@code null}
      */
-    // TODO method(s) for getting AnnotationInfo for given qualifier class?
     Collection<AnnotationInfo> qualifiers();
 
     /**
@@ -77,9 +76,7 @@ public interface ObserverInfo {
      *
      * @return whether this observer is synthetic
      */
-    default boolean isSynthetic() {
-        return bean() == null;
-    }
+    boolean isSynthetic();
 
     /**
      * Returns the priority of this observer. This is typically defined by adding
@@ -99,10 +96,11 @@ public interface ObserverInfo {
     boolean isAsync();
 
     /**
-     * Returns the {@link Reception reception type} of this observer. Allows distinguishing
+     * Returns the {@linkplain Reception reception type} of this observer. Allows distinguishing
      * conditional observer methods from always notified observer methods.
+     * Returns {@link Reception#ALWAYS} if this is a synthetic observer.
      *
-     * @return the reception type of this observer
+     * @return the reception type of this observer, never {@code null}
      */
     Reception reception();
 

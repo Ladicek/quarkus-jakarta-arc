@@ -2,7 +2,7 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.enterprise.lang.model.declarations.ClassInfo;
+import javax.enterprise.lang.model.types.ClassType;
 import javax.enterprise.lang.model.types.ParameterizedType;
 import javax.enterprise.lang.model.types.Type;
 
@@ -13,8 +13,10 @@ class ParameterizedTypeImpl extends TypeImpl<org.jboss.jandex.ParameterizedType>
     }
 
     @Override
-    public ClassInfo<?> declaration() {
-        return new ClassInfoImpl(jandexIndex, annotationOverlays, jandexIndex.getClassByName(jandexType.name()));
+    public ClassType genericClass() {
+        org.jboss.jandex.Type jandexClassType = org.jboss.jandex.Type.create(jandexType.name(),
+                org.jboss.jandex.Type.Kind.CLASS);
+        return new ClassTypeImpl(jandexIndex, annotationOverlays, (org.jboss.jandex.ClassType) jandexClassType);
     }
 
     @Override
@@ -22,6 +24,6 @@ class ParameterizedTypeImpl extends TypeImpl<org.jboss.jandex.ParameterizedType>
         return jandexType.arguments()
                 .stream()
                 .map(it -> TypeImpl.fromJandexType(jandexIndex, annotationOverlays, it))
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 }

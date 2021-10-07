@@ -53,6 +53,7 @@
 
     <modules>
         <module>cdi-lite-ext-api</module>
+        <module>cdi-lang-model-tck</module>
 
         <module>runtime</module>
         <module>processor</module>
@@ -66,6 +67,12 @@
             <dependency>
                 <groupId>io.quarkus.arc</groupId>
                 <artifactId>cdi-lite-ext-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.quarkus.arc</groupId>
+                <artifactId>cdi-lang-model-tck</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

@@ -3,8 +3,13 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 import java.util.Arrays;
 import javax.enterprise.inject.build.compatible.spi.Types;
 import javax.enterprise.lang.model.declarations.ClassInfo;
+import javax.enterprise.lang.model.types.ArrayType;
+import javax.enterprise.lang.model.types.ClassType;
+import javax.enterprise.lang.model.types.ParameterizedType;
 import javax.enterprise.lang.model.types.PrimitiveType;
 import javax.enterprise.lang.model.types.Type;
+import javax.enterprise.lang.model.types.VoidType;
+import javax.enterprise.lang.model.types.WildcardType;
 import org.jboss.jandex.DotName;
 
 class TypesImpl implements Types {
@@ -59,78 +64,89 @@ class TypesImpl implements Types {
     }
 
     @Override
-    public Type ofVoid() {
+    public VoidType ofVoid() {
         org.jboss.jandex.Type jandexType = org.jboss.jandex.Type.create(DotName.createSimple("void"),
                 org.jboss.jandex.Type.Kind.VOID);
         return new VoidTypeImpl(jandexIndex, annotationOverlays, jandexType.asVoidType());
     }
 
     @Override
-    public Type ofPrimitive(PrimitiveType.PrimitiveKind kind) {
+    public PrimitiveType ofPrimitive(PrimitiveType.PrimitiveKind kind) {
         org.jboss.jandex.Type jandexType = org.jboss.jandex.Type.create(DotName.createSimple(kind.name().toLowerCase()),
                 org.jboss.jandex.Type.Kind.PRIMITIVE);
         return new PrimitiveTypeImpl(jandexIndex, annotationOverlays, jandexType.asPrimitiveType());
     }
 
     @Override
-    public Type ofClass(ClassInfo<?> clazz) {
+    public ClassType ofClass(ClassInfo clazz) {
         org.jboss.jandex.Type jandexType = org.jboss.jandex.Type.create(((ClassInfoImpl) clazz).jandexDeclaration.name(),
                 org.jboss.jandex.Type.Kind.CLASS);
         return new ClassTypeImpl(jandexIndex, annotationOverlays, jandexType.asClassType());
     }
 
     @Override
-    public Type ofArray(Type componentType, int dimensions) {
+    public ClassType ofClass(String name) {
+        DotName className = DotName.createSimple(name);
+        org.jboss.jandex.ClassInfo jandexClass = jandexIndex.getClassByName(className);
+        if (jandexClass == null) {
+            return null;
+        }
+        org.jboss.jandex.Type jandexType = org.jboss.jandex.Type.create(className, org.jboss.jandex.Type.Kind.CLASS);
+        return new ClassTypeImpl(jandexIndex, annotationOverlays, jandexType.asClassType());
+    }
+
+    @Override
+    public ArrayType ofArray(Type componentType, int dimensions) {
         org.jboss.jandex.ArrayType jandexType = org.jboss.jandex.ArrayType.create(((TypeImpl<?>) componentType).jandexType,
                 dimensions);
         return new ArrayTypeImpl(jandexIndex, annotationOverlays, jandexType);
     }
 
     @Override
-    public Type parameterized(Class<?> parameterizedType, Class<?>... typeArguments) {
-        DotName parameterizedTypeName = DotName.createSimple(parameterizedType.getName());
+    public ParameterizedType parameterized(Class<?> genericType, Class<?>... typeArguments) {
+        DotName genericTypeName = DotName.createSimple(genericType.getName());
         Type[] transformedTypeArguments = Arrays.stream(typeArguments).map(this::of).toArray(Type[]::new);
-        return parameterizedType(parameterizedTypeName, transformedTypeArguments);
+        return parameterizedType(genericTypeName, transformedTypeArguments);
     }
 
     @Override
-    public Type parameterized(Class<?> parameterizedType, Type... typeArguments) {
-        DotName parameterizedTypeName = DotName.createSimple(parameterizedType.getName());
-        return parameterizedType(parameterizedTypeName, typeArguments);
+    public ParameterizedType parameterized(Class<?> genericType, Type... typeArguments) {
+        DotName genericTypeName = DotName.createSimple(genericType.getName());
+        return parameterizedType(genericTypeName, typeArguments);
     }
 
     @Override
-    public Type parameterized(Type parameterizedType, Type... typeArguments) {
-        DotName parameterizedTypeName = ((TypeImpl<?>) parameterizedType).jandexType.name();
-        return parameterizedType(parameterizedTypeName, typeArguments);
+    public ParameterizedType parameterized(ClassType genericType, Type... typeArguments) {
+        DotName genericTypeName = ((TypeImpl<?>) genericType).jandexType.name();
+        return parameterizedType(genericTypeName, typeArguments);
     }
 
-    private Type parameterizedType(DotName parameterizedTypeName, Type... typeArguments) {
+    private ParameterizedType parameterizedType(DotName genericTypeName, Type... typeArguments) {
         org.jboss.jandex.Type[] jandexTypeArguments = Arrays.stream(typeArguments)
                 .map(it -> ((TypeImpl<?>) it).jandexType)
                 .toArray(org.jboss.jandex.Type[]::new);
 
-        org.jboss.jandex.ParameterizedType jandexType = org.jboss.jandex.ParameterizedType.create(parameterizedTypeName,
+        org.jboss.jandex.ParameterizedType jandexType = org.jboss.jandex.ParameterizedType.create(genericTypeName,
                 jandexTypeArguments, null);
         return new ParameterizedTypeImpl(jandexIndex, annotationOverlays, jandexType);
     }
 
     @Override
-    public Type wildcardWithUpperBound(Type upperBound) {
+    public WildcardType wildcardWithUpperBound(Type upperBound) {
         org.jboss.jandex.WildcardType jandexType = org.jboss.jandex.WildcardType.create(((TypeImpl<?>) upperBound).jandexType,
                 true);
         return new WildcardTypeImpl(jandexIndex, annotationOverlays, jandexType);
     }
 
     @Override
-    public Type wildcardWithLowerBound(Type lowerBound) {
+    public WildcardType wildcardWithLowerBound(Type lowerBound) {
         org.jboss.jandex.WildcardType jandexType = org.jboss.jandex.WildcardType.create(((TypeImpl<?>) lowerBound).jandexType,
                 false);
         return new WildcardTypeImpl(jandexIndex, annotationOverlays, jandexType);
     }
 
     @Override
-    public Type wildcardUnbounded() {
+    public WildcardType wildcardUnbounded() {
         org.jboss.jandex.WildcardType jandexType = org.jboss.jandex.WildcardType.create(null, true);
         return new WildcardTypeImpl(jandexIndex, annotationOverlays, jandexType);
     }

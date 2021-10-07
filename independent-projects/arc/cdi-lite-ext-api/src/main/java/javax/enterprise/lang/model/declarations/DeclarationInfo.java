@@ -4,12 +4,12 @@ import javax.enterprise.lang.model.AnnotationTarget;
 import javax.enterprise.lang.model.types.Type;
 
 /**
- * Declarations directly correspond to an element of a program source code.
+ * A declaration is an element of a program source code.
  * Declarations are:
  *
  * <ul>
  * <li>{@linkplain PackageInfo packages}</li>
- * <li>{@linkplain ClassInfo classes}, including interfaces, enums, and annotations</li>
+ * <li>{@linkplain ClassInfo classes}, including interfaces, enums, annotations, and records</li>
  * <li>{@linkplain FieldInfo fields}</li>
  * <li>{@linkplain MethodInfo methods}, including constructors</li>
  * <li>{@linkplain ParameterInfo method parameters}, including constructor parameters</li>
@@ -18,9 +18,6 @@ import javax.enterprise.lang.model.types.Type;
  * @since 4.0
  */
 public interface DeclarationInfo extends AnnotationTarget {
-    // TODO reevaluate the is*/as*/kind() approach (everywhere!); maybe type checks and casts are better, maybe
-    //  something completely different is even better
-
     @Override
     default boolean isDeclaration() {
         return true;
@@ -47,6 +44,7 @@ public interface DeclarationInfo extends AnnotationTarget {
         METHOD,
         PARAMETER,
         FIELD,
+        RECORD_COMPONENT,
     }
 
     /**
@@ -102,6 +100,15 @@ public interface DeclarationInfo extends AnnotationTarget {
     }
 
     /**
+     * Returns whether this declaration is a {@linkplain RecordComponentInfo record component}.
+     *
+     * @return {@code true} if this is a record component, {@code false} otherwise
+     */
+    default boolean isRecordComponent() {
+        return kind() == Kind.RECORD_COMPONENT;
+    }
+
+    /**
      * Returns this declaration as a {@linkplain PackageInfo package}.
      *
      * @return this package, never {@code null}
@@ -149,5 +156,15 @@ public interface DeclarationInfo extends AnnotationTarget {
      */
     default FieldInfo asField() {
         throw new IllegalStateException("Not a field");
+    }
+
+    /**
+     * Returns this declaration as a {@linkplain RecordComponentInfo record component}.
+     *
+     * @return this record component, never {@code null}
+     * @throws IllegalStateException if {@link #isRecordComponent()} returns {@code false}
+     */
+    default RecordComponentInfo asRecordComponent() {
+        throw new IllegalStateException("Not a record component");
     }
 }

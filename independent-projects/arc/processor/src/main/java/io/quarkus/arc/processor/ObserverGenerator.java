@@ -456,6 +456,9 @@ public class ObserverGenerator extends AbstractGenerator {
             constructor = observerCreator.getMethodCreator(Methods.INIT, "V");
             // Invoke super()
             constructor.invokeSpecialMethod(MethodDescriptors.OBJECT_CONSTRUCTOR, constructor.getThis());
+
+            SyntheticComponentsUtil.addParamsFieldAndInit(observerCreator, constructor, observer.getParams(),
+                    annotationLiterals, classOutput, observer.getBeanDeployment().getBeanArchiveIndex());
         } else {
             // Declaring provider and injection points
             // First collect all param types
@@ -558,7 +561,7 @@ public class ObserverGenerator extends AbstractGenerator {
                     ClassInfo qualifierClass = observer.getBeanDeployment()
                             .getQualifier(qualifierAnnotation.name());
                     constructor.writeArrayValue(qualifiersArray, constructor.load(qualifiersIndex++),
-                            annotationLiterals.process(constructor, classOutput,
+                            annotationLiterals.create(constructor, classOutput,
                                     qualifierClass, qualifierAnnotation, Types.getPackageName(observerCreator.getClassName())));
                 }
             }

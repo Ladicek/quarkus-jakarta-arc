@@ -21,6 +21,6 @@ class TypeVariableImpl extends TypeImpl<org.jboss.jandex.TypeVariable> implement
         return jandexType.bounds()
                 .stream()
                 .map(it -> TypeImpl.fromJandexType(jandexIndex, annotationOverlays, it))
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 }

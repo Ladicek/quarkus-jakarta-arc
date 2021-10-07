@@ -1,9 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import javax.enterprise.inject.build.compatible.spi.SyntheticBeanBuilder;
 import javax.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
@@ -13,7 +11,8 @@ import javax.enterprise.lang.model.declarations.ClassInfo;
 import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
-class SyntheticBeanBuilderImpl<T> implements SyntheticBeanBuilder<T> {
+class SyntheticBeanBuilderImpl<T> extends SyntheticComponentBuilderBase<SyntheticBeanBuilderImpl<T>>
+        implements SyntheticBeanBuilder<T> {
     DotName implementationClass;
     Set<org.jboss.jandex.Type> types = new HashSet<>();
     Set<org.jboss.jandex.AnnotationInstance> qualifiers = new HashSet<>();
@@ -22,12 +21,16 @@ class SyntheticBeanBuilderImpl<T> implements SyntheticBeanBuilder<T> {
     int priority;
     String name;
     Set<DotName> stereotypes = new HashSet<>();
-    Map<String, Object> params = new HashMap<>();
     Class<? extends SyntheticBeanCreator<T>> creatorClass;
     Class<? extends SyntheticBeanDisposer<T>> disposerClass;
 
     SyntheticBeanBuilderImpl(Class<?> implementationClass) {
         this.implementationClass = DotName.createSimple(implementationClass.getName());
+    }
+
+    @Override
+    SyntheticBeanBuilderImpl<T> self() {
+        return this;
     }
 
     @Override
@@ -37,7 +40,7 @@ class SyntheticBeanBuilderImpl<T> implements SyntheticBeanBuilder<T> {
     }
 
     @Override
-    public SyntheticBeanBuilder<T> type(ClassInfo<?> type) {
+    public SyntheticBeanBuilder<T> type(ClassInfo type) {
         DotName className = ((ClassInfoImpl) type).jandexDeclaration.name();
         // TODO does this cover all possible cases?
         org.jboss.jandex.Type jandexType = org.jboss.jandex.Type.create(className, org.jboss.jandex.Type.Kind.CLASS);
@@ -101,80 +104,8 @@ class SyntheticBeanBuilderImpl<T> implements SyntheticBeanBuilder<T> {
     }
 
     @Override
-    public SyntheticBeanBuilder<T> stereotype(ClassInfo<?> stereotypeAnnotation) {
+    public SyntheticBeanBuilder<T> stereotype(ClassInfo stereotypeAnnotation) {
         this.stereotypes.add(((ClassInfoImpl) stereotypeAnnotation).jandexDeclaration.name());
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, boolean value) {
-        this.params.put(key, value);
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, boolean[] value) {
-        this.params.put(key, value);
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, int value) {
-        this.params.put(key, value);
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, int[] value) {
-        this.params.put(key, value);
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, long value) {
-        this.params.put(key, value);
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, long[] value) {
-        this.params.put(key, value);
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, double value) {
-        this.params.put(key, value);
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, double[] value) {
-        this.params.put(key, value);
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, String value) {
-        this.params.put(key, value);
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, String[] value) {
-        this.params.put(key, value);
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, Class<?> value) {
-        this.params.put(key, value);
-        return this;
-    }
-
-    @Override
-    public SyntheticBeanBuilder<T> withParam(String key, Class<?>[] value) {
-        this.params.put(key, value);
         return this;
     }
 

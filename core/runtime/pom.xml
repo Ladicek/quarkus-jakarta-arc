@@ -28,6 +28,11 @@
             <artifactId>jakarta.inject-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus.arc</groupId>
+            <artifactId>cdi-lite-ext-api</artifactId>
+            <version>999-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-ide-launcher</artifactId>
         </dependency>

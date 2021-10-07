@@ -6,18 +6,13 @@ import javax.enterprise.inject.build.compatible.spi.AnnotationBuilderFactory;
 import javax.enterprise.lang.model.declarations.ClassInfo;
 import org.jboss.jandex.DotName;
 
-public class AnnotationBuilderFactoryImpl implements AnnotationBuilderFactory {
-    private static org.jboss.jandex.IndexView beanArchiveIndex;
-    private static AllAnnotationOverlays annotationOverlays;
+final class AnnotationBuilderFactoryImpl implements AnnotationBuilderFactory {
+    private final org.jboss.jandex.IndexView beanArchiveIndex;
+    private final AllAnnotationOverlays annotationOverlays;
 
-    static void init(org.jboss.jandex.IndexView beanArchiveIndex, AllAnnotationOverlays annotationOverlays) {
-        AnnotationBuilderFactoryImpl.beanArchiveIndex = beanArchiveIndex;
-        AnnotationBuilderFactoryImpl.annotationOverlays = annotationOverlays;
-    }
-
-    static void reset() {
-        AnnotationBuilderFactoryImpl.beanArchiveIndex = null;
-        AnnotationBuilderFactoryImpl.annotationOverlays = null;
+    AnnotationBuilderFactoryImpl(org.jboss.jandex.IndexView beanArchiveIndex, AllAnnotationOverlays annotationOverlays) {
+        this.beanArchiveIndex = beanArchiveIndex;
+        this.annotationOverlays = annotationOverlays;
     }
 
     @Override
@@ -31,17 +26,12 @@ public class AnnotationBuilderFactoryImpl implements AnnotationBuilderFactory {
     }
 
     @Override
-    public AnnotationBuilder create(ClassInfo<?> annotationType) {
+    public AnnotationBuilder create(ClassInfo annotationType) {
         if (beanArchiveIndex == null || annotationOverlays == null) {
             throw new IllegalStateException("Can't create AnnotationBuilder right now");
         }
 
         DotName jandexAnnotationName = ((ClassInfoImpl) annotationType).jandexDeclaration.name();
         return new AnnotationBuilderImpl(beanArchiveIndex, annotationOverlays, jandexAnnotationName);
-    }
-
-    @Override
-    public int getPriority() {
-        return 0;
     }
 }

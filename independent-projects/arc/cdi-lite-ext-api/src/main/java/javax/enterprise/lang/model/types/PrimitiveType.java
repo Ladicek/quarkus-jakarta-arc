@@ -17,8 +17,6 @@ package javax.enterprise.lang.model.types;
  * @since 4.0
  */
 public interface PrimitiveType extends Type {
-    // TODO Kind vs. PrimitiveKind?
-
     enum PrimitiveKind {
         BOOLEAN,
         BYTE,

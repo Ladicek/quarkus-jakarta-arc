@@ -7,7 +7,7 @@ import javax.enterprise.lang.model.declarations.FieldInfo;
 import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
-class FieldInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.FieldInfo> implements FieldInfo<Object> {
+class FieldInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.FieldInfo> implements FieldInfo {
     // only for equals/hashCode
     private final DotName className;
     private final String name;
@@ -45,7 +45,7 @@ class FieldInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.FieldInfo> impl
     }
 
     @Override
-    public ClassInfo<Object> declaringClass() {
+    public ClassInfo declaringClass() {
         return new ClassInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration.declaringClass());
     }
 
@@ -61,8 +61,8 @@ class FieldInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.FieldInfo> impl
         if (o == null || getClass() != o.getClass())
             return false;
         FieldInfoImpl fieldInfo = (FieldInfoImpl) o;
-        return Objects.equals(className, fieldInfo.className) &&
-                Objects.equals(name, fieldInfo.name);
+        return Objects.equals(className, fieldInfo.className)
+                && Objects.equals(name, fieldInfo.name);
     }
 
     @Override

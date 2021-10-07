@@ -52,6 +52,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.quarkus.arc</groupId>
+            <artifactId>cdi-lang-model-tck</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

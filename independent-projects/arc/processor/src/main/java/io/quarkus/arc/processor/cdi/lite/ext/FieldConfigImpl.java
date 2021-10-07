@@ -1,42 +1,17 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import java.lang.annotation.Annotation;
-import java.util.function.Predicate;
 import javax.enterprise.inject.build.compatible.spi.FieldConfig;
-import javax.enterprise.lang.model.AnnotationInfo;
+import javax.enterprise.lang.model.declarations.FieldInfo;
 
-class FieldConfigImpl extends FieldInfoImpl implements FieldConfig<Object> {
-    private final AnnotationsTransformation.Fields transformations;
-
-    FieldConfigImpl(org.jboss.jandex.IndexView jandexIndex, AnnotationsTransformation.Fields transformations,
+class FieldConfigImpl extends DeclarationConfigImpl<AnnotationsOverlay.Fields.Key, org.jboss.jandex.FieldInfo, FieldConfigImpl>
+        implements FieldConfig {
+    FieldConfigImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationTransformations allTransformations,
             org.jboss.jandex.FieldInfo jandexDeclaration) {
-        super(jandexIndex, transformations.annotationOverlays, jandexDeclaration);
-        this.transformations = transformations;
+        super(jandexIndex, allTransformations, allTransformations.fields, jandexDeclaration);
     }
 
     @Override
-    public void addAnnotation(Class<? extends Annotation> annotationType) {
-        transformations.addAnnotation(jandexDeclaration, annotationType);
-    }
-
-    @Override
-    public void addAnnotation(AnnotationInfo annotation) {
-        transformations.addAnnotation(jandexDeclaration, annotation);
-    }
-
-    @Override
-    public void addAnnotation(Annotation annotation) {
-        transformations.addAnnotation(jandexDeclaration, annotation);
-    }
-
-    @Override
-    public void removeAnnotation(Predicate<AnnotationInfo> predicate) {
-        // TODO remove cast once AnnotationInfo is no longer parameterized
-        transformations.removeAnnotation(jandexDeclaration, (Predicate) predicate);
-    }
-
-    @Override
-    public void removeAllAnnotations() {
-        transformations.removeAllAnnotations(jandexDeclaration);
+    public FieldInfo info() {
+        return new FieldInfoImpl(jandexIndex, allTransformations.annotationOverlays, jandexDeclaration);
     }
 }

@@ -1,0 +1,95 @@
+package io.quarkus.arc.test.cdi.lite.ext;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import io.quarkus.arc.Arc;
+import io.quarkus.arc.test.ArcTestContainer;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import javax.annotation.Priority;
+import javax.enterprise.inject.build.compatible.spi.AnnotationBuilder;
+import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
+import javax.enterprise.inject.build.compatible.spi.ClassConfig;
+import javax.enterprise.inject.build.compatible.spi.Discovery;
+import javax.enterprise.inject.build.compatible.spi.Enhancement;
+import javax.enterprise.inject.build.compatible.spi.MetaAnnotations;
+import javax.enterprise.inject.build.compatible.spi.ScannedClasses;
+import javax.enterprise.util.AnnotationLiteral;
+import javax.enterprise.util.Nonbinding;
+import javax.inject.Singleton;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptor;
+import javax.interceptor.InvocationContext;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+// TODO migrated to CDI TCK
+public class CustomInterceptorBindingTest {
+    @RegisterExtension
+    public ArcTestContainer container = ArcTestContainer.builder()
+            .additionalClasses(MyAnnotation.class, MyAnnotationLiteral.class, MyInterceptor.class, MyService.class)
+            .buildCompatibleExtensions(MyExtension.class)
+            .build();
+
+    @Test
+    public void test() {
+        MyService myService = Arc.container().select(MyService.class).get();
+        assertEquals("Intercepted: Hello!", myService.hello());
+    }
+
+    public static class MyExtension implements BuildCompatibleExtension {
+        @Discovery
+        public void discovery(MetaAnnotations meta, ScannedClasses scan) {
+            scan.add("io.quarkus.arc.test.cdi.lite.ext.CustomInterceptorBindingTest$MyInterceptor");
+            scan.add("io.quarkus.arc.test.cdi.lite.ext.CustomInterceptorBindingTest$MyService");
+
+            ClassConfig cfg = meta.addInterceptorBinding(MyAnnotation.class);
+            cfg.methods()
+                    .stream()
+                    .filter(it -> "value".equals(it.info().name()))
+                    .forEach(it -> it.addAnnotation(Nonbinding.class));
+        }
+
+        @Enhancement(types = MyInterceptor.class)
+        public void interceptorPriority(ClassConfig clazz) {
+            clazz.addAnnotation(AnnotationBuilder.of(Priority.class).value(1).build());
+        }
+    }
+
+    // ---
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface MyAnnotation {
+        String value();
+    }
+
+    static class MyAnnotationLiteral extends AnnotationLiteral<MyAnnotation> implements MyAnnotation {
+        private final String value;
+
+        MyAnnotationLiteral(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String value() {
+            return value;
+        }
+    }
+
+    @Interceptor
+    @MyAnnotation("something")
+    static class MyInterceptor {
+        @AroundInvoke
+        public Object intercept(InvocationContext ctx) throws Exception {
+            return "Intercepted: " + ctx.proceed();
+        }
+    }
+
+    @Singleton
+    @MyAnnotation("this should be ignored, the value member should be treated as @Nonbinding")
+    static class MyService {
+        public String hello() {
+            return "Hello!";
+        }
+    }
+}

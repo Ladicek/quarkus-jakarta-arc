@@ -1,6 +1,5 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import java.util.Optional;
 import javax.enterprise.lang.model.types.Type;
 import javax.enterprise.lang.model.types.WildcardType;
 
@@ -14,16 +13,18 @@ class WildcardTypeImpl extends TypeImpl<org.jboss.jandex.WildcardType> implement
     }
 
     @Override
-    public Optional<Type> upperBound() {
-        return hasUpperBound
-                ? Optional.of(TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexType.extendsBound()))
-                : Optional.empty();
+    public Type upperBound() {
+        if (!hasUpperBound) {
+            return null;
+        }
+        return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexType.extendsBound());
     }
 
     @Override
-    public Optional<Type> lowerBound() {
-        return hasUpperBound
-                ? Optional.empty()
-                : Optional.of(TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexType.superBound()));
+    public Type lowerBound() {
+        if (hasUpperBound) {
+            return null;
+        }
+        return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexType.superBound());
     }
 }

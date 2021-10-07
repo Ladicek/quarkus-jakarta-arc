@@ -17,7 +17,7 @@ import io.quarkus.arc.processor.ObserverRegistrar;
 import io.quarkus.arc.processor.ObserverTransformer;
 import io.quarkus.arc.processor.QualifierRegistrar;
 import io.quarkus.arc.processor.ResourceOutput;
-import io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtensions;
+import io.quarkus.arc.processor.cdi.lite.ext.ExtensionsEntryPoint;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -354,7 +354,7 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
         };
         Thread.currentThread().setContextClassLoader(processingClassLoader);
 
-        CdiLiteExtensions cdiLiteExtensions = new CdiLiteExtensions();
+        ExtensionsEntryPoint cdiLiteExtensions = new ExtensionsEntryPoint();
 
         // Build index
         IndexView beanArchiveIndex;

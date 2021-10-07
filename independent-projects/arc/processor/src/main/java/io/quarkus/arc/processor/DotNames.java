@@ -42,6 +42,7 @@ import javax.enterprise.inject.Stereotype;
 import javax.enterprise.inject.TransientReference;
 import javax.enterprise.inject.Typed;
 import javax.enterprise.inject.Vetoed;
+import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.EventMetadata;
@@ -106,6 +107,7 @@ public final class DotNames {
     public static final DotName CLASS = create(Class.class);
     public static final DotName ENUM = create(Enum.class);
     public static final DotName EXTENSION = create(Extension.class);
+    public static final DotName BUILD_COMPATIBLE_EXTENSION = create(BuildCompatibleExtension.class);
     public static final DotName OPTIONAL = create(Optional.class);
     public static final DotName OPTIONAL_INT = create(OptionalInt.class);
     public static final DotName OPTIONAL_LONG = create(OptionalLong.class);

@@ -4,7 +4,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.enterprise.lang.model.declarations.ClassInfo;
 import javax.enterprise.lang.model.declarations.MethodInfo;
@@ -12,8 +11,9 @@ import javax.enterprise.lang.model.declarations.ParameterInfo;
 import javax.enterprise.lang.model.types.Type;
 import javax.enterprise.lang.model.types.TypeVariable;
 import org.jboss.jandex.DotName;
+import org.jboss.jandex.HackClassType;
 
-class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> implements MethodInfo<Object> {
+class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> implements MethodInfo {
     // only for equals/hashCode
     private final DotName className;
     private final String name;
@@ -29,6 +29,9 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
 
     @Override
     public String name() {
+        if (isConstructor()) {
+            return jandexDeclaration.declaringClass().name().toString();
+        }
         return jandexDeclaration.name();
     }
 
@@ -38,7 +41,8 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
         List<ParameterInfo> result = new ArrayList<>(parameters);
 
         for (int i = 0; i < parameters; i++) {
-            result.add(new ParameterInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration, i));
+            result.add(new ParameterInfoImpl(jandexIndex, annotationOverlays,
+                    org.jboss.jandex.MethodParameterInfo.create(jandexDeclaration, (short) i)));
         }
 
         return result;
@@ -46,12 +50,38 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
 
     @Override
     public Type returnType() {
+        if (isConstructor()) {
+            // Jandex returns a void type as a return type of a constructor,
+            // but it has the correct (type use) annotations
+            //
+            // so we just copy those annotations to a class type
+            return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, HackClassType.create(
+                    jandexDeclaration.declaringClass().name(), jandexDeclaration.returnType()));
+        }
         return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexDeclaration.returnType());
     }
 
     @Override
-    public Optional<Type> receiverType() {
-        return Optional.of(TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexDeclaration.receiverType()));
+    public Type receiverType() {
+        // static method
+        if (Modifier.isStatic(jandexDeclaration.flags())) {
+            return null;
+        }
+
+        // constructor of a top-level class or a static nested class
+        if (MethodPredicates.IS_CONSTRUCTOR_JANDEX.test(jandexDeclaration)) {
+            org.jboss.jandex.ClassInfo declaringClass = jandexDeclaration.declaringClass();
+            org.jboss.jandex.ClassInfo.NestingType nestingType = declaringClass.nestingType();
+            if (nestingType == org.jboss.jandex.ClassInfo.NestingType.TOP_LEVEL) {
+                return null;
+            }
+            if (nestingType == org.jboss.jandex.ClassInfo.NestingType.INNER
+                    && Modifier.isStatic(declaringClass.flags())) {
+                return null;
+            }
+        }
+
+        return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexDeclaration.receiverType());
     }
 
     @Override
@@ -59,7 +89,7 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
         return jandexDeclaration.exceptions()
                 .stream()
                 .map(it -> TypeImpl.fromJandexType(jandexIndex, annotationOverlays, it))
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
@@ -69,7 +99,12 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
                 .map(it -> TypeImpl.fromJandexType(jandexIndex, annotationOverlays, it))
                 .filter(Type::isTypeVariable) // not necessary, just as a precaution
                 .map(Type::asTypeVariable) // not necessary, just as a precaution
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    @Override
+    public boolean isConstructor() {
+        return MethodPredicates.IS_CONSTRUCTOR_JANDEX.test(jandexDeclaration);
     }
 
     @Override
@@ -93,7 +128,7 @@ class MethodInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodInfo> im
     }
 
     @Override
-    public ClassInfo<Object> declaringClass() {
+    public ClassInfo declaringClass() {
         return new ClassInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration.declaringClass());
     }
 

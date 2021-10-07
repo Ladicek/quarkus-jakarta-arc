@@ -8,7 +8,7 @@ import io.quarkus.arc.processor.BeanProcessor.BuildContextImpl;
 import io.quarkus.arc.processor.BeanRegistrar.RegistrationContext;
 import io.quarkus.arc.processor.BuildExtension.BuildContext;
 import io.quarkus.arc.processor.BuildExtension.Key;
-import io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtensions;
+import io.quarkus.arc.processor.cdi.lite.ext.ExtensionsEntryPoint;
 import io.quarkus.gizmo.MethodCreator;
 import io.quarkus.gizmo.ResultHandle;
 import java.lang.annotation.Annotation;
@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.enterprise.event.Reception;
 import javax.enterprise.inject.spi.DefinitionException;
 import javax.enterprise.inject.spi.DeploymentException;
 import org.jboss.jandex.AnnotationInstance;
@@ -110,7 +111,7 @@ public class BeanDeployment {
 
     private final List<Predicate<ClassInfo>> excludeTypes;
 
-    private final CdiLiteExtensions cdiLiteExtensions;
+    private final ExtensionsEntryPoint cdiLiteExtensions;
 
     BeanDeployment(BuildContextImpl buildContext, BeanProcessor.Builder builder) {
         this.cdiLiteExtensions = builder.cdiLiteExtensions;
@@ -257,7 +258,7 @@ public class BeanDeployment {
         buildContextPut(Key.INJECTION_POINTS.asString(), Collections.unmodifiableList(this.injectionPoints));
 
         if (cdiLiteExtensions != null) {
-            cdiLiteExtensions.runProcessing(beanArchiveIndex, beans, observers);
+            cdiLiteExtensions.runRegistration(beanArchiveIndex, beans, observers);
         }
 
         return registerSyntheticBeans(beanRegistrars, buildContext);
@@ -908,6 +909,11 @@ public class BeanDeployment {
                 continue;
             }
 
+            if (beanClass.interfaceNames().contains(DotNames.BUILD_COMPATIBLE_EXTENSION)) {
+                // Skip build compatible extensions
+                continue;
+            }
+
             boolean hasBeanDefiningAnnotation = false;
             if (annotationStore.hasAnyAnnotation(beanClass, beanDefiningAnnotations)) {
                 hasBeanDefiningAnnotation = true;
@@ -1175,7 +1181,7 @@ public class BeanDeployment {
             registrar.register(context);
         }
         if (cdiLiteExtensions != null) {
-            cdiLiteExtensions.runSynthesis(beanArchiveIndex, beans, observers);
+            cdiLiteExtensions.runSynthesis(beanArchiveIndex);
             cdiLiteExtensions.registerSyntheticBeans(context);
         }
         return context;
@@ -1191,6 +1197,7 @@ public class BeanDeployment {
         }
         if (cdiLiteExtensions != null) {
             cdiLiteExtensions.registerSyntheticObservers(context);
+            cdiLiteExtensions.runRegistrationAgain(beanArchiveIndex, beans, observers);
         }
         return context;
     }
@@ -1210,9 +1217,9 @@ public class BeanDeployment {
         observers.add(ObserverInfo.create(configurator.id, this, configurator.beanClass, null, null, null, null,
                 configurator.observedType,
                 configurator.observedQualifiers,
-                configurator.reception, configurator.transactionPhase, configurator.isAsync, configurator.priority,
+                Reception.ALWAYS, configurator.transactionPhase, configurator.isAsync, configurator.priority,
                 observerTransformers, buildContext,
-                jtaCapabilities, configurator.notifyConsumer));
+                jtaCapabilities, configurator.notifyConsumer, configurator.params));
     }
 
     static void processErrors(List<Throwable> errors) {

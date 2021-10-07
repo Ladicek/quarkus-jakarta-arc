@@ -1,6 +1,5 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +9,7 @@ import javax.enterprise.lang.model.AnnotationMember;
 import javax.enterprise.lang.model.declarations.ClassInfo;
 import org.jboss.jandex.DotName;
 
-class AnnotationInfoImpl<T extends Annotation> implements AnnotationInfo<T> {
+class AnnotationInfoImpl implements AnnotationInfo {
     final org.jboss.jandex.IndexView jandexIndex;
     final AllAnnotationOverlays annotationOverlays;
     final org.jboss.jandex.AnnotationInstance jandexAnnotation;
@@ -23,14 +22,13 @@ class AnnotationInfoImpl<T extends Annotation> implements AnnotationInfo<T> {
     }
 
     @Override
-    public ClassInfo<T> declaration() {
+    public ClassInfo declaration() {
         DotName annotationClassName = jandexAnnotation.name();
         org.jboss.jandex.ClassInfo annotationClass = jandexIndex.getClassByName(annotationClassName);
         if (annotationClass == null) {
             throw new IllegalStateException("Class " + annotationClassName + " not found in Jandex");
         }
-        // TODO ClassInfo should lose its type parameter
-        return (ClassInfo) new ClassInfoImpl(jandexIndex, annotationOverlays, annotationClass);
+        return new ClassInfoImpl(jandexIndex, annotationOverlays, annotationClass);
     }
 
     @Override

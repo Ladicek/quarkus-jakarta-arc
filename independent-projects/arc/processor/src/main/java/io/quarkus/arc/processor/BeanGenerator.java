@@ -44,7 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -81,7 +80,6 @@ public class BeanGenerator extends AbstractGenerator {
     protected static final String FIELD_NAME_QUALIFIERS = "qualifiers";
     protected static final String FIELD_NAME_STEREOTYPES = "stereotypes";
     protected static final String FIELD_NAME_PROXY = "proxy";
-    protected static final String FIELD_NAME_PARAMS = "params";
 
     protected final AnnotationLiteralProcessor annotationLiterals;
     protected final Predicate<DotName> applicationClassPredicate;
@@ -182,75 +180,9 @@ public class BeanGenerator extends AbstractGenerator {
                 Collections.emptyMap(), Collections.emptyMap(),
                 annotationLiterals, reflectionRegistration);
 
-        FieldCreator params = beanCreator.getFieldCreator(FIELD_NAME_PARAMS, Map.class)
-                .setModifiers(ACC_PRIVATE | ACC_FINAL);
+        SyntheticComponentsUtil.addParamsFieldAndInit(beanCreator, constructor, bean.getParams(), annotationLiterals,
+                classOutput, bean.getDeployment().getBeanArchiveIndex());
 
-        // If needed, store the synthetic bean parameters
-        ResultHandle paramsHandle;
-        if (bean.getParams().isEmpty()) {
-            paramsHandle = constructor.invokeStaticMethod(MethodDescriptors.COLLECTIONS_EMPTY_MAP);
-        } else {
-            paramsHandle = constructor.newInstance(MethodDescriptor.ofConstructor(HashMap.class));
-            for (Entry<String, Object> entry : bean.getParams().entrySet()) {
-                ResultHandle valHandle = null;
-                if (entry.getValue() instanceof String) {
-                    valHandle = constructor.load((String) entry.getValue());
-                } else if (entry.getValue() instanceof String[]) {
-                    String[] array = (String[]) entry.getValue();
-                    valHandle = constructor.newArray(String.class, array.length);
-                    for (int i = 0; i < array.length; i++) {
-                        constructor.writeArrayValue(valHandle, i, constructor.load(array[i]));
-                    }
-                } else if (entry.getValue() instanceof Integer) {
-                    valHandle = constructor.newInstance(MethodDescriptor.ofConstructor(Integer.class, int.class),
-                            constructor.load(((Integer) entry.getValue()).intValue()));
-                } else if (entry.getValue() instanceof int[]) {
-                    int[] array = (int[]) entry.getValue();
-                    valHandle = constructor.newArray(int.class, array.length);
-                    for (int i = 0; i < array.length; i++) {
-                        constructor.writeArrayValue(valHandle, i, constructor.load(array[i]));
-                    }
-                } else if (entry.getValue() instanceof Long) {
-                    valHandle = constructor.newInstance(MethodDescriptor.ofConstructor(Long.class, long.class),
-                            constructor.load(((Long) entry.getValue()).longValue()));
-                } else if (entry.getValue() instanceof long[]) {
-                    long[] array = (long[]) entry.getValue();
-                    valHandle = constructor.newArray(double.class, array.length);
-                    for (int i = 0; i < array.length; i++) {
-                        constructor.writeArrayValue(valHandle, i, constructor.load(array[i]));
-                    }
-                } else if (entry.getValue() instanceof Double) {
-                    valHandle = constructor.newInstance(MethodDescriptor.ofConstructor(Double.class, double.class),
-                            constructor.load(((Double) entry.getValue()).doubleValue()));
-                } else if (entry.getValue() instanceof double[]) {
-                    double[] array = (double[]) entry.getValue();
-                    valHandle = constructor.newArray(double.class, array.length);
-                    for (int i = 0; i < array.length; i++) {
-                        constructor.writeArrayValue(valHandle, i, constructor.load(array[i]));
-                    }
-                } else if (entry.getValue() instanceof Class) {
-                    valHandle = constructor.loadClass((Class<?>) entry.getValue());
-                } else if (entry.getValue() instanceof Class[]) {
-                    Class<?>[] array = (Class<?>[]) entry.getValue();
-                    valHandle = constructor.newArray(Class.class, array.length);
-                    for (int i = 0; i < array.length; i++) {
-                        constructor.writeArrayValue(valHandle, i, constructor.loadClass(array[i]));
-                    }
-                } else if (entry.getValue() instanceof Boolean) {
-                    valHandle = constructor.load((Boolean) entry.getValue());
-                } else if (entry.getValue() instanceof boolean[]) {
-                    boolean[] array = (boolean[]) entry.getValue();
-                    valHandle = constructor.newArray(boolean.class, array.length);
-                    for (int i = 0; i < array.length; i++) {
-                        constructor.writeArrayValue(valHandle, i, constructor.load(array[i]));
-                    }
-                }
-                // TODO other param types
-                constructor.invokeInterfaceMethod(MethodDescriptors.MAP_PUT, paramsHandle, constructor.load(entry.getKey()),
-                        valHandle);
-            }
-        }
-        constructor.writeInstanceField(params.getFieldDescriptor(), constructor.getThis(), paramsHandle);
         constructor.returnValue(null);
 
         implementGetIdentifier(bean, beanCreator);
@@ -775,7 +707,7 @@ public class BeanGenerator extends AbstractGenerator {
                     // Create the annotation literal first
                     ClassInfo qualifierClass = bean.getDeployment().getQualifier(qualifierAnnotation.name());
                     constructor.writeArrayValue(qualifiersArray, constructor.load(qualifierIndex++),
-                            annotationLiterals.process(constructor, classOutput,
+                            annotationLiterals.create(constructor, classOutput,
                                     qualifierClass, qualifierAnnotation, Types.getPackageName(beanCreator.getClassName())));
                 }
             }
@@ -1434,7 +1366,7 @@ public class BeanGenerator extends AbstractGenerator {
                 // Create annotation literals first
                 ClassInfo bindingClass = bean.getDeployment().getInterceptorBinding(binding.name());
                 create.writeArrayValue(bindingsArray, bindingsIndex++,
-                        annotationLiterals.process(create, classOutput, bindingClass, binding,
+                        annotationLiterals.create(create, classOutput, bindingClass, binding,
                                 Types.getPackageName(beanCreator.getClassName())));
             }
 
@@ -1565,7 +1497,7 @@ public class BeanGenerator extends AbstractGenerator {
                 // Create annotation literals first
                 ClassInfo bindingClass = bean.getDeployment().getInterceptorBinding(binding.name());
                 create.writeArrayValue(bindingsArray, bindingsIndex++,
-                        annotationLiterals.process(create, classOutput, bindingClass, binding,
+                        annotationLiterals.create(create, classOutput, bindingClass, binding,
                                 Types.getPackageName(beanCreator.getClassName())));
 
             }
@@ -1943,7 +1875,7 @@ public class BeanGenerator extends AbstractGenerator {
             } else {
                 // Create annotation literal if needed
                 ClassInfo literalClass = getClassByName(beanDeployment.getBeanArchiveIndex(), annotation.name());
-                annotationHandle = annotationLiterals.process(constructor,
+                annotationHandle = annotationLiterals.create(constructor,
                         classOutput, literalClass, annotation,
                         beanCreator != null ? Types.getPackageName(beanCreator.getClassName()) : null);
             }
@@ -1975,7 +1907,7 @@ public class BeanGenerator extends AbstractGenerator {
                     qualifierHandle = qualifier.getLiteralInstance(constructor);
                 } else {
                     // Create annotation literal if needed
-                    qualifierHandle = annotationLiterals.process(constructor,
+                    qualifierHandle = annotationLiterals.create(constructor,
                             classOutput, beanDeployment.getQualifier(qualifierAnnotation.name()), qualifierAnnotation,
                             beanCreator != null ? Types.getPackageName(beanCreator.getClassName()) : null);
                 }

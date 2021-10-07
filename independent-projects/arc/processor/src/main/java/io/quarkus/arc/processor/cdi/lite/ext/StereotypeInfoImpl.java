@@ -28,7 +28,7 @@ class StereotypeInfoImpl implements StereotypeInfo {
         return arcStereotype.getInterceptorBindings()
                 .stream()
                 .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
@@ -36,13 +36,10 @@ class StereotypeInfoImpl implements StereotypeInfo {
         return arcStereotype.isAlternative();
     }
 
-/*
     @Override
-    public int priority() {
-        // TODO default value?
-        return arcStereotype.getAlternativePriority() != null ? arcStereotype.getAlternativePriority() : 0;
+    public Integer priority() {
+        return arcStereotype.getAlternativePriority();
     }
-*/
 
     @Override
     public boolean isNamed() {

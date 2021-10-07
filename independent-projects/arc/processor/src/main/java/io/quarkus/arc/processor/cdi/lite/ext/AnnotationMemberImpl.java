@@ -12,18 +12,20 @@ import javax.enterprise.lang.model.types.Type;
 class AnnotationMemberImpl implements AnnotationMember {
     final org.jboss.jandex.IndexView jandexIndex;
     final AllAnnotationOverlays annotationOverlays;
+
+    final Kind kind;
     final org.jboss.jandex.AnnotationValue jandexAnnotationMember;
 
     AnnotationMemberImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
             org.jboss.jandex.AnnotationValue jandexAnnotationMember) {
         this.jandexIndex = jandexIndex;
         this.annotationOverlays = annotationOverlays;
+        this.kind = determineKind(jandexAnnotationMember);
         this.jandexAnnotationMember = jandexAnnotationMember;
     }
 
-    @Override
-    public Kind kind() {
-        switch (jandexAnnotationMember.kind()) {
+    private static Kind determineKind(org.jboss.jandex.AnnotationValue value) {
+        switch (value.kind()) {
             case BOOLEAN:
                 return Kind.BOOLEAN;
             case BYTE:
@@ -51,88 +53,114 @@ class AnnotationMemberImpl implements AnnotationMember {
             case ARRAY:
                 return Kind.ARRAY;
             default:
-                throw new IllegalStateException("Unknown annotation member " + jandexAnnotationMember);
+                throw new IllegalArgumentException("Unknown annotation member " + value);
+        }
+    }
+
+    private void checkKind(Kind kind) {
+        if (this.kind != kind) {
+            throw new IllegalStateException("Not " + kind + ": " + jandexAnnotationMember);
         }
     }
 
     @Override
+    public Kind kind() {
+        return kind;
+    }
+
+    @Override
     public boolean asBoolean() {
+        checkKind(Kind.BOOLEAN);
         return jandexAnnotationMember.asBoolean();
     }
 
     @Override
     public byte asByte() {
+        checkKind(Kind.BYTE);
         return jandexAnnotationMember.asByte();
     }
 
     @Override
     public short asShort() {
+        checkKind(Kind.SHORT);
         return jandexAnnotationMember.asShort();
     }
 
     @Override
     public int asInt() {
+        checkKind(Kind.INT);
         return jandexAnnotationMember.asInt();
     }
 
     @Override
     public long asLong() {
+        checkKind(Kind.LONG);
         return jandexAnnotationMember.asLong();
     }
 
     @Override
     public float asFloat() {
+        checkKind(Kind.FLOAT);
         return jandexAnnotationMember.asFloat();
     }
 
     @Override
     public double asDouble() {
+        checkKind(Kind.DOUBLE);
         return jandexAnnotationMember.asDouble();
     }
 
     @Override
     public char asChar() {
+        checkKind(Kind.CHAR);
         return jandexAnnotationMember.asChar();
     }
 
     @Override
     public String asString() {
+        checkKind(Kind.STRING);
         return jandexAnnotationMember.asString();
     }
 
     @Override
     public <E extends Enum<E>> E asEnum(Class<E> enumType) {
+        checkKind(Kind.ENUM);
         return Enum.valueOf(enumType, jandexAnnotationMember.asEnum());
     }
 
     @Override
     public String asEnumConstant() {
+        checkKind(Kind.ENUM);
         return jandexAnnotationMember.asEnum();
     }
 
     @Override
-    public ClassInfo<?> asEnumClass() {
+    public ClassInfo asEnumClass() {
+        checkKind(Kind.ENUM);
         return new ClassInfoImpl(jandexIndex, annotationOverlays,
                 jandexIndex.getClassByName(jandexAnnotationMember.asEnumType()));
     }
 
     @Override
     public Type asType() {
+        checkKind(Kind.CLASS);
         return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexAnnotationMember.asClass());
     }
 
     @Override
-    public AnnotationInfo<?> asNestedAnnotation() {
+    public AnnotationInfo asNestedAnnotation() {
+        checkKind(Kind.NESTED_ANNOTATION);
         return new AnnotationInfoImpl(jandexIndex, annotationOverlays, jandexAnnotationMember.asNested());
     }
 
     @Override
     public List<AnnotationMember> asArray() {
+        checkKind(Kind.ARRAY);
         org.jboss.jandex.AnnotationValue[] array = new org.jboss.jandex.HackAnnotationValue(jandexAnnotationMember)
                 .asArray();
         return Arrays.stream(array)
                 .map(it -> new AnnotationMemberImpl(jandexIndex, annotationOverlays, it))
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override

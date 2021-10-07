@@ -4,15 +4,16 @@ import java.util.List;
 import javax.enterprise.inject.build.compatible.spi.SyntheticBeanBuilder;
 import javax.enterprise.inject.build.compatible.spi.SyntheticComponents;
 import javax.enterprise.inject.build.compatible.spi.SyntheticObserverBuilder;
+import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
 class SyntheticComponentsImpl implements SyntheticComponents {
     final List<SyntheticBeanBuilderImpl<?>> syntheticBeans;
-    final List<SyntheticObserverBuilderImpl> syntheticObservers;
+    final List<SyntheticObserverBuilderImpl<?>> syntheticObservers;
     final DotName extensionClass;
 
     SyntheticComponentsImpl(List<SyntheticBeanBuilderImpl<?>> syntheticBeans,
-            List<SyntheticObserverBuilderImpl> syntheticObservers, DotName extensionClass) {
+            List<SyntheticObserverBuilderImpl<?>> syntheticObservers, DotName extensionClass) {
         this.syntheticBeans = syntheticBeans;
         this.syntheticObservers = syntheticObservers;
         this.extensionClass = extensionClass;
@@ -26,8 +27,17 @@ class SyntheticComponentsImpl implements SyntheticComponents {
     }
 
     @Override
-    public SyntheticObserverBuilder addObserver() {
-        SyntheticObserverBuilderImpl builder = new SyntheticObserverBuilderImpl(extensionClass);
+    public <T> SyntheticObserverBuilder<T> addObserver(Class<T> eventType) {
+        org.jboss.jandex.Type jandexType = TypesReflection.jandexType(eventType);
+        SyntheticObserverBuilderImpl<T> builder = new SyntheticObserverBuilderImpl<>(extensionClass, jandexType);
+        syntheticObservers.add(builder);
+        return builder;
+    }
+
+    @Override
+    public <T> SyntheticObserverBuilder<T> addObserver(Type eventType) {
+        org.jboss.jandex.Type jandexType = ((TypeImpl<?>) eventType).jandexType;
+        SyntheticObserverBuilderImpl<T> builder = new SyntheticObserverBuilderImpl<>(extensionClass, jandexType);
         syntheticObservers.add(builder);
         return builder;
     }

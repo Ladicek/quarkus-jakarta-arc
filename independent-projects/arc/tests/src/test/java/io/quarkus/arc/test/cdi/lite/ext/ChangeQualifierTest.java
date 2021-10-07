@@ -1,11 +1,11 @@
 package io.quarkus.arc.test.cdi.lite.ext;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.test.ArcTestContainer;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 import javax.enterprise.inject.build.compatible.spi.BeanInfo;
@@ -13,12 +13,10 @@ import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import javax.enterprise.inject.build.compatible.spi.ClassConfig;
 import javax.enterprise.inject.build.compatible.spi.Discovery;
 import javax.enterprise.inject.build.compatible.spi.Enhancement;
-import javax.enterprise.inject.build.compatible.spi.ExactType;
 import javax.enterprise.inject.build.compatible.spi.FieldConfig;
 import javax.enterprise.inject.build.compatible.spi.Messages;
-import javax.enterprise.inject.build.compatible.spi.Processing;
+import javax.enterprise.inject.build.compatible.spi.Registration;
 import javax.enterprise.inject.build.compatible.spi.ScannedClasses;
-import javax.enterprise.inject.build.compatible.spi.SubtypesOf;
 import javax.enterprise.inject.build.compatible.spi.Validation;
 import javax.enterprise.lang.model.declarations.ClassInfo;
 import javax.inject.Inject;
@@ -27,6 +25,7 @@ import javax.inject.Singleton;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+// TODO migrated to CDI TCK
 public class ChangeQualifierTest {
     @RegisterExtension
     public ArcTestContainer container = ArcTestContainer.builder()
@@ -53,40 +52,35 @@ public class ChangeQualifierTest {
             messages.info("discovery complete");
         }
 
-        @Enhancement
-        @ExactType(type = MyFooService.class, annotatedWith = Singleton.class)
+        @Enhancement(types = MyFooService.class)
         public void foo(ClassConfig clazz, Messages messages) {
-            messages.info("before enhancement: " + clazz.annotations(), clazz);
+            messages.info("before enhancement: " + clazz.info().annotations(), clazz.info());
             clazz.removeAnnotation(ann -> ann.name().equals(MyQualifier.class.getName()));
-            messages.info("after enhancement: " + clazz.annotations(), clazz);
+            messages.info("after enhancement: " + clazz.info().annotations(), clazz.info());
         }
 
-        @Enhancement
-        @ExactType(type = MyBarService.class, annotatedWith = Singleton.class)
+        @Enhancement(types = MyBarService.class)
         public void bar(ClassConfig clazz, Messages messages) {
-            messages.info("before enhancement: " + clazz.annotations(), clazz);
+            messages.info("before enhancement: " + clazz.info().annotations(), clazz.info());
             clazz.addAnnotation(MyQualifier.class);
-            messages.info("after enhancement: " + clazz.annotations(), clazz);
+            messages.info("after enhancement: " + clazz.info().annotations(), clazz.info());
         }
 
-        @Enhancement
-        @ExactType(type = MyServiceConsumer.class, annotatedWith = Inject.class)
+        @Enhancement(types = MyServiceConsumer.class)
         public void service(FieldConfig field, Messages messages) {
-            if ("myService".equals(field.name())) {
-                messages.info("before enhancement: " + field.annotations(), field);
+            if ("myService".equals(field.info().name())) {
+                messages.info("before enhancement: " + field.info().annotations(), field.info());
                 field.addAnnotation(MyQualifier.class);
-                messages.info("after enhancement: " + field.annotations(), field);
+                messages.info("after enhancement: " + field.info().annotations(), field.info());
             }
         }
 
-        @Enhancement
-        @SubtypesOf(type = MyService.class)
+        @Enhancement(types = MyService.class, withSubtypes = true)
         public void rememberClasses(ClassConfig clazz) {
-            classes.add(clazz);
+            classes.add(clazz.info());
         }
 
-        @Processing
-        @ExactType(type = MyService.class)
+        @Registration(types = MyService.class)
         public void rememberBeans(BeanInfo bean) {
             beans.add(bean);
         }
@@ -106,7 +100,7 @@ public class ChangeQualifierTest {
     // ---
 
     @Qualifier
-    @Retention(RUNTIME)
+    @Retention(RetentionPolicy.RUNTIME)
     @interface MyQualifier {
     }
 

@@ -7,11 +7,10 @@ import io.quarkus.arc.processor.BuildExtension.BuildContext;
 import io.quarkus.arc.processor.BuildExtension.Key;
 import io.quarkus.arc.processor.ResourceOutput.Resource;
 import io.quarkus.arc.processor.ResourceOutput.Resource.SpecialType;
-import io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtensions;
-import io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtEnhancementProcessor;
-import io.quarkus.arc.processor.cdi.lite.ext.CdiLiteExtProcessor;
+import io.quarkus.arc.processor.cdi.lite.ext.ExtensionsEntryPoint;
 import io.quarkus.gizmo.BytecodeCreator;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -81,21 +80,61 @@ public class BeanProcessor {
     // Such as java.lang.Deprecated 
     protected final Predicate<DotName> injectionPointAnnotationsPredicate;
 
-    private final CdiLiteExtensions cdiLiteExtensions;
+    private final ExtensionsEntryPoint cdiLiteExtensions;
 
     private BeanProcessor(Builder builder) {
         this.cdiLiteExtensions = builder.cdiLiteExtensions;
         if (cdiLiteExtensions != null) {
-            cdiLiteExtensions.initializeAnnotationTransformations(builder.beanArchiveIndex, builder);
-            cdiLiteExtensions.registerMetaAnnotations(builder.beanArchiveIndex, builder);
-            cdiLiteExtensions.runEnhancement(builder.beanArchiveIndex);
+            cdiLiteExtensions.registerMetaAnnotations(builder);
+
+            Set<DotName> beanDefiningAnnotations = new HashSet<>();
+            for (BuiltinScope builtinScope : BuiltinScope.values()) {
+                beanDefiningAnnotations.add(builtinScope.getName());
+            }
+            for (BeanDefiningAnnotation additionalBda : builder.additionalBeanDefiningAnnotations) {
+                beanDefiningAnnotations.add(additionalBda.getAnnotation());
+            }
+            for (AnnotationInstance annotation : builder.beanArchiveIndex.getAnnotations(DotNames.STEREOTYPE)) {
+                beanDefiningAnnotations.add(annotation.target().asClass().name());
+            }
+            for (StereotypeRegistrar registrar : builder.stereotypeRegistrars) {
+                beanDefiningAnnotations.addAll(registrar.getAdditionalStereotypes());
+            }
+            for (Collection<AnnotationInstance> annotations : builder.additionalStereotypes.values()) {
+                for (AnnotationInstance annotation : annotations) {
+                    beanDefiningAnnotations.add(annotation.target().asClass().name());
+                }
+            }
+            for (ContextRegistrar registrar : builder.contextRegistrars) {
+                registrar.register(new ContextRegistrar.RegistrationContext() {
+                    @Override
+                    public ContextConfigurator configure(Class<? extends Annotation> scopeAnnotation) {
+                        beanDefiningAnnotations.add(DotName.createSimple(scopeAnnotation.getName()));
+                        return new ContextConfigurator(scopeAnnotation, ignored -> {
+                        });
+                    }
+
+                    @Override
+                    public <V> V get(Key<V> key) {
+                        return null;
+                    }
+
+                    @Override
+                    public <V> V put(Key<V> key, V value) {
+                        return null;
+                    }
+                });
+            }
+
+            cdiLiteExtensions.runEnhancement(builder.beanArchiveIndex, beanDefiningAnnotations, builder);
         }
 
         this.reflectionRegistration = builder.reflectionRegistration;
         this.applicationClassPredicate = builder.applicationClassPredicate;
         this.name = builder.name;
         this.output = builder.output;
-        this.annotationLiterals = new AnnotationLiteralProcessor(builder.sharedAnnotationLiterals, applicationClassPredicate);
+        this.annotationLiterals = new AnnotationLiteralProcessor(builder.generateSources,
+                builder.sharedAnnotationLiterals, builder.beanArchiveIndex, applicationClassPredicate);
         this.generateSources = builder.generateSources;
         this.allowMocking = builder.allowMocking;
         this.transformUnproxyableClasses = builder.transformUnproxyableClasses;
@@ -193,7 +232,6 @@ public class BeanProcessor {
         ObserverGenerator observerGenerator = new ObserverGenerator(annotationLiterals, applicationClassPredicate,
                 privateMembers, generateSources, reflectionRegistration, existingClasses, observerToGeneratedName,
                 injectionPointAnnotationsPredicate, allowMocking);
-        AnnotationLiteralGenerator annotationLiteralsGenerator = new AnnotationLiteralGenerator(generateSources);
 
         List<Resource> resources = new ArrayList<>();
 
@@ -245,10 +283,7 @@ public class BeanProcessor {
                         observerToGeneratedName));
 
         // Generate AnnotationLiterals
-        if (annotationLiterals.hasLiteralsToGenerate()) {
-            resources.addAll(
-                    annotationLiteralsGenerator.generate(name, beanDeployment, annotationLiterals.getCache(), existingClasses));
-        }
+        resources.addAll(annotationLiterals.generate(existingClasses));
 
         if (output != null) {
             for (Resource resource : resources) {
@@ -325,7 +360,7 @@ public class BeanProcessor {
         AlternativePriorities alternativePriorities;
         final List<Predicate<ClassInfo>> excludeTypes;
 
-        CdiLiteExtensions cdiLiteExtensions;
+        ExtensionsEntryPoint cdiLiteExtensions;
 
         Predicate<DotName> applicationClassPredicate;
 
@@ -590,7 +625,7 @@ public class BeanProcessor {
             return this;
         }
 
-        public Builder setCdiLiteExtensions(CdiLiteExtensions cdiLiteExtensions) {
+        public Builder setCdiLiteExtensions(ExtensionsEntryPoint cdiLiteExtensions) {
             this.cdiLiteExtensions = cdiLiteExtensions;
             return this;
         }

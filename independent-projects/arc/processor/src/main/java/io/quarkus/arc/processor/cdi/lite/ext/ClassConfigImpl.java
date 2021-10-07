@@ -1,75 +1,53 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.List;
 import javax.enterprise.inject.build.compatible.spi.ClassConfig;
 import javax.enterprise.inject.build.compatible.spi.FieldConfig;
 import javax.enterprise.inject.build.compatible.spi.MethodConfig;
-import javax.enterprise.lang.model.AnnotationInfo;
+import javax.enterprise.lang.model.declarations.ClassInfo;
+import javax.enterprise.lang.model.declarations.FieldInfo;
+import javax.enterprise.lang.model.declarations.MethodInfo;
+import org.jboss.jandex.DotName;
 
-class ClassConfigImpl extends ClassInfoImpl implements ClassConfig<Object> {
-    private final AllAnnotationTransformations allTransformations;
-
-    private final AnnotationsTransformation.Classes transformations;
-
+class ClassConfigImpl extends DeclarationConfigImpl<DotName, org.jboss.jandex.ClassInfo, ClassConfigImpl>
+        implements ClassConfig {
     ClassConfigImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationTransformations allTransformations,
             org.jboss.jandex.ClassInfo jandexDeclaration) {
-        super(jandexIndex, allTransformations.annotationOverlays, jandexDeclaration);
-        this.allTransformations = allTransformations;
-        this.transformations = allTransformations.classes;
+        super(jandexIndex, allTransformations, allTransformations.classes, jandexDeclaration);
     }
 
     @Override
-    public Collection<? extends MethodConfig<Object>> constructors() {
-        return jandexDeclaration.methods()
-                .stream()
-                .filter(MethodPredicates.IS_CONSTRUCTOR_JANDEX)
-                .map(it -> new MethodConfigImpl(jandexIndex, allTransformations.methods, it))
-                .collect(Collectors.toList());
+    public ClassInfo info() {
+        return new ClassInfoImpl(jandexIndex, allTransformations.annotationOverlays, jandexDeclaration);
     }
 
     @Override
-    public Collection<? extends MethodConfig<Object>> methods() {
-        return jandexDeclaration.methods()
-                .stream()
-                .filter(MethodPredicates.IS_METHOD_JANDEX)
-                .map(it -> new MethodConfigImpl(jandexIndex, allTransformations.methods, it))
-                .collect(Collectors.toList());
+    public Collection<MethodConfig> constructors() {
+        List<MethodConfig> result = new ArrayList<>();
+        for (MethodInfo constructor : info().constructors()) {
+            result.add(new MethodConfigImpl(jandexIndex, allTransformations, ((MethodInfoImpl) constructor).jandexDeclaration));
+        }
+        return Collections.unmodifiableList(result);
     }
 
     @Override
-    public Collection<? extends FieldConfig<Object>> fields() {
-        return jandexDeclaration.fields()
-                .stream()
-                .map(it -> new FieldConfigImpl(jandexIndex, allTransformations.fields, it))
-                .collect(Collectors.toList());
+    public Collection<MethodConfig> methods() {
+        List<MethodConfig> result = new ArrayList<>();
+        for (MethodInfo method : info().methods()) {
+            result.add(new MethodConfigImpl(jandexIndex, allTransformations, ((MethodInfoImpl) method).jandexDeclaration));
+        }
+        return Collections.unmodifiableList(result);
     }
 
     @Override
-    public void addAnnotation(Class<? extends Annotation> annotationType) {
-        transformations.addAnnotation(jandexDeclaration, annotationType);
-    }
-
-    @Override
-    public void addAnnotation(AnnotationInfo annotation) {
-        transformations.addAnnotation(jandexDeclaration, annotation);
-    }
-
-    @Override
-    public void addAnnotation(Annotation annotation) {
-        transformations.addAnnotation(jandexDeclaration, annotation);
-    }
-
-    @Override
-    public void removeAnnotation(Predicate<AnnotationInfo> predicate) {
-        // TODO remove cast once AnnotationInfo is no longer parameterized
-        transformations.removeAnnotation(jandexDeclaration, (Predicate) predicate);
-    }
-
-    @Override
-    public void removeAllAnnotations() {
-        transformations.removeAllAnnotations(jandexDeclaration);
+    public Collection<FieldConfig> fields() {
+        List<FieldConfig> result = new ArrayList<>();
+        for (FieldInfo field : info().fields()) {
+            result.add(new FieldConfigImpl(jandexIndex, allTransformations, ((FieldInfoImpl) field).jandexDeclaration));
+        }
+        return Collections.unmodifiableList(result);
     }
 }

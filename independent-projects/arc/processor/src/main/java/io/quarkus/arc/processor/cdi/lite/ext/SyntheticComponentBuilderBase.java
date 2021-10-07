@@ -1,0 +1,125 @@
+package io.quarkus.arc.processor.cdi.lite.ext;
+
+import java.lang.annotation.Annotation;
+import java.util.HashMap;
+import java.util.Map;
+import javax.enterprise.lang.model.AnnotationInfo;
+import javax.enterprise.lang.model.declarations.ClassInfo;
+
+abstract class SyntheticComponentBuilderBase<THIS extends SyntheticComponentBuilderBase<THIS>> {
+    Map<String, Object> params = new HashMap<>();
+
+    abstract THIS self();
+
+    public THIS withParam(String key, boolean value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, boolean[] value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, int value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, int[] value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, long value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, long[] value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, double value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, double[] value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, String value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, String[] value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, Enum<?> value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, Enum<?>[] value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, Class<?> value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, ClassInfo value) {
+        params.put(key, ((ClassInfoImpl) value).jandexDeclaration);
+        return self();
+    }
+
+    public THIS withParam(String key, Class<?>[] value) {
+        params.put(key, value);
+        return self();
+    }
+
+    public THIS withParam(String key, ClassInfo[] value) {
+        org.jboss.jandex.ClassInfo[] jandexValues = new org.jboss.jandex.ClassInfo[value.length];
+        for (int i = 0; i < value.length; i++) {
+            jandexValues[i] = ((ClassInfoImpl) value[i]).jandexDeclaration;
+        }
+        params.put(key, jandexValues);
+        return self();
+    }
+
+    public THIS withParam(String key, AnnotationInfo value) {
+        params.put(key, ((AnnotationInfoImpl) value).jandexAnnotation);
+        return self();
+    }
+
+    public THIS withParam(String key, Annotation value) {
+        params.put(key, AnnotationsReflection.jandexAnnotation(value));
+        return self();
+    }
+
+    public THIS withParam(String key, AnnotationInfo[] value) {
+        org.jboss.jandex.AnnotationInstance[] jandexValues = new org.jboss.jandex.AnnotationInstance[value.length];
+        for (int i = 0; i < value.length; i++) {
+            jandexValues[i] = ((AnnotationInfoImpl) value[i]).jandexAnnotation;
+        }
+        params.put(key, jandexValues);
+        return self();
+    }
+
+    public THIS withParam(String key, Annotation[] value) {
+        org.jboss.jandex.AnnotationInstance[] jandexValues = new org.jboss.jandex.AnnotationInstance[value.length];
+        for (int i = 0; i < value.length; i++) {
+            jandexValues[i] = AnnotationsReflection.jandexAnnotation(value[i]);
+        }
+        params.put(key, jandexValues);
+        return self();
+    }
+}

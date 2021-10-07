@@ -107,7 +107,7 @@ public class ComponentsProviderGenerator extends AbstractGenerator {
                 // Create annotation literals first
                 ClassInfo bindingClass = beanDeployment.getInterceptorBinding(binding.name());
                 getComponents.invokeInterfaceMethod(MethodDescriptors.SET_ADD, bindingsHandle,
-                        annotationLiterals.process(getComponents, classOutput, bindingClass, binding,
+                        annotationLiterals.create(getComponents, classOutput, bindingClass, binding,
                                 SETUP_PACKAGE));
             }
             getComponents.invokeInterfaceMethod(MethodDescriptors.MAP_PUT, transitiveBindingsHandle,
@@ -469,7 +469,7 @@ public class ComponentsProviderGenerator extends AbstractGenerator {
                         if (sharedQualifier == null) {
                             // Create annotation literal first
                             ClassInfo qualifierClass = removedBean.getDeployment().getQualifier(qualifierAnnotation.name());
-                            ResultHandle qualifierHandle = annotationLiterals.process(addMethod, classOutput,
+                            ResultHandle qualifierHandle = annotationLiterals.create(addMethod, classOutput,
                                     qualifierClass, qualifierAnnotation,
                                     Types.getPackageName(componentsProvider.getClassName()));
                             addMethod.invokeInterfaceMethod(MethodDescriptors.SET_ADD, qualifiersHandle,

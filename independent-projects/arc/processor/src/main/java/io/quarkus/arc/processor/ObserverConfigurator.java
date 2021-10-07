@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import javax.enterprise.event.Reception;
 import javax.enterprise.event.TransactionPhase;
 import javax.enterprise.inject.spi.ObserverMethod;
 import org.jboss.jandex.AnnotationInstance;
@@ -22,7 +21,7 @@ import org.jboss.jandex.Type.Kind;
  * 
  * @see ObserverRegistrar
  */
-public final class ObserverConfigurator implements Consumer<AnnotationInstance> {
+public final class ObserverConfigurator extends ConfiguratorBase<ObserverConfigurator> implements Consumer<AnnotationInstance> {
 
     final Consumer<ObserverConfigurator> consumer;
     String id;
@@ -31,7 +30,6 @@ public final class ObserverConfigurator implements Consumer<AnnotationInstance> 
     final Set<AnnotationInstance> observedQualifiers;
     int priority;
     boolean isAsync;
-    Reception reception;
     TransactionPhase transactionPhase;
     Consumer<MethodCreator> notifyConsumer;
 
@@ -40,8 +38,12 @@ public final class ObserverConfigurator implements Consumer<AnnotationInstance> 
         this.observedQualifiers = new HashSet<>();
         this.priority = ObserverMethod.DEFAULT_PRIORITY;
         this.isAsync = false;
-        this.reception = Reception.ALWAYS;
         this.transactionPhase = TransactionPhase.IN_PROGRESS;
+    }
+
+    @Override
+    protected ObserverConfigurator self() {
+        return this;
     }
 
     /**
@@ -100,11 +102,6 @@ public final class ObserverConfigurator implements Consumer<AnnotationInstance> 
 
     public ObserverConfigurator async(boolean value) {
         this.isAsync = value;
-        return this;
-    }
-
-    public ObserverConfigurator reception(Reception reception) {
-        this.reception = reception;
         return this;
     }
 

@@ -6,9 +6,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.enterprise.lang.model.AnnotationInfo;
 import javax.enterprise.lang.model.declarations.DeclarationInfo;
+import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.DotName;
 
-// TODO all *Info subclasses have equals/hashCode, but *Config do not, and that's probably correct?
 abstract class DeclarationInfoImpl<JandexDeclaration extends org.jboss.jandex.AnnotationTarget> implements DeclarationInfo {
     final org.jboss.jandex.IndexView jandexIndex;
     final AllAnnotationOverlays annotationOverlays;
@@ -30,8 +30,7 @@ abstract class DeclarationInfoImpl<JandexDeclaration extends org.jboss.jandex.An
             case METHOD:
                 return new MethodInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration.asMethod());
             case METHOD_PARAMETER:
-                return new ParameterInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration.asMethodParameter().method(),
-                        jandexDeclaration.asMethodParameter().position());
+                return new ParameterInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration.asMethodParameter());
             case FIELD:
                 return new FieldInfoImpl(jandexIndex, annotationOverlays, jandexDeclaration.asField());
             default:
@@ -41,42 +40,48 @@ abstract class DeclarationInfoImpl<JandexDeclaration extends org.jboss.jandex.An
 
     @Override
     public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
-        return annotationsOverlay().hasAnnotation(jandexDeclaration, DotName.createSimple(annotationType.getName()));
+        return annotationsOverlay().hasAnnotation(jandexDeclaration, DotName.createSimple(annotationType.getName()),
+                jandexIndex);
     }
 
     @Override
-    public boolean hasAnnotation(Predicate<AnnotationInfo<?>> predicate) {
-        return annotationsOverlay().getAnnotations(jandexDeclaration).annotations()
+    public boolean hasAnnotation(Predicate<AnnotationInfo> predicate) {
+        return annotationsOverlay().getAnnotations(jandexDeclaration, jandexIndex).annotations()
                 .stream()
-                .anyMatch(it -> predicate.test(new AnnotationInfoImpl<>(jandexIndex, annotationOverlays, it)));
+                .anyMatch(it -> predicate.test(new AnnotationInfoImpl(jandexIndex, annotationOverlays, it)));
     }
 
     @Override
-    public <T extends Annotation> AnnotationInfo<T> annotation(Class<T> annotationType) {
-        return new AnnotationInfoImpl<T>(jandexIndex, annotationOverlays,
-                annotationsOverlay().getAnnotations(jandexDeclaration).annotation(annotationType));
+    public <T extends Annotation> AnnotationInfo annotation(Class<T> annotationType) {
+        org.jboss.jandex.AnnotationInstance jandexAnnotation = annotationsOverlay().getAnnotations(
+                jandexDeclaration, jandexIndex).annotation(annotationType);
+        if (jandexAnnotation == null) {
+            return null;
+        }
+        return new AnnotationInfoImpl(jandexIndex, annotationOverlays, jandexAnnotation);
     }
 
     @Override
-    public <T extends Annotation> Collection<AnnotationInfo<T>> repeatableAnnotation(Class<T> annotationType) {
-        return annotationsOverlay().getAnnotations(jandexDeclaration).annotationsWithRepeatable(annotationType, jandexIndex)
+    public <T extends Annotation> Collection<AnnotationInfo> repeatableAnnotation(Class<T> annotationType) {
+        return annotationsOverlay().getAnnotations(jandexDeclaration, jandexIndex)
+                .annotationsWithRepeatable(annotationType, jandexIndex)
                 .stream()
-                .map(it -> new AnnotationInfoImpl<T>(jandexIndex, annotationOverlays, it))
-                .collect(Collectors.toList());
+                .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
-    public Collection<AnnotationInfo<?>> annotations(Predicate<AnnotationInfo<?>> predicate) {
-        return annotationsOverlay().getAnnotations(jandexDeclaration)
+    public Collection<AnnotationInfo> annotations(Predicate<AnnotationInfo> predicate) {
+        return annotationsOverlay().getAnnotations(jandexDeclaration, jandexIndex)
                 .annotations()
                 .stream()
-                .map(it -> new AnnotationInfoImpl<>(jandexIndex, annotationOverlays, it))
+                .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
                 .filter(predicate)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
-    public Collection<AnnotationInfo<?>> annotations() {
+    public Collection<AnnotationInfo> annotations() {
         return annotations(it -> true);
     }
 

@@ -1,19 +1,23 @@
 package io.quarkus.arc.test.cdi.lite.ext;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.test.ArcTestContainer;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 import javax.enterprise.event.Event;
-import javax.enterprise.inject.build.compatible.spi.AnnotationBuilder;
 import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
+import javax.enterprise.inject.build.compatible.spi.Messages;
+import javax.enterprise.inject.build.compatible.spi.ObserverInfo;
+import javax.enterprise.inject.build.compatible.spi.Parameters;
+import javax.enterprise.inject.build.compatible.spi.Registration;
 import javax.enterprise.inject.build.compatible.spi.Synthesis;
 import javax.enterprise.inject.build.compatible.spi.SyntheticComponents;
 import javax.enterprise.inject.build.compatible.spi.SyntheticObserver;
+import javax.enterprise.inject.build.compatible.spi.Validation;
 import javax.enterprise.inject.spi.EventContext;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
@@ -21,6 +25,7 @@ import javax.inject.Singleton;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+// TODO migrated to CDI TCK
 public class SyntheticObserverTest {
     @RegisterExtension
     public ArcTestContainer container = ArcTestContainer.builder()
@@ -33,41 +38,47 @@ public class SyntheticObserverTest {
         MyService myService = Arc.container().select(MyService.class).get();
         myService.fireEvent();
 
-        // expects 3 items:
-        // - Hello World: unqualified event observed by unqualified observer
-        // - Hello @MyQualifier SynObserver: qualified event observed by qualified observer
-        // - Hello @MyQualifier SynObserver: qualified event observed by unqualified observer
-        assertEquals(3, MyObserver.observed.size());
+        List<String> expected = List.of(
+                "Hello World with null", // unqualified event observed by unqualified observer
+                "Hello SynObserver with null", // qualified event observed by unqualified observer
+                "Hello SynObserver with @MyQualifier" // qualified event observed by qualified observer
+        );
+        assertIterableEquals(expected, MyObserver.observed);
     }
 
     public static class MyExtension implements BuildCompatibleExtension {
+        private final List<ObserverInfo> observers = new ArrayList<>();
+
+        @Registration(types = MyEvent.class)
+        public void rememberObservers(ObserverInfo observer) {
+            observers.add(observer);
+        }
+
         @Synthesis
         public void synthesise(SyntheticComponents syn) {
-            syn.addObserver()
-                    .type(MyEvent.class)
+            syn.addObserver(MyEvent.class)
+                    .priority(10)
                     .observeWith(MyObserver.class);
 
-            syn.addObserver()
-                    .type(MyEvent.class)
-                    .qualifier(AnnotationBuilder.of(MyQualifier.class).build())
+            syn.addObserver(MyEvent.class)
+                    .qualifier(MyQualifier.class)
+                    .priority(20)
+                    .withParam("name", "@MyQualifier")
                     .observeWith(MyObserver.class);
         }
 
-        // TODO uncomment and rewrite when @Processing is applied for synthetic beans
-/*
         @Validation
-        public void validate(AppDeployment deployment, Messages messages) {
-            deployment.observers().forEach(observer -> {
-                messages.info("observer has type " + observer.observedType(), observer);
-            });
+        public void validate(Messages messages) {
+            for (ObserverInfo observer : observers) {
+                messages.info("observer has type " + observer.eventType(), observer);
+            }
         }
-*/
     }
 
     // ---
 
     @Qualifier
-    @Retention(RUNTIME)
+    @Retention(RetentionPolicy.RUNTIME)
     @interface MyQualifier {
     }
 
@@ -90,7 +101,7 @@ public class SyntheticObserverTest {
 
         void fireEvent() {
             unqualifiedEvent.fire(new MyEvent("Hello World"));
-            qualifiedEvent.fire(new MyEvent("Hello @MyQualifier SynObserver"));
+            qualifiedEvent.fire(new MyEvent("Hello SynObserver"));
         }
     }
 
@@ -98,11 +109,8 @@ public class SyntheticObserverTest {
         static final List<String> observed = new ArrayList<>();
 
         @Override
-        public void observe(EventContext<MyEvent> event) {
-            String payload = event.getEvent().payload;
-
-            System.out.println("observed " + payload);
-            observed.add(payload);
+        public void observe(EventContext<MyEvent> event, Parameters params) throws Exception {
+            observed.add(event.getEvent().payload + " with " + params.get("name", String.class));
         }
     }
 }

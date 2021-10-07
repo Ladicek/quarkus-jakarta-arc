@@ -11,7 +11,7 @@ class ClassTypeImpl extends TypeImpl<org.jboss.jandex.ClassType> implements Clas
     }
 
     @Override
-    public ClassInfo<?> declaration() {
+    public ClassInfo declaration() {
         DotName name = jandexType.name();
         return new ClassInfoImpl(jandexIndex, annotationOverlays, jandexIndex.getClassByName(name));
     }

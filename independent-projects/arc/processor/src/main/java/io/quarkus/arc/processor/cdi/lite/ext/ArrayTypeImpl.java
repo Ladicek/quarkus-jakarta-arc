@@ -10,12 +10,15 @@ class ArrayTypeImpl extends TypeImpl<org.jboss.jandex.ArrayType> implements Arra
     }
 
     @Override
-    public int dimensions() {
-        return jandexType.dimensions();
-    }
-
-    @Override
     public Type componentType() {
-        return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, jandexType.component());
+        int dimensions = jandexType.dimensions();
+        if (dimensions < 1) {
+            throw new IllegalStateException("Invalid array type: " + jandexType);
+        }
+
+        org.jboss.jandex.Type componentType = dimensions == 1
+                ? jandexType.component()
+                : org.jboss.jandex.ArrayType.create(jandexType.component(), dimensions - 1);
+        return TypeImpl.fromJandexType(jandexIndex, annotationOverlays, componentType);
     }
 }

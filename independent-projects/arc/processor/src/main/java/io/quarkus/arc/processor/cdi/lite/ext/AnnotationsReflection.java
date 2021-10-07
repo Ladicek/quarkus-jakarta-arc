@@ -12,16 +12,16 @@ import org.jboss.jandex.DotName;
 
 class AnnotationsReflection {
     static org.jboss.jandex.AnnotationInstance jandexAnnotation(Annotation annotation) {
-        Class<? extends Annotation> annotationType = findAnnotationType(annotation);
+        Class<? extends Annotation> annotationType = annotationType(annotation);
 
         DotName name = DotName.createSimple(annotationType.getName());
-        org.jboss.jandex.AnnotationValue[] jandexAnnotationAttributes = jandexAnnotationAttributes(
+        org.jboss.jandex.AnnotationValue[] jandexAnnotationValues = jandexAnnotationValues(
                 (Class<Annotation>) annotationType, annotation);
 
-        return org.jboss.jandex.AnnotationInstance.create(name, null, jandexAnnotationAttributes);
+        return org.jboss.jandex.AnnotationInstance.create(name, null, jandexAnnotationValues);
     }
 
-    private static Class<? extends Annotation> findAnnotationType(Annotation annotation) {
+    private static Class<? extends Annotation> annotationType(Annotation annotation) {
         Class<? extends Annotation> annotationType = null;
 
         Queue<Class<?>> candidates = new ArrayDeque<>();
@@ -44,12 +44,13 @@ class AnnotationsReflection {
         return annotationType;
     }
 
-    private static <A extends Annotation> org.jboss.jandex.AnnotationValue[] jandexAnnotationAttributes(Class<A> type,
-            A value) {
+    private static <A extends Annotation> org.jboss.jandex.AnnotationValue[] jandexAnnotationValues(
+            Class<A> annotationType, A annotationInstance) {
         List<org.jboss.jandex.AnnotationValue> result = new ArrayList<>();
-        for (Method attribute : type.getDeclaredMethods()) {
+        for (Method member : annotationType.getDeclaredMethods()) {
             try {
-                result.add(jandexAnnotationValue(attribute.getName(), attribute.invoke(value)));
+                member.setAccessible(true); // TODO ???
+                result.add(jandexAnnotationValue(member.getName(), member.invoke(annotationInstance)));
             } catch (ReflectiveOperationException e) {
                 throw new RuntimeException(e);
             }
@@ -81,20 +82,84 @@ class AnnotationsReflection {
                     DotName.createSimple(((Enum<?>) value).getDeclaringClass().getName()), ((Enum<?>) value).name());
         } else if (value instanceof Class) {
             return org.jboss.jandex.AnnotationValue.createClassValue(name, TypesReflection.jandexType((Class<?>) value));
+        } else if (value.getClass().isAnnotation()) {
+            Class<? extends Annotation> annotationType = annotationType((Annotation) value);
+            org.jboss.jandex.AnnotationValue[] jandexAnnotationValues = jandexAnnotationValues(
+                    (Class<Annotation>) annotationType, (Annotation) value);
+            org.jboss.jandex.AnnotationInstance jandexAnnotation = org.jboss.jandex.AnnotationInstance.create(
+                    DotName.createSimple(annotationType.getName()), null, jandexAnnotationValues);
+            return org.jboss.jandex.AnnotationValue.createNestedAnnotationValue(name, jandexAnnotation);
         } else if (value.getClass().isArray()) {
-            org.jboss.jandex.AnnotationValue[] jandexAnnotationValues = Arrays.stream((Object[]) value)
+            org.jboss.jandex.AnnotationValue[] jandexAnnotationValues = Arrays.stream(boxArray(value))
                     .map(it -> jandexAnnotationValue(name, it))
                     .toArray(org.jboss.jandex.AnnotationValue[]::new);
             return org.jboss.jandex.AnnotationValue.createArrayValue(name, jandexAnnotationValues);
-        } else if (value.getClass().isAnnotation()) {
-            Class<? extends Annotation> annotationType = findAnnotationType((Annotation) value);
-            org.jboss.jandex.AnnotationValue[] jandexAnnotationValues = jandexAnnotationAttributes(
-                    (Class<Annotation>) annotationType, (Annotation) value);
-            org.jboss.jandex.AnnotationInstance jandexAnnotationInstance = org.jboss.jandex.AnnotationInstance.create(
-                    DotName.createSimple(annotationType.getName()), null, jandexAnnotationValues);
-            return org.jboss.jandex.AnnotationValue.createNestedAnnotationValue(name, jandexAnnotationInstance);
         } else {
             throw new IllegalArgumentException("Unknown annotation attribute value: " + value);
+        }
+    }
+
+    private static Object[] boxArray(Object value) {
+        if (value instanceof boolean[]) {
+            boolean[] primitiveArray = (boolean[]) value;
+            Object[] boxedArray = new Boolean[primitiveArray.length];
+            for (int i = 0; i < primitiveArray.length; i++) {
+                boxedArray[i] = primitiveArray[i];
+            }
+            return boxedArray;
+        } else if (value instanceof byte[]) {
+            byte[] primitiveArray = (byte[]) value;
+            Object[] boxedArray = new Byte[primitiveArray.length];
+            for (int i = 0; i < primitiveArray.length; i++) {
+                boxedArray[i] = primitiveArray[i];
+            }
+            return boxedArray;
+        } else if (value instanceof short[]) {
+            short[] primitiveArray = (short[]) value;
+            Object[] boxedArray = new Short[primitiveArray.length];
+            for (int i = 0; i < primitiveArray.length; i++) {
+                boxedArray[i] = primitiveArray[i];
+            }
+            return boxedArray;
+        } else if (value instanceof int[]) {
+            int[] primitiveArray = (int[]) value;
+            Object[] boxedArray = new Integer[primitiveArray.length];
+            for (int i = 0; i < primitiveArray.length; i++) {
+                boxedArray[i] = primitiveArray[i];
+            }
+            return boxedArray;
+        } else if (value instanceof long[]) {
+            long[] primitiveArray = (long[]) value;
+            Object[] boxedArray = new Long[primitiveArray.length];
+            for (int i = 0; i < primitiveArray.length; i++) {
+                boxedArray[i] = primitiveArray[i];
+            }
+            return boxedArray;
+        } else if (value instanceof float[]) {
+            float[] primitiveArray = (float[]) value;
+            Object[] boxedArray = new Float[primitiveArray.length];
+            for (int i = 0; i < primitiveArray.length; i++) {
+                boxedArray[i] = primitiveArray[i];
+            }
+            return boxedArray;
+        } else if (value instanceof double[]) {
+            double[] primitiveArray = (double[]) value;
+            Object[] boxedArray = new Double[primitiveArray.length];
+            for (int i = 0; i < primitiveArray.length; i++) {
+                boxedArray[i] = primitiveArray[i];
+            }
+            return boxedArray;
+        } else if (value instanceof char[]) {
+            char[] primitiveArray = (char[]) value;
+            Object[] boxedArray = new Character[primitiveArray.length];
+            for (int i = 0; i < primitiveArray.length; i++) {
+                boxedArray[i] = primitiveArray[i];
+            }
+            return boxedArray;
+        } else if (value instanceof Object[]) {
+            return (Object[]) value;
+        } else {
+            throw new IllegalArgumentException("Not an array: " + value);
         }
     }
 }

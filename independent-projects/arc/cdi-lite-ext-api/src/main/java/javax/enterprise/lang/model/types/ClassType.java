@@ -3,7 +3,7 @@ package javax.enterprise.lang.model.types;
 import javax.enterprise.lang.model.declarations.ClassInfo;
 
 /**
- * A class type, including interface types, enum types and annotation types.
+ * A class type, including interface types, enum types, annotation types and record types.
  * Class types are introduced by class {@linkplain #declaration() declarations}.
  *
  * @since 4.0

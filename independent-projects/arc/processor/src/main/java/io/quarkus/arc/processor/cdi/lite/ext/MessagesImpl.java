@@ -25,12 +25,12 @@ class MessagesImpl implements Messages {
     }
 
     @Override
-    public void info(String message, BeanInfo<?> relatedTo) {
+    public void info(String message, BeanInfo relatedTo) {
         System.out.println("[INFO] " + message + " at " + relatedTo);
     }
 
     @Override
-    public void info(String message, ObserverInfo<?> relatedTo) {
+    public void info(String message, ObserverInfo relatedTo) {
         System.out.println("[INFO] " + message + " at " + relatedTo);
     }
 
@@ -45,12 +45,12 @@ class MessagesImpl implements Messages {
     }
 
     @Override
-    public void warn(String message, BeanInfo<?> relatedTo) {
+    public void warn(String message, BeanInfo relatedTo) {
         System.out.println("[WARN] " + message + " at " + relatedTo);
     }
 
     @Override
-    public void warn(String message, ObserverInfo<?> relatedTo) {
+    public void warn(String message, ObserverInfo relatedTo) {
         System.out.println("[WARN] " + message + " at " + relatedTo);
     }
 
@@ -67,13 +67,13 @@ class MessagesImpl implements Messages {
     }
 
     @Override
-    public void error(String message, BeanInfo<?> relatedTo) {
+    public void error(String message, BeanInfo relatedTo) {
         System.out.println("[ERROR] " + message + " at " + relatedTo);
         errors.add(new DeploymentException(message + " at " + relatedTo));
     }
 
     @Override
-    public void error(String message, ObserverInfo<?> relatedTo) {
+    public void error(String message, ObserverInfo relatedTo) {
         System.out.println("[ERROR] " + message + " at " + relatedTo);
         errors.add(new DeploymentException(message + " at " + relatedTo));
     }

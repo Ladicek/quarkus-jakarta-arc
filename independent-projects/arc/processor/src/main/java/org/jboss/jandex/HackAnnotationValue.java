@@ -18,7 +18,7 @@ public class HackAnnotationValue extends AnnotationValue {
         return delegate.kind();
     }
 
-    // this is package-private in Jandex
+    // make org.jboss.jandex.AnnotationValue.asArray() public?
     public AnnotationValue[] asArray() {
         return delegate.asArray();
     }

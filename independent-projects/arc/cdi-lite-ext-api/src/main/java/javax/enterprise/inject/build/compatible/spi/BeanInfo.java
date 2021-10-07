@@ -46,7 +46,6 @@ public interface BeanInfo {
      *
      * @return immutable collection of qualifiers, never {@code null}
      */
-    // TODO method(s) for getting AnnotationInfo for given qualifier class?
     Collection<AnnotationInfo> qualifiers();
 
     /**
@@ -82,7 +81,7 @@ public interface BeanInfo {
 
     /**
      * Returns whether this bean is synthetic. In other words, whether this bean
-     * doesn't correspond to a declaration in program source code and was created
+     * does not correspond to a declaration in program source code and was created
      * through other means (e.g. using an extension).
      *
      * @return whether this bean is synthetic
@@ -91,17 +90,17 @@ public interface BeanInfo {
 
     /**
      * Returns the producer {@linkplain MethodInfo method} that defines this bean.
-     * Returns {@code null} if this bean isn't defined by a producer method.
+     * Returns {@code null} if this bean is not defined by a producer method.
      *
-     * @return producer method that defines this bean, or {@code null} if this bean isn't defined by a producer method
+     * @return producer method that defines this bean, or {@code null} if this bean is not defined by a producer method
      */
     MethodInfo producerMethod();
 
     /**
      * Returns the producer {@linkplain FieldInfo field} that defines this bean.
-     * Returns {@code null} if this bean isn't defined by a producer field.
+     * Returns {@code null} if this bean is not defined by a producer field.
      *
-     * @return producer field that defines this bean, or {@code null} if this bean isn't defined by a producer field
+     * @return producer field that defines this bean, or {@code null} if this bean is not defined by a producer field
      */
     FieldInfo producerField();
 
@@ -113,30 +112,29 @@ public interface BeanInfo {
     boolean isAlternative();
 
     /**
-     * Returns the {@linkplain jakarta.annotation.Priority priority} of this alternative bean.
-     * If this bean is not an alternative, the return value is undefined.
+     * Returns the {@linkplain jakarta.annotation.Priority priority} declared on this bean, or {@code null}
+     * if this bean does not declare a priority. Declaring a priority on an alternative bean makes it an enabled
+     * alternative. Similarly, declaring a priority on an interceptor makes it an enabled interceptor.
      *
-     * @return the priority of this alternative bean
-     * @see #isAlternative()
+     * @return the priority of this bean, or {@code null} if this bean does not declare a priority
      */
-    // TODO maybe specify that if this bean is not an alternative, this returns 0?
-    int priority();
+    Integer priority();
 
     /**
      * Returns the bean name of this bean. A bean name is usually defined
      * using the {@link jakarta.inject.Named @Named} annotation.
-     * Returns {@code null} if the bean doesn't have a name.
+     * Returns {@code null} if the bean does not have a name.
      *
-     * @return the bean name, or {@code null} if the bean doesn't have a name
+     * @return the bean name, or {@code null} if the bean does not have a name
      */
-    String getName();
+    String name();
 
     /**
      * Returns the {@linkplain DisposerInfo disposer} method of this producer-based bean.
      * Returns {@code null} if this bean is not a defined by a producer method or a producer field,
-     * or if this producer-based bean doesn't have a corresponding disposer method.
+     * or if this producer-based bean does not have a corresponding disposer method.
      *
-     * @return the {@linkplain DisposerInfo disposer}, or {@code null} if this bean doesn't have a disposer
+     * @return the {@linkplain DisposerInfo disposer}, or {@code null} if this bean does not have a disposer
      */
     DisposerInfo disposer();
 
@@ -147,12 +145,31 @@ public interface BeanInfo {
      */
     Collection<StereotypeInfo> stereotypes();
 
-    // TODO interceptors?
-
     /**
      * Returns a collection of this bean's {@linkplain InjectionPointInfo injection points}.
      *
      * @return immutable collection of injection points, never {@code null}
      */
     Collection<InjectionPointInfo> injectionPoints();
+
+    // ---
+
+    /**
+     * Returns whether this bean is an interceptor.
+     *
+     * @return whether this bean is an interceptor
+     */
+    default boolean isInterceptor() {
+        return false;
+    }
+
+    /**
+     * Returns this bean as an {@linkplain InterceptorInfo interceptor}.
+     *
+     * @return this interceptor, never {@code null}
+     * @throws IllegalStateException if {@link #isInterceptor()} returns {@code false}
+     */
+    default InterceptorInfo asInterceptor() {
+        throw new IllegalStateException("Not an interceptor");
+    }
 }

@@ -5,26 +5,25 @@ package javax.enterprise.lang.model.types;
  * <ul>
  * <li>{@code ? extends Number}: has an upper bound</li>
  * <li>{@code ? super Number}: has a lower bound</li>
- * <li>{@code ?}: unbounded, has neither upper bound nor lower bound</li>
+ * <li>{@code ?}: unbounded, has an implicit upper bound of {@code java.lang.Object}</li>
  * </ul>
- * Note that {@code ? extends Object} is equivalent to {@code ?} and is represented as such.
+ * Note that {@code ?} is equivalent to {@code ? extends Object} and is represented as such.
+ * Therefore, either {@link #upperBound()} or {@link #lowerBound()} always returns non-{@code null}.
  */
-// TODO another option is that unbounded wildcards and wildcards with lower bound would always have
-//  java.lang.Object as an upper bound
 public interface WildcardType extends Type {
     /**
      * Returns the upper bound of this wildcard type.
-     * Returns {@code null} if this wildcard type doesn't have an upper bound.
+     * Returns {@code null} if this wildcard type does not have an upper bound.
      *
-     * @return upper bound of this wildcard type, or {@code null} if this wildcard type doesn't have an upper bound
+     * @return upper bound of this wildcard type, or {@code null} if this wildcard type does not have an upper bound
      */
     Type upperBound();
 
     /**
      * Returns the lower bound of this wildcard type.
-     * Returns {@code null} if this wildcard type doesn't have a lower bound.
+     * Returns {@code null} if this wildcard type does not have a lower bound.
      *
-     * @return lower bound of this wildcard type, or {@code null} if this wildcard type doesn't have a lower bound
+     * @return lower bound of this wildcard type, or {@code null} if this wildcard type does not have a lower bound
      */
     Type lowerBound();
 

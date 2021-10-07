@@ -2,59 +2,81 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.enterprise.lang.model.AnnotationInfo;
 import javax.enterprise.lang.model.declarations.PackageInfo;
+import org.jboss.jandex.AnnotationInstance;
 
 class PackageInfoImpl implements PackageInfo {
-    private final String name;
+    final org.jboss.jandex.IndexView jandexIndex;
+    final AllAnnotationOverlays annotationOverlays;
+    final org.jboss.jandex.ClassInfo jandexDeclaration; // package-info.class
 
-    PackageInfoImpl(String name) {
-        this.name = name;
+    private AnnotationSet annotationSet;
+
+    PackageInfoImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,
+            org.jboss.jandex.ClassInfo jandexDeclaration) {
+        this.jandexIndex = jandexIndex;
+        this.annotationOverlays = annotationOverlays;
+        this.jandexDeclaration = jandexDeclaration;
     }
 
     @Override
     public String name() {
-        return name;
+        return jandexDeclaration.name().packagePrefix();
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
+    private AnnotationSet annotationSet() {
+        if (annotationSet == null) {
+            annotationSet = new AnnotationSet(jandexDeclaration.classAnnotations());
+        }
 
-    // TODO Jandex doesn't capture package annotations
+        return annotationSet;
+    }
 
     @Override
     public boolean hasAnnotation(Class<? extends Annotation> annotationType) {
-        return false;
+        return annotationSet().hasAnnotation(annotationType);
     }
 
     @Override
-    public boolean hasAnnotation(Predicate<AnnotationInfo<?>> predicate) {
-        return false;
+    public boolean hasAnnotation(Predicate<AnnotationInfo> predicate) {
+        return annotationSet().annotations()
+                .stream()
+                .anyMatch(it -> predicate.test(new AnnotationInfoImpl(jandexIndex, annotationOverlays, it)));
     }
 
     @Override
-    public <T extends Annotation> AnnotationInfo<T> annotation(Class<T> annotationType) {
-        return null;
+    public <T extends Annotation> AnnotationInfo annotation(Class<T> annotationType) {
+        org.jboss.jandex.AnnotationInstance jandexAnnotation = annotationSet().annotation(annotationType);
+        if (jandexAnnotation == null) {
+            return null;
+        }
+        return new AnnotationInfoImpl(jandexIndex, annotationOverlays, jandexAnnotation);
     }
 
     @Override
-    public <T extends Annotation> Collection<AnnotationInfo<T>> repeatableAnnotation(Class<T> annotationType) {
-        return Collections.emptyList();
+    public <T extends Annotation> Collection<AnnotationInfo> repeatableAnnotation(Class<T> annotationType) {
+        return annotationSet().annotationsWithRepeatable(annotationType, jandexIndex)
+                .stream()
+                .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
-    public Collection<AnnotationInfo<?>> annotations(Predicate<AnnotationInfo<?>> predicate) {
-        return Collections.emptyList();
+    public Collection<AnnotationInfo> annotations(Predicate<AnnotationInfo> predicate) {
+        return annotationSet().annotations()
+                .stream()
+                .map(it -> new AnnotationInfoImpl(jandexIndex, annotationOverlays, it))
+                .filter(predicate)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
-    public Collection<AnnotationInfo<?>> annotations() {
-        return Collections.emptyList();
+    public Collection<AnnotationInfo> annotations() {
+        return annotations(it -> true);
     }
 
     @Override
@@ -64,11 +86,11 @@ class PackageInfoImpl implements PackageInfo {
         if (o == null || getClass() != o.getClass())
             return false;
         PackageInfoImpl that = (PackageInfoImpl) o;
-        return Objects.equals(name, that.name);
+        return Objects.equals(jandexDeclaration.name(), that.jandexDeclaration.name());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Objects.hash(jandexDeclaration.name());
     }
 }

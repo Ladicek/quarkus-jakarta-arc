@@ -1,17 +1,32 @@
 package javax.enterprise.inject.build.compatible.spi;
 
-import java.util.Map;
-import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.Instance;
 
 /**
- * Implementations must be {@code public} classes with a {@code public} zero-parameter constructor.
+ * Destruction function for a synthetic bean defined by {@link SyntheticBeanBuilder}.
+ * CDI container will create an instance of the destruction function every time when it needs
+ * to destroy an instance of the synthetic bean. Implementations must be {@code public}
+ * classes with a {@code public} zero-parameter constructor; they must not be beans.
  *
- * @param <T> type of disposed instances
+ * @param <T> the bean class of the synthetic bean
  * @since 4.0
  */
 public interface SyntheticBeanDisposer<T> {
-    // TODO maybe a more high-level API that takes an Instance?
-    //  compare with BeanConfigurator.destroyWith and BeanConfigurator.disposeWith
-
-    void dispose(T instance, CreationalContext<T> creationalContext, Map<String, Object> params);
+    /**
+     * Destroys an instance of the synthetic bean.
+     * <p>
+     * The {@link Instance} parameter may be used to simulate disposer method parameter injection.
+     * All {@code @Dependent} bean instances obtained from the {@code Instance} during execution
+     * are destroyed when execution completes.
+     * <p>
+     * Trying to look up {@code InjectionPoint} from the {@code Instance} parameter is invalid.
+     * <p>
+     * The parameter map contains the same values that were passed to the {@link SyntheticBeanBuilder}
+     * that defined the synthetic bean.
+     *
+     * @param instance the synthetic bean instance, never {@code null}
+     * @param lookup an {@link Instance} that can be used to lookup other beans, never {@code null}
+     * @param params the parameter map, never {@code null}
+     */
+    void dispose(T instance, Instance<Object> lookup, Parameters params);
 }

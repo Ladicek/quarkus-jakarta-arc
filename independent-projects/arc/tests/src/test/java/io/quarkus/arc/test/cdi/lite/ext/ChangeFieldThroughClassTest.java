@@ -1,22 +1,22 @@
 package io.quarkus.arc.test.cdi.lite.ext;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.test.ArcTestContainer;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import javax.enterprise.inject.build.compatible.spi.AnnotationBuilder;
 import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import javax.enterprise.inject.build.compatible.spi.ClassConfig;
 import javax.enterprise.inject.build.compatible.spi.Enhancement;
-import javax.enterprise.inject.build.compatible.spi.ExactType;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 import javax.inject.Singleton;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+// TODO migrated to CDI TCK
 public class ChangeFieldThroughClassTest {
     @RegisterExtension
     public ArcTestContainer container = ArcTestContainer.builder()
@@ -31,12 +31,11 @@ public class ChangeFieldThroughClassTest {
     }
 
     public static class MyExtension implements BuildCompatibleExtension {
-        @Enhancement
-        @ExactType(type = MyServiceConsumer.class, annotatedWith = Singleton.class)
-        public void service(ClassConfig<?> clazz) {
+        @Enhancement(types = MyServiceConsumer.class)
+        public void service(ClassConfig clazz) {
             clazz.fields()
                     .stream()
-                    .filter(it -> "myService".equals(it.name()))
+                    .filter(it -> "myService".equals(it.info().name()))
                     .forEach(field -> field.addAnnotation(AnnotationBuilder.of(MyQualifier.class).build()));
         }
     }
@@ -44,7 +43,7 @@ public class ChangeFieldThroughClassTest {
     // ---
 
     @Qualifier
-    @Retention(RUNTIME)
+    @Retention(RetentionPolicy.RUNTIME)
     @interface MyQualifier {
     }
 

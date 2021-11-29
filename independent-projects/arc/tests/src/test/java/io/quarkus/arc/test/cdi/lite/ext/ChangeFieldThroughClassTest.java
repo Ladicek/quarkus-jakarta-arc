@@ -4,15 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.test.ArcTestContainer;
+import jakarta.enterprise.inject.build.compatible.spi.AnnotationBuilder;
+import jakarta.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
+import jakarta.enterprise.inject.build.compatible.spi.ClassConfig;
+import jakarta.enterprise.inject.build.compatible.spi.Enhancement;
+import jakarta.inject.Inject;
+import jakarta.inject.Qualifier;
+import jakarta.inject.Singleton;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import javax.enterprise.inject.build.compatible.spi.AnnotationBuilder;
-import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
-import javax.enterprise.inject.build.compatible.spi.ClassConfig;
-import javax.enterprise.inject.build.compatible.spi.Enhancement;
-import javax.inject.Inject;
-import javax.inject.Qualifier;
-import javax.inject.Singleton;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

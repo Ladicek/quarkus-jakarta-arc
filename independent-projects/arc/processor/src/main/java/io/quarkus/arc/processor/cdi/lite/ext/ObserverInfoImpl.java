@@ -1,16 +1,16 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.event.Reception;
+import jakarta.enterprise.event.TransactionPhase;
+import jakarta.enterprise.inject.build.compatible.spi.BeanInfo;
+import jakarta.enterprise.inject.build.compatible.spi.ObserverInfo;
+import jakarta.enterprise.lang.model.AnnotationInfo;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
+import jakarta.enterprise.lang.model.declarations.ParameterInfo;
+import jakarta.enterprise.lang.model.types.Type;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import javax.enterprise.event.Reception;
-import javax.enterprise.event.TransactionPhase;
-import javax.enterprise.inject.build.compatible.spi.BeanInfo;
-import javax.enterprise.inject.build.compatible.spi.ObserverInfo;
-import javax.enterprise.lang.model.AnnotationInfo;
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.declarations.MethodInfo;
-import javax.enterprise.lang.model.declarations.ParameterInfo;
-import javax.enterprise.lang.model.types.Type;
 
 class ObserverInfoImpl implements ObserverInfo {
     private final org.jboss.jandex.IndexView jandexIndex;

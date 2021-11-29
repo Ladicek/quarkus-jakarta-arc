@@ -1,9 +1,9 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
+import jakarta.enterprise.lang.model.declarations.ParameterInfo;
+import jakarta.enterprise.lang.model.types.Type;
 import java.util.Objects;
-import javax.enterprise.lang.model.declarations.MethodInfo;
-import javax.enterprise.lang.model.declarations.ParameterInfo;
-import javax.enterprise.lang.model.types.Type;
 
 class ParameterInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.MethodParameterInfo> implements ParameterInfo {
     // only for equals/hashCode

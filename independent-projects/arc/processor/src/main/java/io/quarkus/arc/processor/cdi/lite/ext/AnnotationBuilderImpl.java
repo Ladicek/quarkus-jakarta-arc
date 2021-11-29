@@ -1,15 +1,15 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.AnnotationBuilder;
+import jakarta.enterprise.lang.model.AnnotationInfo;
+import jakarta.enterprise.lang.model.AnnotationMember;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.types.ArrayType;
+import jakarta.enterprise.lang.model.types.Type;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.enterprise.inject.build.compatible.spi.AnnotationBuilder;
-import javax.enterprise.lang.model.AnnotationInfo;
-import javax.enterprise.lang.model.AnnotationMember;
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.types.ArrayType;
-import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
 class AnnotationBuilderImpl implements AnnotationBuilder {

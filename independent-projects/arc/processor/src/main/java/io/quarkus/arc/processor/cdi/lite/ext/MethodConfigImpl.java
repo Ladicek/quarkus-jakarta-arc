@@ -1,11 +1,11 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.MethodConfig;
+import jakarta.enterprise.inject.build.compatible.spi.ParameterConfig;
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.enterprise.inject.build.compatible.spi.MethodConfig;
-import javax.enterprise.inject.build.compatible.spi.ParameterConfig;
-import javax.enterprise.lang.model.declarations.MethodInfo;
 
 class MethodConfigImpl
         extends DeclarationConfigImpl<AnnotationsOverlay.Methods.Key, org.jboss.jandex.MethodInfo, MethodConfigImpl>

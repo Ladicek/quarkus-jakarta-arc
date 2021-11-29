@@ -1,5 +1,12 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.declarations.FieldInfo;
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
+import jakarta.enterprise.lang.model.declarations.PackageInfo;
+import jakarta.enterprise.lang.model.declarations.RecordComponentInfo;
+import jakarta.enterprise.lang.model.types.Type;
+import jakarta.enterprise.lang.model.types.TypeVariable;
 import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -12,13 +19,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.declarations.FieldInfo;
-import javax.enterprise.lang.model.declarations.MethodInfo;
-import javax.enterprise.lang.model.declarations.PackageInfo;
-import javax.enterprise.lang.model.declarations.RecordComponentInfo;
-import javax.enterprise.lang.model.types.Type;
-import javax.enterprise.lang.model.types.TypeVariable;
 import org.jboss.jandex.DotName;
 
 class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> implements ClassInfo {

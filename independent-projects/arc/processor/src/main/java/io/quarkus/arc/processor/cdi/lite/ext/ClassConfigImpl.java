@@ -1,15 +1,15 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.ClassConfig;
+import jakarta.enterprise.inject.build.compatible.spi.FieldConfig;
+import jakarta.enterprise.inject.build.compatible.spi.MethodConfig;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.declarations.FieldInfo;
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import javax.enterprise.inject.build.compatible.spi.ClassConfig;
-import javax.enterprise.inject.build.compatible.spi.FieldConfig;
-import javax.enterprise.inject.build.compatible.spi.MethodConfig;
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.declarations.FieldInfo;
-import javax.enterprise.lang.model.declarations.MethodInfo;
 import org.jboss.jandex.DotName;
 
 class ClassConfigImpl extends DeclarationConfigImpl<DotName, org.jboss.jandex.ClassInfo, ClassConfigImpl>

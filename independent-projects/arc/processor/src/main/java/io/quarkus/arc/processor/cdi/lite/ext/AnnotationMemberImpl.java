@@ -1,13 +1,13 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.lang.model.AnnotationInfo;
+import jakarta.enterprise.lang.model.AnnotationMember;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.types.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.enterprise.lang.model.AnnotationInfo;
-import javax.enterprise.lang.model.AnnotationMember;
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.types.Type;
 
 class AnnotationMemberImpl implements AnnotationMember {
     final org.jboss.jandex.IndexView jandexIndex;

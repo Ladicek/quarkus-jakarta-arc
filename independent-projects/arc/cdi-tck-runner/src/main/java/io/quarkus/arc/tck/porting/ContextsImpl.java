@@ -1,6 +1,6 @@
 package io.quarkus.arc.tck.porting;
 
-import javax.enterprise.context.spi.Context;
+import jakarta.enterprise.context.spi.Context;
 import org.jboss.cdi.tck.spi.Contexts;
 
 public class ContextsImpl implements Contexts<Context> {

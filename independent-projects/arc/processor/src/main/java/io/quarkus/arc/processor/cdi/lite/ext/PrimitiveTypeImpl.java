@@ -1,6 +1,6 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import javax.enterprise.lang.model.types.PrimitiveType;
+import jakarta.enterprise.lang.model.types.PrimitiveType;
 
 class PrimitiveTypeImpl extends TypeImpl<org.jboss.jandex.PrimitiveType> implements PrimitiveType {
     PrimitiveTypeImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,

@@ -1,7 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import javax.enterprise.inject.build.compatible.spi.FieldConfig;
-import javax.enterprise.lang.model.declarations.FieldInfo;
+import jakarta.enterprise.inject.build.compatible.spi.FieldConfig;
+import jakarta.enterprise.lang.model.declarations.FieldInfo;
 
 class FieldConfigImpl extends DeclarationConfigImpl<AnnotationsOverlay.Fields.Key, org.jboss.jandex.FieldInfo, FieldConfigImpl>
         implements FieldConfig {

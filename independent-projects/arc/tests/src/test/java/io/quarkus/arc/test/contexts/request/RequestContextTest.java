@@ -10,8 +10,8 @@ import io.quarkus.arc.Arc;
 import io.quarkus.arc.ArcContainer;
 import io.quarkus.arc.ManagedContext;
 import io.quarkus.arc.test.ArcTestContainer;
-import javax.enterprise.context.ContextNotActiveException;
-import javax.enterprise.context.control.RequestContextController;
+import jakarta.enterprise.context.ContextNotActiveException;
+import jakarta.enterprise.context.control.RequestContextController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

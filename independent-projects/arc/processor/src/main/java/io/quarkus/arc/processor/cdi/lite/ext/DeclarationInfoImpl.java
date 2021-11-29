@@ -1,11 +1,11 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.lang.model.AnnotationInfo;
+import jakarta.enterprise.lang.model.declarations.DeclarationInfo;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.enterprise.lang.model.AnnotationInfo;
-import javax.enterprise.lang.model.declarations.DeclarationInfo;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.DotName;
 

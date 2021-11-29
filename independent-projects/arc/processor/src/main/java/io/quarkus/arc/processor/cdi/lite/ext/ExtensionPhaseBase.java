@@ -1,9 +1,9 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.spi.DefinitionException;
+import jakarta.enterprise.inject.spi.DeploymentException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.enterprise.inject.spi.DefinitionException;
-import javax.enterprise.inject.spi.DeploymentException;
 
 abstract class ExtensionPhaseBase {
     private final ExtensionPhase phase;

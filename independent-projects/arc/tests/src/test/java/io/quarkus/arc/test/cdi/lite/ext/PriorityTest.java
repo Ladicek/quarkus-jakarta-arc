@@ -2,17 +2,17 @@ package io.quarkus.arc.test.cdi.lite.ext;
 
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
-import cdi.lite.Priority;
 import io.quarkus.arc.test.ArcTestContainer;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.inject.build.compatible.spi.BeanInfo;
+import jakarta.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
+import jakarta.enterprise.inject.build.compatible.spi.ClassConfig;
+import jakarta.enterprise.inject.build.compatible.spi.Discovery;
+import jakarta.enterprise.inject.build.compatible.spi.Enhancement;
+import jakarta.enterprise.inject.build.compatible.spi.Registration;
+import jakarta.enterprise.inject.build.compatible.spi.Validation;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
-import javax.enterprise.inject.build.compatible.spi.BeanInfo;
-import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
-import javax.enterprise.inject.build.compatible.spi.ClassConfig;
-import javax.enterprise.inject.build.compatible.spi.Discovery;
-import javax.enterprise.inject.build.compatible.spi.Enhancement;
-import javax.enterprise.inject.build.compatible.spi.Registration;
-import javax.enterprise.inject.build.compatible.spi.Validation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

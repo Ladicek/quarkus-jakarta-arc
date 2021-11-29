@@ -1,10 +1,10 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanBuilder;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticComponents;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticObserverBuilder;
+import jakarta.enterprise.lang.model.types.Type;
 import java.util.List;
-import javax.enterprise.inject.build.compatible.spi.SyntheticBeanBuilder;
-import javax.enterprise.inject.build.compatible.spi.SyntheticComponents;
-import javax.enterprise.inject.build.compatible.spi.SyntheticObserverBuilder;
-import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
 class SyntheticComponentsImpl implements SyntheticComponents {

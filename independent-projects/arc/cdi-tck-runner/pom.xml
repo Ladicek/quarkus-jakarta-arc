@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>jakarta.enterprise</groupId>
-            <artifactId>cdi-tck-impl</artifactId>
+            <artifactId>cdi-tck-core-impl</artifactId>
             <version>${version.cdi-tck}</version>
             <scope>test</scope>
         </dependency>
@@ -50,7 +50,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <dependenciesToScan>
-                        <dependency>jakarta.enterprise:cdi-tck-impl</dependency>
+                        <dependency>jakarta.enterprise:cdi-tck-core-impl</dependency>
                     </dependenciesToScan>
                     <reuseForks>false</reuseForks>
                 </configuration>

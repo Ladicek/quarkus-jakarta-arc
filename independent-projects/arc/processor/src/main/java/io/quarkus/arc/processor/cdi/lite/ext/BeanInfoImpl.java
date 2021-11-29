@@ -1,17 +1,17 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.BeanInfo;
+import jakarta.enterprise.inject.build.compatible.spi.DisposerInfo;
+import jakarta.enterprise.inject.build.compatible.spi.InjectionPointInfo;
+import jakarta.enterprise.inject.build.compatible.spi.ScopeInfo;
+import jakarta.enterprise.inject.build.compatible.spi.StereotypeInfo;
+import jakarta.enterprise.lang.model.AnnotationInfo;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.declarations.FieldInfo;
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
+import jakarta.enterprise.lang.model.types.Type;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import javax.enterprise.inject.build.compatible.spi.BeanInfo;
-import javax.enterprise.inject.build.compatible.spi.DisposerInfo;
-import javax.enterprise.inject.build.compatible.spi.InjectionPointInfo;
-import javax.enterprise.inject.build.compatible.spi.ScopeInfo;
-import javax.enterprise.inject.build.compatible.spi.StereotypeInfo;
-import javax.enterprise.lang.model.AnnotationInfo;
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.declarations.FieldInfo;
-import javax.enterprise.lang.model.declarations.MethodInfo;
-import javax.enterprise.lang.model.types.Type;
 
 class BeanInfoImpl implements BeanInfo {
     final org.jboss.jandex.IndexView jandexIndex;

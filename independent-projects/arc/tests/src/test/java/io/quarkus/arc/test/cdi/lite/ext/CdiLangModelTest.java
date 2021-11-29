@@ -1,11 +1,11 @@
 package io.quarkus.arc.test.cdi.lite.ext;
 
 import io.quarkus.arc.test.ArcTestContainer;
+import jakarta.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
+import jakarta.enterprise.inject.build.compatible.spi.Enhancement;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
-import javax.enterprise.inject.build.compatible.spi.Enhancement;
-import javax.enterprise.lang.model.declarations.ClassInfo;
 import org.jboss.cdi.lang.model.tck.LangModelVerifier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

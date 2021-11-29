@@ -1,7 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.ScannedClasses;
 import java.util.Set;
-import javax.enterprise.inject.build.compatible.spi.ScannedClasses;
 
 class ScannedClassesImpl implements ScannedClasses {
     private final Set<String> classes;

@@ -1,7 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import javax.enterprise.inject.build.compatible.spi.ScopeInfo;
-import javax.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.inject.build.compatible.spi.ScopeInfo;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
 
 class ScopeInfoImpl implements ScopeInfo {
     private final org.jboss.jandex.IndexView jandexIndex;

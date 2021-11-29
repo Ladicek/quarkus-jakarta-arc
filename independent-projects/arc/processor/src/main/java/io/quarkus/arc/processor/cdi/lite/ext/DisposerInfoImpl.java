@@ -1,8 +1,8 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import javax.enterprise.inject.build.compatible.spi.DisposerInfo;
-import javax.enterprise.lang.model.declarations.MethodInfo;
-import javax.enterprise.lang.model.declarations.ParameterInfo;
+import jakarta.enterprise.inject.build.compatible.spi.DisposerInfo;
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
+import jakarta.enterprise.lang.model.declarations.ParameterInfo;
 
 class DisposerInfoImpl implements DisposerInfo {
     private final org.jboss.jandex.IndexView jandexIndex;

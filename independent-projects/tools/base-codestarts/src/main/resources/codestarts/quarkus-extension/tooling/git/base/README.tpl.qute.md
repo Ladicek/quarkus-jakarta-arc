@@ -1,3 +1,0 @@
-# {namespace.name}{extension.name}
-
-This is a Quarkus Extension for ...

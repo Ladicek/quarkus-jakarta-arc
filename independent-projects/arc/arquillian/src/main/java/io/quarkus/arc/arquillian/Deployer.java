@@ -144,7 +144,7 @@ final class Deployer {
                                 resource.writeTo(deploymentDir.generatedServiceProviders.toFile());
                                 break;
                             default:
-                                throw new IllegalArgumentException();
+                                throw new IllegalArgumentException("Unknown resource type " + resource.getType());
                         }
                     })
                     .build();

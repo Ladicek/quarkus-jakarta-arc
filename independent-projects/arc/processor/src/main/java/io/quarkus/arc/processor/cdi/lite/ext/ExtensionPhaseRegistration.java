@@ -1,10 +1,13 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.inject.build.compatible.spi.BeanInfo;
@@ -106,11 +109,45 @@ class ExtensionPhaseRegistration extends ExtensionPhaseBase {
 
     private List<ObserverInfo> matchingObservers(org.jboss.jandex.MethodInfo jandexMethod) {
         Set<DotName> expectedTypes = expectedTypes(jandexMethod);
-        // TODO observed event type may be a _subtype_ of an expected type!
         return allObservers.stream()
-                .filter(it -> expectedTypes.contains(it.getObservedType().name()))
+                .filter(it -> observedTypeMatches(it.getObservedType(), expectedTypes))
                 .map(it -> new ObserverInfoImpl(index, annotationOverlays, it))
                 .collect(Collectors.toUnmodifiableList());
+    }
+
+    private boolean observedTypeMatches(org.jboss.jandex.Type observedType, Set<DotName> expectedTypes) {
+        // TODO maybe replace with AssignabilityCheck?
+
+        // an interface may be inherited multiple times, but we only want to process it once
+        Set<DotName> alreadyProcessed = new HashSet<>();
+        Queue<org.jboss.jandex.Type> workQueue = new ArrayDeque<>();
+        workQueue.add(observedType);
+        while (!workQueue.isEmpty()) {
+            org.jboss.jandex.Type type = workQueue.remove();
+            if (alreadyProcessed.contains(type.name())) {
+                continue;
+            }
+            alreadyProcessed.add(type.name());
+
+            if (expectedTypes.contains(type.name())) {
+                return true;
+            }
+
+            if (DotNames.OBJECT.equals(type.name())) {
+                continue;
+            }
+
+            if (type.kind() == org.jboss.jandex.Type.Kind.CLASS) {
+                org.jboss.jandex.ClassInfo clazz = index.getClassByName(type.name());
+                if (clazz == null) {
+                    continue;
+                }
+
+                workQueue.add(clazz.superClassType());
+                workQueue.addAll(clazz.interfaceTypes());
+            }
+        }
+        return false;
     }
 
     @Override

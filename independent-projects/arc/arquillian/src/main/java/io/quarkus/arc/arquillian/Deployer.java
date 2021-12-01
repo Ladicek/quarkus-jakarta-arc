@@ -2,6 +2,7 @@ package io.quarkus.arc.arquillian;
 
 import io.quarkus.arc.processor.AnnotationsTransformer;
 import io.quarkus.arc.processor.BeanArchives;
+import io.quarkus.arc.processor.BeanDefiningAnnotation;
 import io.quarkus.arc.processor.BeanProcessor;
 import io.quarkus.arc.processor.cdi.lite.ext.ExtensionsEntryPoint;
 import java.io.Closeable;
@@ -16,7 +17,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.enterprise.context.Dependent;
 import org.jboss.arquillian.container.spi.client.container.DeploymentException;
 import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.CompositeIndex;
@@ -120,9 +120,9 @@ final class Deployer {
                     .setBeanArchiveIndex(BeanArchives.buildBeanArchiveIndex(Thread.currentThread().getContextClassLoader(),
                             new ConcurrentHashMap<>(), beanArchiveIndex))
                     .setCdiLiteExtensions(cdiLiteExtensions)
+                    .setAdditionalBeanDefiningAnnotations(Set.of(new BeanDefiningAnnotation(
+                            DotName.createSimple(ExtraBean.class.getName()), null)))
                     .addAnnotationTransformer(new AnnotationsTransformer() {
-                        // make the test class a bean
-
                         @Override
                         public boolean appliesTo(AnnotationTarget.Kind kind) {
                             return kind == AnnotationTarget.Kind.CLASS;
@@ -131,7 +131,12 @@ final class Deployer {
                         @Override
                         public void transform(TransformationContext ctx) {
                             if (ctx.getTarget().asClass().name().toString().equals(testClass.getName())) {
-                                ctx.transform().add(Dependent.class).done();
+                                // make the test class a bean
+                                ctx.transform().add(ExtraBean.class).done();
+                            }
+                            if (additionalClasses.contains(ctx.getTarget().asClass().name().toString())) {
+                                // make all the `@Discovery`-registered classes beans
+                                ctx.transform().add(ExtraBean.class).done();
                             }
                         }
                     })

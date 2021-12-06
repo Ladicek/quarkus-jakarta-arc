@@ -161,8 +161,7 @@ public class ExtensionsEntryPoint {
     /**
      * Must be called <i>after</i> {@code registerMetaAnnotations} and <i>before</i> {@code runRegistration}.
      */
-    public void runEnhancement(org.jboss.jandex.IndexView beanArchiveIndex, Set<DotName> beanDefiningAnnotations,
-            BeanProcessor.Builder builder) {
+    public void runEnhancement(org.jboss.jandex.IndexView beanArchiveIndex, BeanProcessor.Builder builder) {
         AllAnnotationTransformations annotationTransformations = new AllAnnotationTransformations(beanArchiveIndex,
                 annotationOverlays);
         builder.addAnnotationTransformer(annotationTransformations.classes);
@@ -173,8 +172,7 @@ public class ExtensionsEntryPoint {
         BuildServicesImpl.init(beanArchiveIndex, annotationOverlays);
 
         try {
-            new ExtensionPhaseEnhancement(invoker, beanArchiveIndex, messages, beanDefiningAnnotations,
-                    annotationTransformations).run();
+            new ExtensionPhaseEnhancement(invoker, beanArchiveIndex, messages, annotationTransformations).run();
         } finally {
             annotationTransformations.freeze();
         }

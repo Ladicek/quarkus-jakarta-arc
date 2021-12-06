@@ -63,6 +63,4 @@ class DotNames {
     static final DotName SCANNED_CLASSES = DotName.createSimple(ScannedClasses.class.getName());
     static final DotName SYNTHETIC_COMPONENTS = DotName.createSimple(SyntheticComponents.class.getName());
     static final DotName TYPES = DotName.createSimple(Types.class.getName());
-
-    static final DotName BEAN_DEFINING_ANNOTATIONS = DotName.createSimple(Enhancement.BeanDefiningAnnotations.class.getName());
 }

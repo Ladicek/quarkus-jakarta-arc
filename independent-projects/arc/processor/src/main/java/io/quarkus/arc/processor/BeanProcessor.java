@@ -10,7 +10,6 @@ import io.quarkus.arc.processor.ResourceOutput.Resource.SpecialType;
 import io.quarkus.arc.processor.cdi.lite.ext.ExtensionsEntryPoint;
 import io.quarkus.gizmo.BytecodeCreator;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -86,47 +85,7 @@ public class BeanProcessor {
         this.cdiLiteExtensions = builder.cdiLiteExtensions;
         if (cdiLiteExtensions != null) {
             cdiLiteExtensions.registerMetaAnnotations(builder);
-
-            Set<DotName> beanDefiningAnnotations = new HashSet<>();
-            for (BuiltinScope builtinScope : BuiltinScope.values()) {
-                beanDefiningAnnotations.add(builtinScope.getName());
-            }
-            for (BeanDefiningAnnotation additionalBda : builder.additionalBeanDefiningAnnotations) {
-                beanDefiningAnnotations.add(additionalBda.getAnnotation());
-            }
-            for (AnnotationInstance annotation : builder.beanArchiveIndex.getAnnotations(DotNames.STEREOTYPE)) {
-                beanDefiningAnnotations.add(annotation.target().asClass().name());
-            }
-            for (StereotypeRegistrar registrar : builder.stereotypeRegistrars) {
-                beanDefiningAnnotations.addAll(registrar.getAdditionalStereotypes());
-            }
-            for (Collection<AnnotationInstance> annotations : builder.additionalStereotypes.values()) {
-                for (AnnotationInstance annotation : annotations) {
-                    beanDefiningAnnotations.add(annotation.target().asClass().name());
-                }
-            }
-            for (ContextRegistrar registrar : builder.contextRegistrars) {
-                registrar.register(new ContextRegistrar.RegistrationContext() {
-                    @Override
-                    public ContextConfigurator configure(Class<? extends Annotation> scopeAnnotation) {
-                        beanDefiningAnnotations.add(DotName.createSimple(scopeAnnotation.getName()));
-                        return new ContextConfigurator(scopeAnnotation, ignored -> {
-                        });
-                    }
-
-                    @Override
-                    public <V> V get(Key<V> key) {
-                        return null;
-                    }
-
-                    @Override
-                    public <V> V put(Key<V> key, V value) {
-                        return null;
-                    }
-                });
-            }
-
-            cdiLiteExtensions.runEnhancement(builder.beanArchiveIndex, beanDefiningAnnotations, builder);
+            cdiLiteExtensions.runEnhancement(builder.beanArchiveIndex, builder);
         }
 
         this.reflectionRegistration = builder.reflectionRegistration;

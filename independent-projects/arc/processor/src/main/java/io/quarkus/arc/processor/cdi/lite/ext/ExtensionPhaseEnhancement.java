@@ -14,14 +14,12 @@ import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
 
 class ExtensionPhaseEnhancement extends ExtensionPhaseBase {
-    private final Set<DotName> beanDefiningAnnotations;
     private final AllAnnotationOverlays annotationOverlays;
     private final AllAnnotationTransformations annotationTransformations;
 
     ExtensionPhaseEnhancement(ExtensionInvoker invoker, IndexView beanArchiveIndex, MessagesImpl messages,
-            Set<DotName> beanDefiningAnnotations, AllAnnotationTransformations annotationTransformations) {
+            AllAnnotationTransformations annotationTransformations) {
         super(ExtensionPhase.ENHANCEMENT, invoker, beanArchiveIndex, messages);
-        this.beanDefiningAnnotations = beanDefiningAnnotations;
         this.annotationOverlays = annotationTransformations.annotationOverlays;
         this.annotationTransformations = annotationTransformations;
     }
@@ -135,11 +133,6 @@ class ExtensionPhaseEnhancement extends ExtensionPhaseBase {
 
         if (withAnnotations.isEmpty() || withAnnotations.contains(DotNames.ANNOTATION)) {
             return Collections.unmodifiableList(result);
-        }
-
-        if (withAnnotations.contains(DotNames.BEAN_DEFINING_ANNOTATIONS)) {
-            withAnnotations.remove(DotNames.BEAN_DEFINING_ANNOTATIONS);
-            withAnnotations.addAll(beanDefiningAnnotations);
         }
 
         List<ClassInfo> filteredResult = new ArrayList<>();

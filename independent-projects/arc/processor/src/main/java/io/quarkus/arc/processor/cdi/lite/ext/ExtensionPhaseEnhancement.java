@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.enterprise.inject.spi.DefinitionException;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
@@ -42,12 +43,12 @@ class ExtensionPhaseEnhancement extends ExtensionPhaseBase {
         }
 
         if (numQueryParameters == 0) {
-            throw new IllegalArgumentException("No parameter of type ClassInfo, MethodInfo, FieldInfo, "
+            throw new DefinitionException("No parameter of type ClassInfo, MethodInfo, FieldInfo, "
                     + "ClassConfig, MethodConfig, or FieldConfig for method " + method + " @ " + method.declaringClass());
         }
 
         if (numQueryParameters > 1) {
-            throw new IllegalArgumentException("More than 1 parameter of type ClassInfo, MethodInfo, FieldInfo, "
+            throw new DefinitionException("More than 1 parameter of type ClassInfo, MethodInfo, FieldInfo, "
                     + "ClassConfig, MethodConfig, or FieldConfig for method " + method + " @ " + method.declaringClass());
         }
 

@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.inject.build.compatible.spi.BeanInfo;
 import javax.enterprise.inject.build.compatible.spi.ObserverInfo;
+import javax.enterprise.inject.spi.DefinitionException;
 import org.jboss.jandex.DotName;
 
 class ExtensionPhaseRegistration extends ExtensionPhaseBase {
@@ -45,12 +46,12 @@ class ExtensionPhaseRegistration extends ExtensionPhaseBase {
         }
 
         if (numQueryParameters == 0) {
-            throw new IllegalArgumentException("No parameter of type BeanInfo or ObserverInfo"
+            throw new DefinitionException("No parameter of type BeanInfo or ObserverInfo"
                     + " for method " + method + " @ " + method.declaringClass());
         }
 
         if (numQueryParameters > 1) {
-            throw new IllegalArgumentException("More than 1 parameter of type BeanInfo or ObserverInfo"
+            throw new DefinitionException("More than 1 parameter of type BeanInfo or ObserverInfo"
                     + " for method " + method + " @ " + method.declaringClass());
         }
 

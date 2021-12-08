@@ -2,6 +2,8 @@ package io.quarkus.arc.processor.cdi.lite.ext;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.enterprise.inject.spi.DefinitionException;
+import javax.enterprise.inject.spi.DeploymentException;
 
 abstract class ExtensionPhaseBase {
     private final ExtensionPhase phase;
@@ -26,9 +28,11 @@ abstract class ExtensionPhaseBase {
             for (org.jboss.jandex.MethodInfo method : extensionMethods) {
                 runExtensionMethod(method);
             }
+        } catch (DefinitionException | DeploymentException e) {
+            throw e;
         } catch (Exception e) {
             // TODO proper diagnostics system
-            throw new RuntimeException(e);
+            throw new DeploymentException(e);
         }
     }
 

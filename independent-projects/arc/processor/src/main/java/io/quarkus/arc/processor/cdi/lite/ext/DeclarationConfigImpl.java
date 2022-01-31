@@ -1,9 +1,9 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.DeclarationConfig;
+import jakarta.enterprise.lang.model.AnnotationInfo;
 import java.lang.annotation.Annotation;
 import java.util.function.Predicate;
-import javax.enterprise.inject.build.compatible.spi.DeclarationConfig;
-import javax.enterprise.lang.model.AnnotationInfo;
 
 abstract class DeclarationConfigImpl<Key, JandexDeclaration extends org.jboss.jandex.AnnotationTarget, THIS extends DeclarationConfigImpl<Key, JandexDeclaration, THIS>>
         implements DeclarationConfig {

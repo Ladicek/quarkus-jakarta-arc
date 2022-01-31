@@ -48,20 +48,20 @@ public class ArcInjectionEnricher implements TestEnricher {
         return result;
     }
 
-/*
-     private static Annotation[] getQualifiers(Parameter parameter) {
-         return Arrays.stream(parameter.getAnnotations())
-             .filter(ArcInjectionEnricher::isQualifier)
-             .toArray(Annotation[]::new);
-     }
-
-     private static boolean isQualifier(Annotation annotation) {
-         for (Annotation metaAnnotation : annotation.annotationType().getAnnotations()) {
-             if ("javax.inject.Qualifier".equals(metaAnnotation.annotationType().getName()))
-                 return true;
-             }
-         }
-         return false;
-     }
-*/
+    /*
+     * private static Annotation[] getQualifiers(Parameter parameter) {
+     * return Arrays.stream(parameter.getAnnotations())
+     * .filter(ArcInjectionEnricher::isQualifier)
+     * .toArray(Annotation[]::new);
+     * }
+     * 
+     * private static boolean isQualifier(Annotation annotation) {
+     * for (Annotation metaAnnotation : annotation.annotationType().getAnnotations()) {
+     * if ("javax.inject.Qualifier".equals(metaAnnotation.annotationType().getName()))
+     * return true;
+     * }
+     * }
+     * return false;
+     * }
+     */
 }

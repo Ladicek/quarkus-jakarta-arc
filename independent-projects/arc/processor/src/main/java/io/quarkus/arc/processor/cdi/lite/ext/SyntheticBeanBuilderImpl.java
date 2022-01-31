@@ -1,14 +1,14 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanBuilder;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticBeanDisposer;
+import jakarta.enterprise.lang.model.AnnotationInfo;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.types.Type;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
-import javax.enterprise.inject.build.compatible.spi.SyntheticBeanBuilder;
-import javax.enterprise.inject.build.compatible.spi.SyntheticBeanCreator;
-import javax.enterprise.inject.build.compatible.spi.SyntheticBeanDisposer;
-import javax.enterprise.lang.model.AnnotationInfo;
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
 class SyntheticBeanBuilderImpl<T> extends SyntheticComponentBuilderBase<SyntheticBeanBuilderImpl<T>>

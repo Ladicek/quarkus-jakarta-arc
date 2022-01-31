@@ -1,15 +1,15 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.Types;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.types.ArrayType;
+import jakarta.enterprise.lang.model.types.ClassType;
+import jakarta.enterprise.lang.model.types.ParameterizedType;
+import jakarta.enterprise.lang.model.types.PrimitiveType;
+import jakarta.enterprise.lang.model.types.Type;
+import jakarta.enterprise.lang.model.types.VoidType;
+import jakarta.enterprise.lang.model.types.WildcardType;
 import java.util.Arrays;
-import javax.enterprise.inject.build.compatible.spi.Types;
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.types.ArrayType;
-import javax.enterprise.lang.model.types.ClassType;
-import javax.enterprise.lang.model.types.ParameterizedType;
-import javax.enterprise.lang.model.types.PrimitiveType;
-import javax.enterprise.lang.model.types.Type;
-import javax.enterprise.lang.model.types.VoidType;
-import javax.enterprise.lang.model.types.WildcardType;
 import org.jboss.jandex.DotName;
 
 class TypesImpl implements Types {

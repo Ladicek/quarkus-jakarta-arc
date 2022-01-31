@@ -14,6 +14,7 @@ import io.quarkus.gizmo.FieldDescriptor;
 import io.quarkus.gizmo.MethodCreator;
 import io.quarkus.gizmo.MethodDescriptor;
 import io.quarkus.gizmo.ResultHandle;
+import jakarta.enterprise.util.AnnotationLiteral;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
-import javax.enterprise.util.AnnotationLiteral;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationValue;
 import org.jboss.jandex.ArrayType;
@@ -248,8 +248,8 @@ public class AnnotationLiteralProcessor extends AbstractGenerator {
     }
 
     private static String annotationLiteralClassSignature(AnnotationLiteralClassData literal) {
-        // Ljavax/enterprise/util/AnnotationLiteral<Lcom/foo/MyQualifier;>;Lcom/foo/MyQualifier;
-        return String.format("Ljavax/enterprise/util/AnnotationLiteral<L%1$s;>;L%1$s;",
+        // Ljakarta/enterprise/util/AnnotationLiteral<Lcom/foo/MyQualifier;>;Lcom/foo/MyQualifier;
+        return String.format("Ljakarta/enterprise/util/AnnotationLiteral<L%1$s;>;L%1$s;",
                 literal.annotationClass.name().toString().replace('.', '/'));
     }
 

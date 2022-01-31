@@ -1,12 +1,12 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.BeanInfo;
+import jakarta.enterprise.inject.build.compatible.spi.Messages;
+import jakarta.enterprise.inject.build.compatible.spi.ObserverInfo;
+import jakarta.enterprise.inject.spi.DeploymentException;
+import jakarta.enterprise.lang.model.AnnotationTarget;
 import java.util.ArrayList;
 import java.util.List;
-import javax.enterprise.inject.build.compatible.spi.BeanInfo;
-import javax.enterprise.inject.build.compatible.spi.Messages;
-import javax.enterprise.inject.build.compatible.spi.ObserverInfo;
-import javax.enterprise.inject.spi.DeploymentException;
-import javax.enterprise.lang.model.AnnotationTarget;
 
 class MessagesImpl implements Messages {
     final List<Throwable> errors = new ArrayList<>();

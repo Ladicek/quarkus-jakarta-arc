@@ -1,7 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.types.ClassType;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.types.ClassType;
 import org.jboss.jandex.DotName;
 
 class ClassTypeImpl extends TypeImpl<org.jboss.jandex.ClassType> implements ClassType {

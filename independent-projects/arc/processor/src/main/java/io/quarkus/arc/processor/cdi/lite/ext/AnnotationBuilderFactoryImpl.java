@@ -1,9 +1,9 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.AnnotationBuilder;
+import jakarta.enterprise.inject.build.compatible.spi.AnnotationBuilderFactory;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
 import java.lang.annotation.Annotation;
-import javax.enterprise.inject.build.compatible.spi.AnnotationBuilder;
-import javax.enterprise.inject.build.compatible.spi.AnnotationBuilderFactory;
-import javax.enterprise.lang.model.declarations.ClassInfo;
 import org.jboss.jandex.DotName;
 
 final class AnnotationBuilderFactoryImpl implements AnnotationBuilderFactory {

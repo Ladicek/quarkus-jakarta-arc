@@ -1,11 +1,11 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.declarations.FieldInfo;
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
+import jakarta.enterprise.lang.model.declarations.RecordComponentInfo;
+import jakarta.enterprise.lang.model.types.Type;
 import java.util.Objects;
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.declarations.FieldInfo;
-import javax.enterprise.lang.model.declarations.MethodInfo;
-import javax.enterprise.lang.model.declarations.RecordComponentInfo;
-import javax.enterprise.lang.model.types.Type;
 import org.jboss.jandex.DotName;
 
 class RecordComponentInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.RecordComponentInfo> implements RecordComponentInfo {

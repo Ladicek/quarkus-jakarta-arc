@@ -53,8 +53,9 @@
         </dependency>
 
         <dependency>
-            <groupId>io.quarkus.arc</groupId>
-            <artifactId>cdi-lang-model-tck</artifactId>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>cdi-tck-lang-model</artifactId>
+            <version>${version.cdi-tck}</version>
         </dependency>
 
     </dependencies>

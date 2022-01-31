@@ -1,12 +1,12 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.context.spi.AlterableContext;
+import jakarta.enterprise.inject.build.compatible.spi.ClassConfig;
+import jakarta.enterprise.inject.build.compatible.spi.MetaAnnotations;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.enterprise.context.spi.AlterableContext;
-import javax.enterprise.inject.build.compatible.spi.ClassConfig;
-import javax.enterprise.inject.build.compatible.spi.MetaAnnotations;
 import org.jboss.jandex.DotName;
 
 class MetaAnnotationsImpl implements MetaAnnotations {

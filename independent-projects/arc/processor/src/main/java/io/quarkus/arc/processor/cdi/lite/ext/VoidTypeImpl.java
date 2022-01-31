@@ -1,6 +1,6 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import javax.enterprise.lang.model.types.VoidType;
+import jakarta.enterprise.lang.model.types.VoidType;
 
 class VoidTypeImpl extends TypeImpl<org.jboss.jandex.VoidType> implements VoidType {
     VoidTypeImpl(org.jboss.jandex.IndexView jandexIndex, AllAnnotationOverlays annotationOverlays,

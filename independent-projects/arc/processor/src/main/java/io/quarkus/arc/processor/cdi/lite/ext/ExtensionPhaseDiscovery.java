@@ -1,9 +1,9 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.ClassConfig;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.enterprise.inject.build.compatible.spi.ClassConfig;
 import org.jboss.jandex.DotName;
 
 class ExtensionPhaseDiscovery extends ExtensionPhaseBase {

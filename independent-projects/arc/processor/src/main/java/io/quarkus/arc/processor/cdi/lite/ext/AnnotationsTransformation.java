@@ -1,5 +1,6 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.lang.model.AnnotationInfo;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import javax.enterprise.lang.model.AnnotationInfo;
 import org.jboss.jandex.DotName;
 
 // this must be symmetric with AnnotationsOverlay

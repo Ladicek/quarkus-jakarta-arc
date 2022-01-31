@@ -1,10 +1,10 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.InterceptorInfo;
+import jakarta.enterprise.inject.spi.InterceptionType;
+import jakarta.enterprise.lang.model.AnnotationInfo;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import javax.enterprise.inject.build.compatible.spi.InterceptorInfo;
-import javax.enterprise.inject.spi.InterceptionType;
-import javax.enterprise.lang.model.AnnotationInfo;
 
 class InterceptorInfoImpl extends BeanInfoImpl implements InterceptorInfo {
     private final io.quarkus.arc.processor.InterceptorInfo arcInterceptorInfo;

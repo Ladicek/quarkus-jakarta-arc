@@ -5,6 +5,10 @@ import static io.quarkus.arc.processor.IndexClassLookupUtils.getClassByName;
 import io.quarkus.arc.processor.InjectionPointInfo.TypeAndQualifiers;
 import io.quarkus.arc.processor.InjectionTargetInfo.TargetKind;
 import io.quarkus.gizmo.Gizmo;
+import jakarta.enterprise.inject.AmbiguousResolutionException;
+import jakarta.enterprise.inject.UnsatisfiedResolutionException;
+import jakarta.enterprise.inject.spi.DefinitionException;
+import jakarta.enterprise.inject.spi.DeploymentException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,10 +20,6 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.enterprise.inject.AmbiguousResolutionException;
-import javax.enterprise.inject.UnsatisfiedResolutionException;
-import javax.enterprise.inject.spi.DefinitionException;
-import javax.enterprise.inject.spi.DeploymentException;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.AnnotationValue;
@@ -401,7 +401,7 @@ public final class Beans {
             } else if (BuiltinBean.INSTANCE == builtinBean
                     && injectionPoint.getType().kind() != Kind.PARAMETERIZED_TYPE) {
                 errors.add(
-                        new DefinitionException("An injection point of raw type javax.enterprise.inject.Instance is defined: "
+                        new DefinitionException("An injection point of raw type jakarta.enterprise.inject.Instance is defined: "
                                 + injectionPoint.getTargetInfo()));
             }
             // Skip built-in beans

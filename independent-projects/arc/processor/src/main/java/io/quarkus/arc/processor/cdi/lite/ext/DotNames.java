@@ -1,27 +1,28 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.annotation.Priority;
+import jakarta.enterprise.inject.build.compatible.spi.BeanInfo;
+import jakarta.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
+import jakarta.enterprise.inject.build.compatible.spi.ClassConfig;
+import jakarta.enterprise.inject.build.compatible.spi.Discovery;
+import jakarta.enterprise.inject.build.compatible.spi.Enhancement;
+import jakarta.enterprise.inject.build.compatible.spi.FieldConfig;
+import jakarta.enterprise.inject.build.compatible.spi.InterceptorInfo;
+import jakarta.enterprise.inject.build.compatible.spi.Messages;
+import jakarta.enterprise.inject.build.compatible.spi.MetaAnnotations;
+import jakarta.enterprise.inject.build.compatible.spi.MethodConfig;
+import jakarta.enterprise.inject.build.compatible.spi.ObserverInfo;
+import jakarta.enterprise.inject.build.compatible.spi.Registration;
+import jakarta.enterprise.inject.build.compatible.spi.ScannedClasses;
+import jakarta.enterprise.inject.build.compatible.spi.Synthesis;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticComponents;
+import jakarta.enterprise.inject.build.compatible.spi.Types;
+import jakarta.enterprise.inject.build.compatible.spi.Validation;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.declarations.FieldInfo;
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Repeatable;
-import javax.enterprise.inject.build.compatible.spi.BeanInfo;
-import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
-import javax.enterprise.inject.build.compatible.spi.ClassConfig;
-import javax.enterprise.inject.build.compatible.spi.Discovery;
-import javax.enterprise.inject.build.compatible.spi.Enhancement;
-import javax.enterprise.inject.build.compatible.spi.FieldConfig;
-import javax.enterprise.inject.build.compatible.spi.InterceptorInfo;
-import javax.enterprise.inject.build.compatible.spi.Messages;
-import javax.enterprise.inject.build.compatible.spi.MetaAnnotations;
-import javax.enterprise.inject.build.compatible.spi.MethodConfig;
-import javax.enterprise.inject.build.compatible.spi.ObserverInfo;
-import javax.enterprise.inject.build.compatible.spi.Registration;
-import javax.enterprise.inject.build.compatible.spi.ScannedClasses;
-import javax.enterprise.inject.build.compatible.spi.Synthesis;
-import javax.enterprise.inject.build.compatible.spi.SyntheticComponents;
-import javax.enterprise.inject.build.compatible.spi.Types;
-import javax.enterprise.inject.build.compatible.spi.Validation;
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.declarations.FieldInfo;
-import javax.enterprise.lang.model.declarations.MethodInfo;
 import org.jboss.jandex.DotName;
 
 class DotNames {
@@ -31,8 +32,7 @@ class DotNames {
 
     // common annotations
 
-    // TODO temporary, until we can use jakarta.annotation.Priority
-    static final DotName PRIORITY = DotName.createSimple(cdi.lite.Priority.class.getName());
+    static final DotName PRIORITY = DotName.createSimple(Priority.class.getName());
 
     // lang model
 

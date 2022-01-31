@@ -1,7 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import javax.enterprise.inject.build.compatible.spi.ParameterConfig;
-import javax.enterprise.lang.model.declarations.ParameterInfo;
+import jakarta.enterprise.inject.build.compatible.spi.ParameterConfig;
+import jakarta.enterprise.lang.model.declarations.ParameterInfo;
 
 class ParameterConfigImpl
         extends

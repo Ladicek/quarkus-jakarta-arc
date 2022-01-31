@@ -1,5 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
+import jakarta.interceptor.Interceptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -10,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
-import javax.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
-import javax.interceptor.Interceptor;
 import org.jboss.jandex.DotName;
 
 // only this class uses reflection, everything else in this package is reflection-free
@@ -82,32 +82,33 @@ class ExtensionInvoker {
             Class<?> argumentClass = argument.getClass();
 
             // beware of ordering! subtypes must precede supertypes
-            if (javax.enterprise.lang.model.declarations.ClassInfo.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.lang.model.declarations.ClassInfo.class;
-            } else if (javax.enterprise.lang.model.declarations.MethodInfo.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.lang.model.declarations.MethodInfo.class;
-            } else if (javax.enterprise.lang.model.declarations.FieldInfo.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.lang.model.declarations.FieldInfo.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.ScannedClasses.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.ScannedClasses.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.MetaAnnotations.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.MetaAnnotations.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.ClassConfig.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.ClassConfig.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.MethodConfig.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.MethodConfig.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.FieldConfig.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.FieldConfig.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.BeanInfo.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.BeanInfo.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.ObserverInfo.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.ObserverInfo.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.SyntheticComponents.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.SyntheticComponents.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.Messages.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.Messages.class;
-            } else if (javax.enterprise.inject.build.compatible.spi.Types.class.isAssignableFrom(argumentClass)) {
-                parameterTypes[i] = javax.enterprise.inject.build.compatible.spi.Types.class;
+            if (jakarta.enterprise.lang.model.declarations.ClassInfo.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.lang.model.declarations.ClassInfo.class;
+            } else if (jakarta.enterprise.lang.model.declarations.MethodInfo.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.lang.model.declarations.MethodInfo.class;
+            } else if (jakarta.enterprise.lang.model.declarations.FieldInfo.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.lang.model.declarations.FieldInfo.class;
+            } else if (jakarta.enterprise.inject.build.compatible.spi.ScannedClasses.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.inject.build.compatible.spi.ScannedClasses.class;
+            } else if (jakarta.enterprise.inject.build.compatible.spi.MetaAnnotations.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.inject.build.compatible.spi.MetaAnnotations.class;
+            } else if (jakarta.enterprise.inject.build.compatible.spi.ClassConfig.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.inject.build.compatible.spi.ClassConfig.class;
+            } else if (jakarta.enterprise.inject.build.compatible.spi.MethodConfig.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.inject.build.compatible.spi.MethodConfig.class;
+            } else if (jakarta.enterprise.inject.build.compatible.spi.FieldConfig.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.inject.build.compatible.spi.FieldConfig.class;
+            } else if (jakarta.enterprise.inject.build.compatible.spi.BeanInfo.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.inject.build.compatible.spi.BeanInfo.class;
+            } else if (jakarta.enterprise.inject.build.compatible.spi.ObserverInfo.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.inject.build.compatible.spi.ObserverInfo.class;
+            } else if (jakarta.enterprise.inject.build.compatible.spi.SyntheticComponents.class
+                    .isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.inject.build.compatible.spi.SyntheticComponents.class;
+            } else if (jakarta.enterprise.inject.build.compatible.spi.Messages.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.inject.build.compatible.spi.Messages.class;
+            } else if (jakarta.enterprise.inject.build.compatible.spi.Types.class.isAssignableFrom(argumentClass)) {
+                parameterTypes[i] = jakarta.enterprise.inject.build.compatible.spi.Types.class;
             } else {
                 // should never happen, internal error (or missing error handling) if it does
                 throw new IllegalArgumentException("Unexpected extension method argument: " + argument);

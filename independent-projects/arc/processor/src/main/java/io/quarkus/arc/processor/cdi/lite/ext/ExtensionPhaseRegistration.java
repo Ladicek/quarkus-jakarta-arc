@@ -1,5 +1,8 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.BeanInfo;
+import jakarta.enterprise.inject.build.compatible.spi.ObserverInfo;
+import jakarta.enterprise.inject.spi.DefinitionException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,9 +13,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.enterprise.inject.build.compatible.spi.BeanInfo;
-import javax.enterprise.inject.build.compatible.spi.ObserverInfo;
-import javax.enterprise.inject.spi.DefinitionException;
 import org.jboss.jandex.DotName;
 
 class ExtensionPhaseRegistration extends ExtensionPhaseBase {

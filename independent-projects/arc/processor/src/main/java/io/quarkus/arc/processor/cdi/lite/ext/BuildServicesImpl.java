@@ -1,7 +1,7 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
-import javax.enterprise.inject.build.compatible.spi.AnnotationBuilderFactory;
-import javax.enterprise.inject.build.compatible.spi.BuildServices;
+import jakarta.enterprise.inject.build.compatible.spi.AnnotationBuilderFactory;
+import jakarta.enterprise.inject.build.compatible.spi.BuildServices;
 
 public class BuildServicesImpl implements BuildServices {
     private static org.jboss.jandex.IndexView beanArchiveIndex;

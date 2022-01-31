@@ -1,11 +1,11 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.inject.build.compatible.spi.InjectionPointInfo;
+import jakarta.enterprise.lang.model.AnnotationInfo;
+import jakarta.enterprise.lang.model.declarations.DeclarationInfo;
+import jakarta.enterprise.lang.model.types.Type;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import javax.enterprise.inject.build.compatible.spi.InjectionPointInfo;
-import javax.enterprise.lang.model.AnnotationInfo;
-import javax.enterprise.lang.model.declarations.DeclarationInfo;
-import javax.enterprise.lang.model.types.Type;
 
 class InjectionPointInfoImpl implements InjectionPointInfo {
     private final org.jboss.jandex.IndexView jandexIndex;

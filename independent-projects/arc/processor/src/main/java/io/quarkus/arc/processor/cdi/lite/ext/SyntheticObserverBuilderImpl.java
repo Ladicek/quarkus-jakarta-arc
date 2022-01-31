@@ -1,14 +1,14 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.event.TransactionPhase;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticObserver;
+import jakarta.enterprise.inject.build.compatible.spi.SyntheticObserverBuilder;
+import jakarta.enterprise.inject.spi.ObserverMethod;
+import jakarta.enterprise.lang.model.AnnotationInfo;
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
-import javax.enterprise.event.TransactionPhase;
-import javax.enterprise.inject.build.compatible.spi.SyntheticObserver;
-import javax.enterprise.inject.build.compatible.spi.SyntheticObserverBuilder;
-import javax.enterprise.inject.spi.ObserverMethod;
-import javax.enterprise.lang.model.AnnotationInfo;
-import javax.enterprise.lang.model.declarations.ClassInfo;
 import org.jboss.jandex.DotName;
 
 class SyntheticObserverBuilderImpl<T> extends SyntheticComponentBuilderBase<SyntheticObserverBuilderImpl<T>>

@@ -1,5 +1,12 @@
 package io.quarkus.arc.processor.cdi.lite.ext;
 
+import jakarta.enterprise.lang.model.declarations.ClassInfo;
+import jakarta.enterprise.lang.model.declarations.FieldInfo;
+import jakarta.enterprise.lang.model.declarations.MethodInfo;
+import jakarta.enterprise.lang.model.declarations.PackageInfo;
+import jakarta.enterprise.lang.model.declarations.RecordComponentInfo;
+import jakarta.enterprise.lang.model.types.Type;
+import jakarta.enterprise.lang.model.types.TypeVariable;
 import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -12,13 +19,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.enterprise.lang.model.declarations.ClassInfo;
-import javax.enterprise.lang.model.declarations.FieldInfo;
-import javax.enterprise.lang.model.declarations.MethodInfo;
-import javax.enterprise.lang.model.declarations.PackageInfo;
-import javax.enterprise.lang.model.declarations.RecordComponentInfo;
-import javax.enterprise.lang.model.types.Type;
-import javax.enterprise.lang.model.types.TypeVariable;
 import org.jboss.jandex.DotName;
 
 class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> implements ClassInfo {
@@ -180,108 +180,108 @@ class ClassInfoImpl extends DeclarationInfoImpl<org.jboss.jandex.ClassInfo> impl
         }
     }
 
-/*
-    @Override
-    public Collection<MethodInfo> methods() {
-        // TODO this is crazy inefficient
-
-        class MethodDescriptor {
-            org.jboss.jandex.ClassInfo declaringClass;
-            org.jboss.jandex.Type returnType;
-            String name;
-            List<org.jboss.jandex.Type> parameterTypes;
-
-            MethodDescriptor(org.jboss.jandex.MethodInfo jandexMethod) {
-                this.declaringClass = jandexMethod.declaringClass();
-                this.returnType = jandexMethod.returnType();
-                this.name = jandexMethod.name();
-                this.parameterTypes = jandexMethod.parameters();
-            }
-
-            private boolean isDeclaredOnInterface() {
-                return Modifier.isInterface(declaringClass.flags());
-            }
-
-            // returns whether A is a subtype of B
-            // treats subtyping as reflexive, so X is a subtype of X
-            private boolean isSubtypeOf(org.jboss.jandex.ClassInfo a, org.jboss.jandex.ClassInfo b) {
-                if (a.name().equals(b.name())) {
-                    return true;
-                }
-
-                DotName superClassName = a.superName();
-                if (superClassName != null) {
-                    org.jboss.jandex.ClassInfo aSuperClass = jandexIndex.getClassByName(superClassName);
-                    if (aSuperClass != null && isSubtypeOf(aSuperClass, b)) {
-                        return true;
-                    }
-                }
-
-                for (DotName superInterfaceName : a.interfaceNames()) {
-                    org.jboss.jandex.ClassInfo aSuperInterface = jandexIndex.getClassByName(superInterfaceName);
-                    if (isSubtypeOf(aSuperInterface, b)) {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            boolean hasSameSignatureAndReturnType(MethodDescriptor that) {
-                return Objects.equals(this.name, that.name)
-                        && Objects.equals(this.parameterTypes, that.parameterTypes)
-                        && Objects.equals(this.returnType, that.returnType);
-            }
-
-            boolean isMoreSpecificThan(MethodDescriptor that) {
-                if (this.isDeclaredOnInterface() && !that.isDeclaredOnInterface()) {
-                    return false;
-                }
-                if (!this.isDeclaredOnInterface() && that.isDeclaredOnInterface()) {
-                    return true;
-                }
-                return isSubtypeOf(this.declaringClass, that.declaringClass);
-            }
-        }
-
-        Queue<org.jboss.jandex.MethodInfo> candidates = new ArrayDeque<>();
-
-        forEachSupertype(clazz -> {
-            for (org.jboss.jandex.MethodInfo jandexMethod : clazz.methods()) {
-                if (MethodPredicates.IS_METHOD_JANDEX.test(jandexMethod)) {
-                    candidates.add(jandexMethod);
-                }
-            }
-        });
-
-        List<MethodInfo> result = new ArrayList<>();
-
-        for (org.jboss.jandex.MethodInfo jandexMethod : candidates) {
-            MethodDescriptor methodDescriptor = new MethodDescriptor(jandexMethod);
-
-            boolean moreSpecificExists = false;
-            for (org.jboss.jandex.MethodInfo jandexOtherMethod : candidates) {
-                if (jandexMethod == jandexOtherMethod) {
-                    continue;
-                }
-
-                MethodDescriptor otherMethodDescriptor = new MethodDescriptor(jandexOtherMethod);
-
-                if (otherMethodDescriptor.hasSameSignatureAndReturnType(methodDescriptor)
-                        && otherMethodDescriptor.isMoreSpecificThan(methodDescriptor)) {
-                    moreSpecificExists = true;
-                    break;
-                }
-            }
-
-            if (!moreSpecificExists) {
-                result.add(new MethodInfoImpl(jandexIndex, annotationOverlays, jandexMethod));
-            }
-        }
-
-        return Collections.unmodifiableList(result);
-    }
-*/
+    /*
+     * @Override
+     * public Collection<MethodInfo> methods() {
+     * // TODO this is crazy inefficient
+     * 
+     * class MethodDescriptor {
+     * org.jboss.jandex.ClassInfo declaringClass;
+     * org.jboss.jandex.Type returnType;
+     * String name;
+     * List<org.jboss.jandex.Type> parameterTypes;
+     * 
+     * MethodDescriptor(org.jboss.jandex.MethodInfo jandexMethod) {
+     * this.declaringClass = jandexMethod.declaringClass();
+     * this.returnType = jandexMethod.returnType();
+     * this.name = jandexMethod.name();
+     * this.parameterTypes = jandexMethod.parameters();
+     * }
+     * 
+     * private boolean isDeclaredOnInterface() {
+     * return Modifier.isInterface(declaringClass.flags());
+     * }
+     * 
+     * // returns whether A is a subtype of B
+     * // treats subtyping as reflexive, so X is a subtype of X
+     * private boolean isSubtypeOf(org.jboss.jandex.ClassInfo a, org.jboss.jandex.ClassInfo b) {
+     * if (a.name().equals(b.name())) {
+     * return true;
+     * }
+     * 
+     * DotName superClassName = a.superName();
+     * if (superClassName != null) {
+     * org.jboss.jandex.ClassInfo aSuperClass = jandexIndex.getClassByName(superClassName);
+     * if (aSuperClass != null && isSubtypeOf(aSuperClass, b)) {
+     * return true;
+     * }
+     * }
+     * 
+     * for (DotName superInterfaceName : a.interfaceNames()) {
+     * org.jboss.jandex.ClassInfo aSuperInterface = jandexIndex.getClassByName(superInterfaceName);
+     * if (isSubtypeOf(aSuperInterface, b)) {
+     * return true;
+     * }
+     * }
+     * 
+     * return false;
+     * }
+     * 
+     * boolean hasSameSignatureAndReturnType(MethodDescriptor that) {
+     * return Objects.equals(this.name, that.name)
+     * && Objects.equals(this.parameterTypes, that.parameterTypes)
+     * && Objects.equals(this.returnType, that.returnType);
+     * }
+     * 
+     * boolean isMoreSpecificThan(MethodDescriptor that) {
+     * if (this.isDeclaredOnInterface() && !that.isDeclaredOnInterface()) {
+     * return false;
+     * }
+     * if (!this.isDeclaredOnInterface() && that.isDeclaredOnInterface()) {
+     * return true;
+     * }
+     * return isSubtypeOf(this.declaringClass, that.declaringClass);
+     * }
+     * }
+     * 
+     * Queue<org.jboss.jandex.MethodInfo> candidates = new ArrayDeque<>();
+     * 
+     * forEachSupertype(clazz -> {
+     * for (org.jboss.jandex.MethodInfo jandexMethod : clazz.methods()) {
+     * if (MethodPredicates.IS_METHOD_JANDEX.test(jandexMethod)) {
+     * candidates.add(jandexMethod);
+     * }
+     * }
+     * });
+     * 
+     * List<MethodInfo> result = new ArrayList<>();
+     * 
+     * for (org.jboss.jandex.MethodInfo jandexMethod : candidates) {
+     * MethodDescriptor methodDescriptor = new MethodDescriptor(jandexMethod);
+     * 
+     * boolean moreSpecificExists = false;
+     * for (org.jboss.jandex.MethodInfo jandexOtherMethod : candidates) {
+     * if (jandexMethod == jandexOtherMethod) {
+     * continue;
+     * }
+     * 
+     * MethodDescriptor otherMethodDescriptor = new MethodDescriptor(jandexOtherMethod);
+     * 
+     * if (otherMethodDescriptor.hasSameSignatureAndReturnType(methodDescriptor)
+     * && otherMethodDescriptor.isMoreSpecificThan(methodDescriptor)) {
+     * moreSpecificExists = true;
+     * break;
+     * }
+     * }
+     * 
+     * if (!moreSpecificExists) {
+     * result.add(new MethodInfoImpl(jandexIndex, annotationOverlays, jandexMethod));
+     * }
+     * }
+     * 
+     * return Collections.unmodifiableList(result);
+     * }
+     */
 
     @Override
     public Collection<MethodInfo> methods() {

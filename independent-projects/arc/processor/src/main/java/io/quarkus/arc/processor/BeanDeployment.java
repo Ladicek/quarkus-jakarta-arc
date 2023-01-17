@@ -47,6 +47,7 @@ import io.quarkus.arc.processor.BeanProcessor.BuildContextImpl;
 import io.quarkus.arc.processor.BeanRegistrar.RegistrationContext;
 import io.quarkus.arc.processor.BuildExtension.BuildContext;
 import io.quarkus.arc.processor.BuildExtension.Key;
+import io.quarkus.arc.processor.cdi.build.compatible.extensions.ExtensionsEntryPoint;
 import io.quarkus.gizmo.MethodCreator;
 import io.quarkus.gizmo.ResultHandle;
 
@@ -117,7 +118,11 @@ public class BeanDeployment {
 
     private final List<Predicate<ClassInfo>> excludeTypes;
 
+    private final ExtensionsEntryPoint buildCompatibleExtensions;
+
     BeanDeployment(BuildContextImpl buildContext, BeanProcessor.Builder builder) {
+        this.buildCompatibleExtensions = builder.buildCompatibleExtensions;
+
         this.buildContext = buildContext;
         Map<DotName, BeanDefiningAnnotation> beanDefiningAnnotations = new HashMap<>();
         if (builder.additionalBeanDefiningAnnotations != null) {
@@ -265,6 +270,10 @@ public class BeanDeployment {
         buildContextPut(Key.DECORATORS.asString(), Collections.unmodifiableList(decorators));
         this.injectionPoints.addAll(injectionPoints);
         buildContextPut(Key.INJECTION_POINTS.asString(), Collections.unmodifiableList(this.injectionPoints));
+
+        if (buildCompatibleExtensions != null) {
+            buildCompatibleExtensions.runRegistration(beanArchiveComputingIndex, beans, observers);
+        }
 
         return registerSyntheticBeans(beanRegistrars, buildContext);
     }
@@ -916,6 +925,11 @@ public class BeanDeployment {
                 continue;
             }
 
+            if (beanClass.interfaceNames().contains(DotNames.BUILD_COMPATIBLE_EXTENSION)) {
+                // Skip build compatible extensions
+                continue;
+            }
+
             boolean hasBeanDefiningAnnotation = false;
             if (annotationStore.hasAnyAnnotation(beanClass, beanDefiningAnnotations)) {
                 hasBeanDefiningAnnotation = true;
@@ -1195,6 +1209,10 @@ public class BeanDeployment {
         for (BeanRegistrar registrar : beanRegistrars) {
             registrar.register(context);
         }
+        if (buildCompatibleExtensions != null) {
+            buildCompatibleExtensions.runSynthesis(beanArchiveComputingIndex);
+            buildCompatibleExtensions.registerSyntheticBeans(context);
+        }
         return context;
     }
 
@@ -1205,6 +1223,10 @@ public class BeanDeployment {
             context.extension = registrar;
             registrar.register(context);
             context.extension = null;
+        }
+        if (buildCompatibleExtensions != null) {
+            buildCompatibleExtensions.registerSyntheticObservers(context);
+            buildCompatibleExtensions.runRegistrationAgain(beanArchiveComputingIndex, beans, observers);
         }
         return context;
     }

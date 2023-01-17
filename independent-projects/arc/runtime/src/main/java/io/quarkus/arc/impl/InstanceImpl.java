@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 import jakarta.enterprise.context.ContextNotActiveException;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.AmbiguousResolutionException;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.UnsatisfiedResolutionException;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.enterprise.util.TypeLiteral;
@@ -40,10 +41,95 @@ import io.quarkus.arc.impl.CurrentInjectionPointProvider.InjectionPointImpl;
  */
 public class InstanceImpl<T> implements InjectableInstance<T> {
 
+    public static Instance<Object> forSynthesis(CreationalContextImpl<?> creationalContext, boolean allowInjectionPointLookup) {
+        InstanceImpl<Object> result = new InstanceImpl<>(null, null, Object.class, Collections.emptySet(),
+                creationalContext, Collections.emptySet(), null, -1, false);
+        if (allowInjectionPointLookup) {
+            return result;
+        }
+
+        class Guard<T> implements InjectableInstance<T> {
+            private final InjectableInstance<T> delegate;
+
+            Guard(InjectableInstance<T> delegate) {
+                this.delegate = delegate;
+            }
+
+            @Override
+            public InstanceHandle<T> getHandle() {
+                return delegate.getHandle();
+            }
+
+            @Override
+            public Iterable<InstanceHandle<T>> handles() {
+                return delegate.handles();
+            }
+
+            @Override
+            public InjectableInstance<T> select(Annotation... qualifiers) {
+                return wrap(null, delegate.select(qualifiers));
+            }
+
+            @Override
+            public <U extends T> InjectableInstance<U> select(Class<U> subtype, Annotation... qualifiers) {
+                return wrap(subtype, delegate.select(subtype, qualifiers));
+            }
+
+            @Override
+            public <U extends T> InjectableInstance<U> select(TypeLiteral<U> subtype, Annotation... qualifiers) {
+                return wrap(subtype.getType(), delegate.select(subtype, qualifiers));
+            }
+
+            private <U> InjectableInstance<U> wrap(Type subtype, InjectableInstance<U> delegate) {
+                if (InjectionPoint.class.equals(subtype)) {
+                    throw new IllegalStateException("Cannot obtain InjectionPoint metadata for non-@Dependent bean");
+                }
+                return new Guard<>(delegate);
+            }
+
+            @Override
+            public void clearCache() {
+                delegate.clearCache();
+            }
+
+            @Override
+            public Iterator<T> iterator() {
+                return delegate.iterator();
+            }
+
+            @Override
+            public boolean isUnsatisfied() {
+                return delegate.isUnsatisfied();
+            }
+
+            @Override
+            public boolean isAmbiguous() {
+                return delegate.isAmbiguous();
+            }
+
+            @Override
+            public void destroy(T instance) {
+                delegate.destroy(instance);
+            }
+
+            @Override
+            public T get() {
+                return delegate.get();
+            }
+        }
+        return new Guard<>(result);
+    }
+
     static <T> InstanceImpl<T> of(Type requiredType, Set<Annotation> requiredQualifiers) {
         return new InstanceImpl<>(null, null, requiredType, requiredQualifiers,
                 new CreationalContextImpl<>(null),
-                Collections.emptySet(), null, -1);
+                Collections.emptySet(), null, -1, true);
+    }
+
+    private static <T> InstanceImpl<T> child(InstanceImpl<?> parent, Type requiredType, Set<Annotation> requiredQualifiers) {
+        return new InstanceImpl<>(parent.targetBean, parent.injectionPointType, requiredType, requiredQualifiers,
+                parent.creationalContext, parent.annotations, parent.javaMember, parent.position,
+                parent.resetCurrentInjectionPoint);
     }
 
     private final CreationalContextImpl<?> creationalContext;
@@ -58,21 +144,18 @@ public class InstanceImpl<T> implements InjectableInstance<T> {
     private final Set<Annotation> annotations;
     private final Member javaMember;
     private final int position;
+    private final boolean resetCurrentInjectionPoint;
 
     private final LazyValue<T> cachedGetResult;
 
     InstanceImpl(InjectableBean<?> targetBean, Type type, Set<Annotation> qualifiers,
             CreationalContextImpl<?> creationalContext, Set<Annotation> annotations, Member javaMember, int position) {
-        this(targetBean, type, getRequiredType(type), qualifiers, creationalContext, annotations, javaMember, position);
+        this(targetBean, type, getRequiredType(type), qualifiers, creationalContext, annotations, javaMember, position, true);
     }
 
-    private InstanceImpl(InstanceImpl<?> parent, Type requiredType, Set<Annotation> requiredQualifiers) {
-        this(parent.targetBean, parent.injectionPointType, requiredType, requiredQualifiers, parent.creationalContext,
-                parent.annotations, parent.javaMember, parent.position);
-    }
-
-    InstanceImpl(InjectableBean<?> targetBean, Type injectionPointType, Type requiredType, Set<Annotation> requiredQualifiers,
-            CreationalContextImpl<?> creationalContext, Set<Annotation> annotations, Member javaMember, int position) {
+    private InstanceImpl(InjectableBean<?> targetBean, Type injectionPointType, Type requiredType,
+            Set<Annotation> requiredQualifiers, CreationalContextImpl<?> creationalContext, Set<Annotation> annotations,
+            Member javaMember, int position, boolean resetCurrentInjectionPoint) {
         this.injectionPointType = injectionPointType;
         this.requiredType = requiredType;
         this.requiredQualifiers = requiredQualifiers != null ? requiredQualifiers : Collections.emptySet();
@@ -87,6 +170,7 @@ public class InstanceImpl<T> implements InjectableInstance<T> {
         this.annotations = annotations;
         this.javaMember = javaMember;
         this.position = position;
+        this.resetCurrentInjectionPoint = resetCurrentInjectionPoint;
         this.cachedGetResult = isGetCached(annotations) ? new LazyValue<>(this::getInternal) : null;
     }
 
@@ -104,21 +188,21 @@ public class InstanceImpl<T> implements InjectableInstance<T> {
     public InjectableInstance<T> select(Annotation... qualifiers) {
         Set<Annotation> newQualifiers = new HashSet<>(this.requiredQualifiers);
         Collections.addAll(newQualifiers, qualifiers);
-        return new InstanceImpl<>(this, requiredType, newQualifiers);
+        return InstanceImpl.child(this, requiredType, newQualifiers);
     }
 
     @Override
     public <U extends T> InjectableInstance<U> select(Class<U> subtype, Annotation... qualifiers) {
         Set<Annotation> newQualifiers = new HashSet<>(this.requiredQualifiers);
         Collections.addAll(newQualifiers, qualifiers);
-        return new InstanceImpl<>(this, subtype, newQualifiers);
+        return InstanceImpl.child(this, subtype, newQualifiers);
     }
 
     @Override
     public <U extends T> InjectableInstance<U> select(TypeLiteral<U> subtype, Annotation... qualifiers) {
         Set<Annotation> newQualifiers = new HashSet<>(this.requiredQualifiers);
         Collections.addAll(newQualifiers, qualifiers);
-        return new InstanceImpl<>(this, subtype.getType(), newQualifiers);
+        return InstanceImpl.child(this, subtype.getType(), newQualifiers);
     }
 
     @Override
@@ -172,13 +256,17 @@ public class InstanceImpl<T> implements InjectableInstance<T> {
 
             @Override
             public H get() {
-                InjectionPoint prev = InjectionPointProvider
-                        .set(new InjectionPointImpl(injectionPointType, requiredType, requiredQualifiers, targetBean,
-                                annotations, javaMember, position));
+                InjectionPoint prev = null;
+                if (resetCurrentInjectionPoint) {
+                    prev = InjectionPointProvider.set(new InjectionPointImpl(injectionPointType, requiredType,
+                            requiredQualifiers, targetBean, annotations, javaMember, position));
+                }
                 try {
                     return bean.get(context);
                 } finally {
-                    InjectionPointProvider.set(prev);
+                    if (resetCurrentInjectionPoint) {
+                        InjectionPointProvider.set(prev);
+                    }
                 }
             }
         },
@@ -221,14 +309,18 @@ public class InstanceImpl<T> implements InjectableInstance<T> {
 
     private T getBeanInstance(InjectableBean<T> bean) {
         CreationalContextImpl<T> ctx = creationalContext.child(bean);
-        InjectionPoint prev = InjectionPointProvider
-                .set(new InjectionPointImpl(injectionPointType, requiredType, requiredQualifiers, targetBean, annotations,
-                        javaMember, position));
+        InjectionPoint prev = null;
+        if (resetCurrentInjectionPoint) {
+            prev = InjectionPointProvider.set(new InjectionPointImpl(injectionPointType, requiredType,
+                    requiredQualifiers, targetBean, annotations, javaMember, position));
+        }
         T instance;
         try {
             instance = bean.get(ctx);
         } finally {
-            InjectionPointProvider.set(prev);
+            if (resetCurrentInjectionPoint) {
+                InjectionPointProvider.set(prev);
+            }
         }
         return instance;
     }

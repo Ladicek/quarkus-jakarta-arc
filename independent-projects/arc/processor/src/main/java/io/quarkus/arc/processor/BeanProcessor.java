@@ -38,6 +38,7 @@ import io.quarkus.arc.processor.BuildExtension.BuildContext;
 import io.quarkus.arc.processor.BuildExtension.Key;
 import io.quarkus.arc.processor.ResourceOutput.Resource;
 import io.quarkus.arc.processor.ResourceOutput.Resource.SpecialType;
+import io.quarkus.arc.processor.cdi.build.compatible.extensions.ExtensionsEntryPoint;
 import io.quarkus.gizmo.BytecodeCreator;
 
 /**
@@ -86,7 +87,15 @@ public class BeanProcessor {
     // Such as java.lang.Deprecated
     protected final Predicate<DotName> injectionPointAnnotationsPredicate;
 
+    private final ExtensionsEntryPoint buildCompatibleExtensions;
+
     private BeanProcessor(Builder builder) {
+        this.buildCompatibleExtensions = builder.buildCompatibleExtensions;
+        if (buildCompatibleExtensions != null) {
+            buildCompatibleExtensions.registerMetaAnnotations(builder);
+            buildCompatibleExtensions.runEnhancement(builder.beanArchiveComputingIndex, builder);
+        }
+
         this.reflectionRegistration = builder.reflectionRegistration;
         this.applicationClassPredicate = builder.applicationClassPredicate;
         this.name = builder.name;
@@ -154,7 +163,13 @@ public class BeanProcessor {
      * @return the validation context
      */
     public BeanDeploymentValidator.ValidationContext validate(Consumer<BytecodeTransformer> bytecodeTransformerConsumer) {
-        return beanDeployment.validate(beanDeploymentValidators, bytecodeTransformerConsumer);
+        ValidationContext validationContext = beanDeployment.validate(beanDeploymentValidators, bytecodeTransformerConsumer);
+        if (buildCompatibleExtensions != null) {
+            buildCompatibleExtensions.runValidation(beanDeployment.getBeanArchiveIndex(), validationContext.get(Key.BEANS),
+                    validationContext.get(Key.OBSERVERS));
+            buildCompatibleExtensions.registerValidationErrors(validationContext);
+        }
+        return validationContext;
     }
 
     public void processValidationErrors(BeanDeploymentValidator.ValidationContext validationContext) {
@@ -478,6 +493,8 @@ public class BeanProcessor {
         AlternativePriorities alternativePriorities;
         final List<Predicate<ClassInfo>> excludeTypes;
 
+        ExtensionsEntryPoint buildCompatibleExtensions;
+
         Predicate<DotName> applicationClassPredicate;
 
         public Builder() {
@@ -784,6 +801,11 @@ public class BeanProcessor {
          */
         public Builder addSuppressConditionGenerator(Function<BeanInfo, Consumer<BytecodeCreator>> generator) {
             this.suppressConditionGenerators.add(generator);
+            return this;
+        }
+
+        public Builder setBuildCompatibleExtensions(ExtensionsEntryPoint buildCompatibleExtensions) {
+            this.buildCompatibleExtensions = buildCompatibleExtensions;
             return this;
         }
 

@@ -1687,9 +1687,9 @@ public class BeanGenerator extends AbstractGenerator {
             // 3) synthetic bean - has no destruction logic
             if (!bean.hasDestroyLogic()) {
                 // If there is no dependency in the creational context we don't have to store the instance in the CreationalContext
-                ResultHandle creationalContext = get.checkCast(get.getMethodParam(0), CreationalContextImpl.class);
+                ResultHandle creationalContext = get.getMethodParam(0);
                 get.ifNonZero(
-                        get.invokeVirtualMethod(MethodDescriptors.CREATIONAL_CTX_HAS_DEPENDENT_INSTANCES, creationalContext))
+                        get.invokeStaticMethod(MethodDescriptors.CREATIONAL_CTX_HAS_DEPENDENT_INSTANCES, creationalContext))
                         .falseBranch().returnValue(instance);
             }
 

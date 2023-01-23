@@ -730,26 +730,6 @@
                     <exclude name="testDefinitionError"/>
                 </methods>
             </class>
-            <class name="org.jboss.cdi.tck.tests.context.dependent.DependentContextTest">
-                <methods>
-                    <exclude name="testContextGetWithCreationalContextReturnsNewInstance"/>
-                    <exclude name="testContextIsActiveWhenInvokingProducerMethod"/>
-                    <exclude name="testDependentsDestroyedWhenProducerMethodCompletes"/>
-                    <exclude name="testContextIsActiveDuringInjection"/>
-                    <exclude name="testInstanceUsedForProducerFieldNotShared"/>
-                    <exclude name="testDependentsDestroyedWhenProducerFieldCompletes"/>
-                    <exclude name="testInstanceUsedForObserverMethodNotShared"/>
-                    <exclude name="testContextGetWithCreateFalseReturnsNull"/>
-                    <exclude name="testContextIsActiveDuringBeanCreation"/>
-                    <exclude name="testDependentsDestroyedWhenObserverMethodEvaluationCompletes"/>
-                    <exclude name="testContextIsActiveWhenInvokingProducerField"/>
-                    <exclude name="testContextIsActiveWhenCreatingObserverMethodInstance"/>
-                    <exclude name="testContextIsActiveWhenInvokingDisposalMethod"/>
-                    <exclude name="testDependentsDestroyedWhenDisposerMethodCompletes"/>
-                    <exclude name="testInstanceUsedForDisposalMethodNotShared"/>
-                    <exclude name="testInstanceUsedForProducerMethodNotShared"/>
-                </methods>
-            </class>
             <class name="org.jboss.cdi.tck.tests.event.broken.raw.RawEventObserverInjectionTest">
                 <methods>
                     <exclude name="testDefinitionError"/>

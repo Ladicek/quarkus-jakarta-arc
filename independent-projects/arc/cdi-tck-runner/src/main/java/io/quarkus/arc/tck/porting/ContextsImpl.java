@@ -1,15 +1,11 @@
 package io.quarkus.arc.tck.porting;
 
-import java.lang.annotation.Annotation;
-
-import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.context.spi.Context;
-import jakarta.enterprise.context.spi.Contextual;
-import jakarta.enterprise.context.spi.CreationalContext;
 
 import org.jboss.cdi.tck.spi.Contexts;
 
 import io.quarkus.arc.Arc;
+import io.quarkus.arc.InjectableContext;
 import io.quarkus.arc.ManagedContext;
 
 public class ContextsImpl implements Contexts<Context> {
@@ -30,36 +26,11 @@ public class ContextsImpl implements Contexts<Context> {
 
     @Override
     public Context getDependentContext() {
-        // ArC doesn't have a context object for the dependent context,
-        // but that isn't necessary and the TCK doesn't really use this
-        // except for one tiny part that we can fake here
-        // TODO we'll likely have to implement this in ArC properly
-
-        return new Context() {
-            @Override
-            public Class<? extends Annotation> getScope() {
-                return Dependent.class;
-            }
-
-            @Override
-            public <T> T get(Contextual<T> contextual, CreationalContext<T> creationalContext) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public <T> T get(Contextual<T> contextual) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public boolean isActive() {
-                return true;
-            }
-        };
+        return Arc.container().dependentContext();
     }
 
     @Override
     public void destroyContext(Context context) {
-        ((ManagedContext) context).destroy();
+        ((InjectableContext) context).destroy();
     }
 }

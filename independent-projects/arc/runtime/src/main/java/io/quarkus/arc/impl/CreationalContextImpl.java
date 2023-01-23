@@ -110,21 +110,33 @@ public class CreationalContextImpl<T> implements CreationalContext<T>, Function<
         }
     }
 
-    public static <C> CreationalContextImpl<C> child(CreationalContext<?> creationalContext) {
+    public static <C> CreationalContext<C> child(CreationalContext<?> creationalContext) {
         return child(null, creationalContext);
     }
 
     @SuppressWarnings("unchecked")
-    public static <C> CreationalContextImpl<C> child(InjectableReferenceProvider<?> provider,
+    public static <C> CreationalContext<C> child(InjectableReferenceProvider<?> provider,
             CreationalContext<?> creationalContext) {
-        return unwrap(creationalContext).child(provider instanceof InjectableBean ? (InjectableBean<C>) provider : null);
+        if (creationalContext instanceof CreationalContextImpl) {
+            return unwrap(creationalContext).child(provider instanceof InjectableBean ? (InjectableBean<C>) provider : null);
+        }
+        return (CreationalContext<C>) creationalContext;
     }
 
     public static <I> void addDependencyToParent(InjectableBean<I> bean, I instance, CreationalContext<I> ctx) {
+        if (!(ctx instanceof CreationalContextImpl)) {
+            return;
+        }
         CreationalContextImpl<?> parent = unwrap(ctx).getParent();
         if (parent != null) {
             parent.addDependentInstance(bean, instance, ctx);
         }
     }
 
+    public static boolean hasDependentInstances(CreationalContext<?> ctx) {
+        if (ctx instanceof CreationalContextImpl) {
+            return ((CreationalContextImpl<?>) ctx).hasDependentInstances();
+        }
+        return false;
+    }
 }

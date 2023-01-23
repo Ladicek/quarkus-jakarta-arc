@@ -59,13 +59,13 @@ public final class MethodDescriptors {
     public static final MethodDescriptor SUPPLIER_GET = MethodDescriptor.ofMethod(Supplier.class, "get", Object.class);
 
     public static final MethodDescriptor CREATIONAL_CTX_CHILD = MethodDescriptor.ofMethod(CreationalContextImpl.class, "child",
-            CreationalContextImpl.class,
+            CreationalContext.class,
             CreationalContext.class);
 
     public static final MethodDescriptor CREATIONAL_CTX_CHILD_CONTEXTUAL = MethodDescriptor.ofMethod(
             CreationalContextImpl.class,
             "child",
-            CreationalContextImpl.class,
+            CreationalContext.class,
             InjectableReferenceProvider.class,
             CreationalContext.class);
 
@@ -234,7 +234,7 @@ public final class MethodDescriptors {
 
     public static final MethodDescriptor CREATIONAL_CTX_HAS_DEPENDENT_INSTANCES = MethodDescriptor.ofMethod(
             CreationalContextImpl.class,
-            "hasDependentInstances", boolean.class);
+            "hasDependentInstances", boolean.class, CreationalContext.class);
 
     public static final MethodDescriptor THREAD_CURRENT_THREAD = MethodDescriptor.ofMethod(Thread.class, "currentThread",
             Thread.class);

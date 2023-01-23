@@ -306,12 +306,6 @@
                     <exclude name="testPriorityWasInherited"/>
                 </methods>
             </class>
-            <class name="org.jboss.cdi.tck.tests.alternative.selection.SelectedAlternative01Test">
-                <methods>
-                    <exclude name="testAlternativeProducerSelected"/>
-                    <exclude name="testAlternativeManagedBeanSelected"/>
-                </methods>
-            </class>
             <class name="org.jboss.cdi.tck.tests.implementation.producer.method.broken.parameterAnnotatedObservesAsync.ParameterAnnotatedAsyncObservesTest">
                 <methods>
                     <exclude name="testProducerMethodWithParameterAnnotatedAsyncObserves"/>

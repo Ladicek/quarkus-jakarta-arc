@@ -146,12 +146,6 @@
                     <exclude name="testDefinitionError"/>
                 </methods>
             </class>
-            <class name="org.jboss.cdi.tck.tests.implementation.producer.method.lifecycle.ProducerMethodLifecycleTest">
-                <methods>
-                    <exclude name="testCreateWrapsCheckedExceptionAndRethrows"/>
-                    <exclude name="testCreateRethrowsUncheckedException"/>
-                </methods>
-            </class>
             <class name="org.jboss.cdi.tck.tests.implementation.producer.field.definition.broken.array.ProducerFieldArrayWildcardTest">
                 <methods>
                     <exclude name="testBeanTypes"/>

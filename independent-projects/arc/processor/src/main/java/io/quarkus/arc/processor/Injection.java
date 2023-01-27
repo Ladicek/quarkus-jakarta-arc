@@ -109,11 +109,8 @@ public class Injection {
             AnnotationTarget injectTarget = injectAnnotation.target();
             switch (injectAnnotation.target().kind()) {
                 case FIELD:
-                    injections
-                            .add(new Injection(injectTarget, Collections
-                                    .singletonList(
-                                            InjectionPointInfo.fromField(injectTarget.asField(), beanClass, beanDeployment,
-                                                    transformer))));
+                    injections.add(new Injection(injectTarget, Collections.singletonList(
+                            InjectionPointInfo.fromField(injectTarget.asField(), beanClass, beanDeployment, transformer))));
                     break;
                 case METHOD:
                     injections.add(new Injection(injectTarget,
@@ -126,7 +123,7 @@ public class Injection {
         }
         // if the class has no no-arg constructor and has a single non no-arg constructor that is not annotated with @Inject,
         // the class is not a non-static inner or a superclass of a bean we consider that constructor as an injection
-        if (beanClass.equals(classInfo)) {
+        if (/*false &&*/ beanClass.equals(classInfo)) {
             final boolean isNonStaticInnerClass = classInfo.name().isInner()
                     && !Modifier.isStatic(classInfo.flags());
             if (!isNonStaticInnerClass && !hasConstructorInjection(injections) && !beanClass.hasNoArgsConstructor()) {

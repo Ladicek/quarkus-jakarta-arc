@@ -902,6 +902,12 @@ public class BeanDeployment {
                     }
                 }
 
+/*
+                if (numberOfConstructorsWithInject != 1) {
+                    continue;
+                }
+*/
+
                 // a bean without no-arg constructor needs to have either a constructor annotated with @Inject
                 // or a single constructor
                 if (numberOfConstructorsWithInject == 0 && numberOfConstructorsWithoutInject != 1) {

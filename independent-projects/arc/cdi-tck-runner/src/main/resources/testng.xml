@@ -146,11 +146,6 @@
                     <exclude name="testDefinitionError"/>
                 </methods>
             </class>
-            <class name="org.jboss.cdi.tck.tests.implementation.producer.field.definition.broken.array.ProducerFieldArrayWildcardTest">
-                <methods>
-                    <exclude name="testBeanTypes"/>
-                </methods>
-            </class>
             <class name="org.jboss.cdi.tck.tests.event.metadata.injectionpoint.EventMetadataInjectionPointTest">
                 <methods>
                     <exclude name="testGetAnnotatedType"/>
@@ -212,11 +207,6 @@
             <class name="org.jboss.cdi.tck.tests.event.lifecycle.StartupShutdownTest">
                 <methods>
                     <exclude name="testEventsObserved"/>
-                </methods>
-            </class>
-            <class name="org.jboss.cdi.tck.tests.implementation.producer.field.definition.broken.array.ProducerFieldArrayTypeVariableTest">
-                <methods>
-                    <exclude name="testBeanTypes"/>
                 </methods>
             </class>
             <class name="org.jboss.cdi.tck.tests.full.lookup.injection.visibility.InjectionVisibilityTest">
@@ -524,11 +514,6 @@
                     <exclude name="testDuplicateBeanNamePrefix"/>
                 </methods>
             </class>
-            <class name="org.jboss.cdi.tck.tests.implementation.producer.method.broken.array.ProducerMethodArrayTypeVariableTest">
-                <methods>
-                    <exclude name="testBeanTypes"/>
-                </methods>
-            </class>
             <class name="org.jboss.cdi.tck.tests.lookup.injection.parameterized.multiple.bounds.ParameterizedTypesWithTypeVariableWithMultipleBoundsTest">
                 <methods>
                     <exclude name="testInjectionOfBeanWithWildcardWithTypeVariableAsLowerBound"/>
@@ -554,11 +539,6 @@
             <class name="org.jboss.cdi.tck.tests.implementation.simple.definition.dependentWithPublicField.DependentWithPublicFieldTest">
                 <methods>
                     <exclude name="testNonDependentScopedBeanCanNotHavePublicField"/>
-                </methods>
-            </class>
-            <class name="org.jboss.cdi.tck.tests.implementation.producer.method.broken.array.ProducerMethodArrayWildcardTest">
-                <methods>
-                    <exclude name="testBeanTypes"/>
                 </methods>
             </class>
             <class name="org.jboss.cdi.tck.tests.event.observer.wildcardAndTypeVariable.ObserverMethodWithParametertizedTypeTest">

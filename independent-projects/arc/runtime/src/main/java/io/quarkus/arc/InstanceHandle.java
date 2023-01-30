@@ -1,6 +1,5 @@
 package io.quarkus.arc;
 
-import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.context.spi.AlterableContext;
 import jakarta.enterprise.inject.Instance;
 
@@ -59,15 +58,11 @@ public interface InstanceHandle<T> extends AutoCloseable, Instance.Handle<T> {
     }
 
     /**
-     * Delegates to {@link #destroy()} if the handle does not represent a CDI contextual instance or if it represents a
-     * {@link Dependent} CDI contextual instance.
+     * Delegates to {@link #destroy()}.
      */
     @Override
     default void close() {
-        InjectableBean<T> bean = getBean();
-        if (bean == null || Dependent.class.equals(bean.getScope())) {
-            destroy();
-        }
+        destroy();
     }
 
 }

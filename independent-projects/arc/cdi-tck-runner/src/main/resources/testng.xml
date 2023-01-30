@@ -111,11 +111,6 @@
                     <exclude name="testDisposalMethodParametersGetInjected"/>
                 </methods>
             </class>
-            <class name="org.jboss.cdi.tck.tests.lookup.injectionpoint.dynamic.DynamicInjectionPointTest">
-                <methods>
-                    <exclude name="testInjectionPointIsTransient"/>
-                </methods>
-            </class>
             <class name="org.jboss.cdi.tck.tests.definition.scope.broken.tooManyScopes.producer.method.ProducerMethodTooManyScopesTest">
                 <methods>
                     <exclude name="testTooManyScopesSpecifiedInJava"/>

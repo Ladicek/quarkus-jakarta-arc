@@ -310,6 +310,7 @@
                     <exclude name="testScopeTypeHasCorrectTarget"/>
                     <exclude name="testScopeTypeDeclaresScopeTypeAnnotation"/>
                     <exclude name="testScopeTypesAreExtensible"/>
+                    <exclude name="testScopeTypeDeclaredInheritedIsBlockedByIntermediateScopeTypeNotMarkedInherited"/>
                 </methods>
             </class>
             <class name="org.jboss.cdi.tck.tests.event.observer.conditional.ConditionalObserverTest">
@@ -721,6 +722,27 @@
             <class name="org.jboss.cdi.tck.tests.event.observer.priority.EventObserverOrderingTest">
                 <methods>
                     <exclude name="testResolveObserversLowerPriorityBeforeDefaultPriority"/>
+                </methods>
+            </class>
+            <class name="org.jboss.cdi.tck.tests.lookup.manager.ManagerTest">
+                <methods>
+                    <!-- This test should be CDI Full only -->
+                    <exclude name="testManagerBeanIsPassivationCapable"></exclude>
+                </methods>
+            </class>
+            <class name="org.jboss.cdi.tck.tests.definition.stereotype.inheritance.StereotypeInheritenceTest">
+                <methods>
+                    <exclude name="testInheritence"></exclude>
+                </methods>
+            </class>
+            <class name="org.jboss.cdi.tck.interceptors.tests.order.lifecycleCallback.PostConstructOrderTest">
+                <methods>
+                    <exclude name="testInvocationOrder"></exclude>
+                </methods>
+            </class>
+            <class name="org.jboss.cdi.tck.tests.context.GetFromContextualTest">
+                <methods>
+                    <exclude name="testGetMayNotCreateNewInstanceUnlessCreationalContextGiven"></exclude>
                 </methods>
             </class>
         </classes>

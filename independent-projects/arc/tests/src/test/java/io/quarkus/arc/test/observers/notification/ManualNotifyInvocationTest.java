@@ -18,7 +18,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ManualNotifyInvocationTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(StringObserver.class);
+    public static ArcTestContainer container = new ArcTestContainer(StringObserver.class);
 
     @Test
     public void testManualNotifyInvocation() {

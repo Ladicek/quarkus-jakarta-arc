@@ -18,7 +18,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class SameDescriptorDifferentReturnTypeMethodTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(LoopProducer.class, Loop.class, SuperLoop.class,
+    public static ArcTestContainer container = new ArcTestContainer(LoopProducer.class, Loop.class, SuperLoop.class,
             EvenMoreSuperLoop.class, ComplexLoop.class, Complex.class);
 
     @Test

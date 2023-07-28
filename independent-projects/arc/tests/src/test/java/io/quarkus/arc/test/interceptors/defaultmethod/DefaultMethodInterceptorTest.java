@@ -12,7 +12,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class DefaultMethodInterceptorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(ABinding.class, NextBinding.class, DefaultMethodBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(ABinding.class, NextBinding.class, DefaultMethodBean.class,
             DefaultMethodInterface.class, MessageInterceptor.class, NextInterceptor.class);
 
     @Test

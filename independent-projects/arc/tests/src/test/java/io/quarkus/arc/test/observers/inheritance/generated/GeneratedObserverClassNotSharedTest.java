@@ -22,7 +22,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class GeneratedObserverClassNotSharedTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Alpha.class, Bravo.class);
+    public static ArcTestContainer container = new ArcTestContainer(Alpha.class, Bravo.class);
 
     static final Set<Alpha> OBSERVING_ALPHAS = new CopyOnWriteArraySet<>();
 

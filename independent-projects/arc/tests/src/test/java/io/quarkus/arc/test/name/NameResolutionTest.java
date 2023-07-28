@@ -19,7 +19,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class NameResolutionTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Bravo.class, Alpha.class, Consumer.class);
+    public static ArcTestContainer container = new ArcTestContainer(Bravo.class, Alpha.class, Consumer.class);
 
     @Test
     public void testBeanNames() {

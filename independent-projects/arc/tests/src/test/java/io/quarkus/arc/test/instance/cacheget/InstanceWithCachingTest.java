@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InstanceWithCachingTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Client.class, Washcloth.class);
+    public static ArcTestContainer container = new ArcTestContainer(Client.class, Washcloth.class);
 
     @Test
     public void testDestroy() {

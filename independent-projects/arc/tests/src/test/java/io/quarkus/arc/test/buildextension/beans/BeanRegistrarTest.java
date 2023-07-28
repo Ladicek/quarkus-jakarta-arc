@@ -53,7 +53,7 @@ public class BeanRegistrarTest {
     public static volatile boolean beanDestroyerInvoked = false;
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(UselessBean.class, MyQualifier.class, NextQualifier.class, ListConsumer.class)
             .removeUnusedBeans(true)
             .addRemovalExclusion(b -> b.hasType(DotName.createSimple(ListConsumer.class.getName())))

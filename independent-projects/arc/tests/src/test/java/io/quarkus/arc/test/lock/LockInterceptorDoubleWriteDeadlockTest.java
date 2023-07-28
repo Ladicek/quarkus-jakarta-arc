@@ -19,7 +19,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class LockInterceptorDoubleWriteDeadlockTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(LockBean.class, LockInterceptor.class,
+    public static ArcTestContainer container = new ArcTestContainer(LockBean.class, LockInterceptor.class,
             LockInterceptor.class);
 
     private final ExecutorService threadPool = Executors.newCachedThreadPool();

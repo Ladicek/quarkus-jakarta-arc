@@ -22,7 +22,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AsyncProducerTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(LongProducer.class, LongClient.class);
+    public static ArcTestContainer container = new ArcTestContainer(LongProducer.class, LongClient.class);
 
     @Test
     public void testAsyncProducer() throws InterruptedException, ExecutionException {

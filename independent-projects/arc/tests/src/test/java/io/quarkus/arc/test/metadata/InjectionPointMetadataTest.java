@@ -36,7 +36,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InjectionPointMetadataTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Controller.class, Controlled.class);
+    public static ArcTestContainer container = new ArcTestContainer(Controller.class, Controlled.class);
 
     @SuppressWarnings({ "unchecked", "rawtypes", "serial" })
     @Test

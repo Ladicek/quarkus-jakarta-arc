@@ -22,7 +22,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class InstanceHandleDestroyTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer.Builder()
+    public static ArcTestContainer container = new ArcTestContainer.Builder()
             .beanClasses(MyDependentBean.class, MyAppScopedBean.class)
             .strictCompatibility(true)
             .build();

@@ -18,7 +18,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class RecursiveGenericInvalidTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Producer.class, Target.class)
             .shouldFail()
             .build();

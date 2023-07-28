@@ -33,7 +33,7 @@ import io.quarkus.arc.test.ArcTestContainer;
  */
 public class RepeatableInterceptorBindingWithNonbindingAttributeTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyBinding.class, MyBinding.List.class,
+    public static ArcTestContainer container = new ArcTestContainer(MyBinding.class, MyBinding.List.class,
             MethodInterceptedBean.class, IncrementingInterceptor.class);
 
     @BeforeEach

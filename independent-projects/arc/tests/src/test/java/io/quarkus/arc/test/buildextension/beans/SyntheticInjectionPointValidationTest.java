@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class SyntheticInjectionPointValidationTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .shouldFail()
             .beanRegistrars(new TestRegistrar()).build();
 

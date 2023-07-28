@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InitMethodEventRawTypeTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(InvalidBean.class).shouldFail()
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(InvalidBean.class).shouldFail()
             .build();
 
     @Test

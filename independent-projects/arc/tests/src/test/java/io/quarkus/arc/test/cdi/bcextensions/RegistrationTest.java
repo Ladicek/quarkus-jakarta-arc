@@ -25,7 +25,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class RegistrationTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyQualifier.class, MyService.class, MyFooService.class, MyBarService.class, MyBarServiceProducer.class)
             .buildCompatibleExtensions(new MyExtension())
             .build();

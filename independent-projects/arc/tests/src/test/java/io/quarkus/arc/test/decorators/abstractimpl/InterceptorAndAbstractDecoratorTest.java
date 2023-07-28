@@ -29,7 +29,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InterceptorAndAbstractDecoratorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Converter.class, ToUpperCaseConverter.class,
+    public static ArcTestContainer container = new ArcTestContainer(Converter.class, ToUpperCaseConverter.class,
             TrimConverterDecorator.class, LoggingInterceptor.class, Logging.class);
 
     @Test

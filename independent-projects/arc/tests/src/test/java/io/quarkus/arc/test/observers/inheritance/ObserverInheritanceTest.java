@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ObserverInheritanceTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(ObservingBean.THIS.class, EmittingBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(ObservingBean.THIS.class, EmittingBean.class,
             ObservingBean.class,
             ObservingSubBean.class,
             NonObservingSubBean.class);

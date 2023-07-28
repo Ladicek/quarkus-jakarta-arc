@@ -30,7 +30,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class SyntheticObserverTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyQualifier.class, MyService.class)
             .buildCompatibleExtensions(new MyExtension())
             .build();

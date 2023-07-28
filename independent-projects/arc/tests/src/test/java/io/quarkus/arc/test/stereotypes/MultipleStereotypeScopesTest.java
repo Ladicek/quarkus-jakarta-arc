@@ -23,7 +23,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class MultipleStereotypeScopesTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(ModelBean.class, MyStereotype.class)
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(ModelBean.class, MyStereotype.class)
             .shouldFail().build();
 
     @Test

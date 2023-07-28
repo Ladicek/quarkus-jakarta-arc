@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class BeanMetadataWrongTypeTest {
 
     @RegisterExtension
-    ArcTestContainer container = ArcTestContainer.builder().beanClasses(BeanMetadataWrongTypeTest.class,
+    static ArcTestContainer container = ArcTestContainer.builder().beanClasses(BeanMetadataWrongTypeTest.class,
             MyBean.class).shouldFail().build();
 
     @Test

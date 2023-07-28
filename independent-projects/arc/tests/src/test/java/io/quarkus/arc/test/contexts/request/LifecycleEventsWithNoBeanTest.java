@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class LifecycleEventsWithNoBeanTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(ContextObserver.class);
+    public static ArcTestContainer container = new ArcTestContainer(ContextObserver.class);
 
     @Test
     public void testEventsWithNoReqContextBean() {

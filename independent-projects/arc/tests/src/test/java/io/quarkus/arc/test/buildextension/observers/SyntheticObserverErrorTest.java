@@ -12,7 +12,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class SyntheticObserverErrorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .observerRegistrars(new ObserverRegistrar() {
                 @Override
                 public void register(RegistrationContext context) {

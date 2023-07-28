@@ -25,7 +25,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class PostConstructExceptionHandlingTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(SimpleBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(SimpleBean.class,
             MyInterceptorBinding.class, MyInterceptor1.class, MyInterceptor2.class);
 
     @Test

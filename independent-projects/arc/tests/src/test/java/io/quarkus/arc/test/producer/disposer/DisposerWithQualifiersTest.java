@@ -29,7 +29,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class DisposerWithQualifiersTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(Producer.class, Dependency.class, Foo.class, Bar.class);
+    static ArcTestContainer container = new ArcTestContainer(Producer.class, Dependency.class, Foo.class, Bar.class);
 
     @Test
     public void testDisposers() {

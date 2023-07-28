@@ -44,7 +44,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class BeanInjectionPointsTest {
     @RegisterExtension
-    private ArcTestContainer container = new ArcTestContainer.Builder()
+    private static ArcTestContainer container = new ArcTestContainer.Builder()
             .beanClasses(MyBean.class, MyDependency.class, MyQualifier1.class, MyQualifier2.class)
             .strictCompatibility(true) // we don't support `Bean.getInjectionPoints()` by default
             .beanRegistrars(new BeanRegistrar() {

@@ -20,7 +20,7 @@ import io.quarkus.arc.test.interceptors.Simple;
 public class InvocationContextBindingsTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Simple.class, MyTransactional.class, SimpleBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(Simple.class, MyTransactional.class, SimpleBean.class,
             SimpleInterceptor.class);
 
     @Test

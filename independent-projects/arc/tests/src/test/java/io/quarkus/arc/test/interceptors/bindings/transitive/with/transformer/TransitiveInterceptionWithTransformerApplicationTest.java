@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class TransitiveInterceptionWithTransformerApplicationTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(PlainBinding.class,
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(PlainBinding.class,
             PlainInterceptor.class, MuchCoolerBinding.class, MuchCoolerInterceptor.class, DummyBean.class)
             .annotationsTransformers(new TransitiveInterceptionWithTransformerApplicationTest.MyTransformer()).build();
 

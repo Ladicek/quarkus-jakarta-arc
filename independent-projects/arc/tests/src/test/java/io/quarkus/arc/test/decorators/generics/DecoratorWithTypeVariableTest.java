@@ -22,8 +22,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class DecoratorWithTypeVariableTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyParameterizedType.class, MyInterface.class, MyDecorator.class,
-            MyDelegateBean.class, Contract.class);
+    public static ArcTestContainer container = new ArcTestContainer(MyParameterizedType.class, MyInterface.class,
+            MyDecorator.class, MyDelegateBean.class, Contract.class);
 
     @Test
     public void testDecoration() {

@@ -33,7 +33,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AsyncObserverExceptionTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(StringProducer.class, StringObserver.class);
+    public static ArcTestContainer container = new ArcTestContainer(StringProducer.class, StringObserver.class);
 
     @Test
     public void testAsyncObserversSingleException() throws InterruptedException {

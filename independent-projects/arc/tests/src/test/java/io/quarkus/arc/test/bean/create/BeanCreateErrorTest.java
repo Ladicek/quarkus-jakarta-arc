@@ -19,7 +19,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class BeanCreateErrorTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(CheckedExceptionBean.class, CheckedExceptionProducerBean.class,
+    static ArcTestContainer container = new ArcTestContainer(CheckedExceptionBean.class, CheckedExceptionProducerBean.class,
             UncheckedExceptionBean.class, UncheckedExceptionProducerBean.class);
 
     @Test

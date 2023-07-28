@@ -19,7 +19,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ListJdkElementTypeTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(ListProducer.class, InjectList.class);
+    public static ArcTestContainer container = new ArcTestContainer(ListProducer.class, InjectList.class);
 
     @Test
     public void testInjection() {

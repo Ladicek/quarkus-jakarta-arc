@@ -14,8 +14,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class QualifierDefaultValuesTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Consumer.class, Animal.class, AnimalQualifier.class, Cat.class,
-            Owl.class);
+    public static ArcTestContainer container = new ArcTestContainer(Consumer.class, Animal.class, AnimalQualifier.class,
+            Cat.class, Owl.class);
 
     @Test
     public void testDefaultValues() {

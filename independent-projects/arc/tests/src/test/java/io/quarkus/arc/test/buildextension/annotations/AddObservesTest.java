@@ -23,7 +23,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AddObservesTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(IWantToObserve.class)
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(IWantToObserve.class)
             .annotationsTransformers(new AnnotationsTransformer() {
 
                 @Override

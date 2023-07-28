@@ -16,7 +16,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ProducerMethodEventRawTypeTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(ProducerMethodInjectionBean.class).shouldFail()
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(ProducerMethodInjectionBean.class)
+            .shouldFail()
             .build();
 
     @Test

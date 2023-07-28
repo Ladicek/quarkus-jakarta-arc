@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class BeanLifecycleMethodsOverridenTest {
 
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(Bird.class, Eagle.class, Falcon.class);
+    static ArcTestContainer container = new ArcTestContainer(Bird.class, Eagle.class, Falcon.class);
 
     @Test
     public void testOverriddenMethodWithNoAnnotation() {

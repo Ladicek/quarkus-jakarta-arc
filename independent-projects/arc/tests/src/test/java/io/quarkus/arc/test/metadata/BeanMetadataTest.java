@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class BeanMetadataTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Controller.class);
+    public static ArcTestContainer container = new ArcTestContainer(Controller.class);
 
     @Test
     public void testBeanMetadata() {

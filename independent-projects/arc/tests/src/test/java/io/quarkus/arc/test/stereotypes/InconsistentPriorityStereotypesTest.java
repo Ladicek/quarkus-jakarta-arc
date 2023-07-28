@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class InconsistentPriorityStereotypesTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Stereotype1.class, Stereotype2.class, Stereotype3.class, MyBean.class)
             .shouldFail()
             .build();

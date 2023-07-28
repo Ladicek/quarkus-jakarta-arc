@@ -18,7 +18,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AdditionalIndexTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Client.class, SuperProducer.class, SuperClazz.class)
             // SubClazz is not part of the bean archive index
             .additionalClasses(SubClazz.class).build();

@@ -25,7 +25,7 @@ public class ReceptionIfExistsTest {
     static final List<String> EVENTS = new CopyOnWriteArrayList<>();
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(DependentObserver.class, RequestScopedObserver.class);
+    public static ArcTestContainer container = new ArcTestContainer(DependentObserver.class, RequestScopedObserver.class);
 
     @Test
     public void testObserver() {

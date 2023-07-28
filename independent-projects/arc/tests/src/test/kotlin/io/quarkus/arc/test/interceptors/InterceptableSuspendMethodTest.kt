@@ -15,9 +15,11 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.test.assertEquals
 
 class InterceptableSuspendMethodTest {
-    @RegisterExtension
-    val container = ArcTestContainer(MyInterceptorBinding::class.java, MyInterceptor::class.java,
-            MyService::class.java)
+    companion object {
+        @RegisterExtension
+        val container = ArcTestContainer(MyInterceptorBinding::class.java, MyInterceptor::class.java,
+                MyService::class.java)
+    }
 
     @Test
     fun test() {

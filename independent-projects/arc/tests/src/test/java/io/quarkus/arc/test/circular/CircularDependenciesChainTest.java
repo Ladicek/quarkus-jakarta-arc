@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class CircularDependenciesChainTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(
+    public static ArcTestContainer container = new ArcTestContainer(
             Foo.class,
             Bar.class,
             Baz.class, Producing.class);

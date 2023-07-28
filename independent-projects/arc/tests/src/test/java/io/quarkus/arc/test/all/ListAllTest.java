@@ -28,7 +28,7 @@ import io.quarkus.arc.test.TestLiteral;
 public class ListAllTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Service.class, ServiceAlpha.class, ServiceBravo.class,
+    public static ArcTestContainer container = new ArcTestContainer(Service.class, ServiceAlpha.class, ServiceBravo.class,
             MyQualifier.class, Foo.class);
 
     @Test

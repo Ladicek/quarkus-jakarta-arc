@@ -15,7 +15,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ClientProxyMethodInvocationInConstructorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyBean.class, Component.class, HasElement.class, HasSize.class);
+    public static ArcTestContainer container = new ArcTestContainer(MyBean.class, Component.class, HasElement.class,
+            HasSize.class);
 
     @Test
     public void testClientProxy() throws IOException {

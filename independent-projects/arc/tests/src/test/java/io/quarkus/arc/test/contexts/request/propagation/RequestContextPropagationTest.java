@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class RequestContextPropagationTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(SuperController.class, SuperButton.class,
+    public static ArcTestContainer container = new ArcTestContainer(SuperController.class, SuperButton.class,
             YetAnotherReqScopedBean.class);
 
     @Test

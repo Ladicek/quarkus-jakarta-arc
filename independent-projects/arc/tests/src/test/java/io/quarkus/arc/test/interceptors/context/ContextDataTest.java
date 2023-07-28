@@ -20,7 +20,7 @@ import io.quarkus.arc.test.interceptors.Simple;
 public class ContextDataTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleBean.class,
             AlphaInterceptor.class, BravoInterceptor.class);
 
     @Test

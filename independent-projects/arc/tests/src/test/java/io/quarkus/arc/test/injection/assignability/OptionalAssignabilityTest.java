@@ -19,7 +19,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class OptionalAssignabilityTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(OptionalProducer.class, InjectOptionals.class);
+    public static ArcTestContainer container = new ArcTestContainer(OptionalProducer.class, InjectOptionals.class);
 
     @Test
     public void testInjection() {

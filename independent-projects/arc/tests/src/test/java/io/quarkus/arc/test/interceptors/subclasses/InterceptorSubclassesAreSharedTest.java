@@ -19,7 +19,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InterceptorSubclassesAreSharedTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyBinding.class, WeirdInterceptor.class,
+    public static ArcTestContainer container = new ArcTestContainer(MyBinding.class, WeirdInterceptor.class,
             SomeBean.class);
 
     @Test

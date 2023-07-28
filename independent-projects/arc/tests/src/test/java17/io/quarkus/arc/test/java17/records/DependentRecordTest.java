@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DependentRecordTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(DependentRecord.class);
+    public static ArcTestContainer container = new ArcTestContainer(DependentRecord.class);
 
     @Test
     public void test() {

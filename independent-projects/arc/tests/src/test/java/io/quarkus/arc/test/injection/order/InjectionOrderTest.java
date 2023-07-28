@@ -14,7 +14,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class InjectionOrderTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Consumer.class, Dependency.class);
+    public static ArcTestContainer container = new ArcTestContainer(Consumer.class, Dependency.class);
 
     @Test
     public void test() {

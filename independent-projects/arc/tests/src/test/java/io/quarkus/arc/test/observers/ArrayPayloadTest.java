@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class ArrayPayloadTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Observer.class, Emitter.class);
+    public static ArcTestContainer container = new ArcTestContainer(Observer.class, Emitter.class);
 
     @Test
     public void testObservers() {

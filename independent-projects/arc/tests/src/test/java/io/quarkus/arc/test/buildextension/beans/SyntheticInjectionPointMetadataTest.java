@@ -29,7 +29,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class SyntheticInjectionPointMetadataTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyDependentFoo.class, Consumer.class)
             .beanRegistrars(new TestRegistrar()).build();
 

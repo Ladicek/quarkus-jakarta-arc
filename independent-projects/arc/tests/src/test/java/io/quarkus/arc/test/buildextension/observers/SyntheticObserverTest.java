@@ -25,7 +25,7 @@ import io.quarkus.gizmo.ResultHandle;
 public class SyntheticObserverTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(MyObserver.class, Named.class)
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(MyObserver.class, Named.class)
             .observerRegistrars(new ObserverRegistrar() {
                 @Override
                 public void register(RegistrationContext context) {

@@ -33,7 +33,7 @@ import io.quarkus.arc.test.TestLiteral;
 public class ArcContainerSelectTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Alpha.class, Washcloth.class);
+    public static ArcTestContainer container = new ArcTestContainer(Alpha.class, Washcloth.class);
 
     @SuppressWarnings("serial")
     @Test

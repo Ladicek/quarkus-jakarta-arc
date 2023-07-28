@@ -14,7 +14,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class NormalScopedPrivateNoArgsConstructorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(Unproxyable.class).shouldFail()
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(Unproxyable.class).shouldFail()
             .build();
 
     @Test

@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class InitializerMethodMarkedDisposerTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(Producers.class).shouldFail().build();
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(Producers.class).shouldFail().build();
 
     @Test
     public void testFailure() {

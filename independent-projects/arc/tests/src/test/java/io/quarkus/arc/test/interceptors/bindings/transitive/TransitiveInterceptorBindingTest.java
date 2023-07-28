@@ -10,7 +10,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class TransitiveInterceptorBindingTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(CounterInterceptor.class, SomeAnnotation.class,
+    public static ArcTestContainer container = new ArcTestContainer(CounterInterceptor.class, SomeAnnotation.class,
             CounterBinding.class, MethodLevelInterceptedBean.class, ClassLevelInterceptedBean.class,
             TwoLevelsDeepClassLevelInterceptedBean.class, AnotherAnnotation.class, NotABinding.class,
             NotInterceptedBean.class, TransitiveCounterInterceptor.class);

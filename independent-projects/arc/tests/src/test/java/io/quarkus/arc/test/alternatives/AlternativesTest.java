@@ -19,7 +19,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AlternativesTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Alpha.class, Bravo.class, Charlie.class);
+    public static ArcTestContainer container = new ArcTestContainer(Alpha.class, Bravo.class, Charlie.class);
 
     @SuppressWarnings("serial")
     @Test

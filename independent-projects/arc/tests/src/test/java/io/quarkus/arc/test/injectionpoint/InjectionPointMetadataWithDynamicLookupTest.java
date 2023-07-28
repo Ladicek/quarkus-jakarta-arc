@@ -26,7 +26,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class InjectionPointMetadataWithDynamicLookupTest {
     @RegisterExtension
-    private ArcTestContainer container = new ArcTestContainer(BeanWithInjectionPointMetadata.class,
+    private static ArcTestContainer container = new ArcTestContainer(BeanWithInjectionPointMetadata.class,
             MyDependentBean.class, MySingletonBean.class);
 
     @Test

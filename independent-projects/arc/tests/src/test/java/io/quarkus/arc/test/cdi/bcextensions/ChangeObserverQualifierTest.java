@@ -25,7 +25,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class ChangeObserverQualifierTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyQualifier.class, MyConsumer.class, MyProducer.class)
             .buildCompatibleExtensions(new MyExtension())
             .build();

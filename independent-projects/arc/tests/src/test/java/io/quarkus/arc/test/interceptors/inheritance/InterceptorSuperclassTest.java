@@ -18,8 +18,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InterceptorSuperclassTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Interceptor1.class, Interceptor2.class, One.class, Two.class,
-            OverridenInterceptor.class, Fool.class);
+    public static ArcTestContainer container = new ArcTestContainer(Interceptor1.class, Interceptor2.class, One.class,
+            Two.class, OverridenInterceptor.class, Fool.class);
 
     @Test
     public void testInterception() {

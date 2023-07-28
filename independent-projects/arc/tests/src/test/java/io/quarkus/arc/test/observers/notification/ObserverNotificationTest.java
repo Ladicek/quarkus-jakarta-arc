@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ObserverNotificationTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(StringObserver.class);
+    public static ArcTestContainer container = new ArcTestContainer(StringObserver.class);
 
     @Test
     public void testContextualInstanceIsUsed() {

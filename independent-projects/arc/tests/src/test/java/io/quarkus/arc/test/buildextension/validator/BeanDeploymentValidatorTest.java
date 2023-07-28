@@ -37,7 +37,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class BeanDeploymentValidatorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(Alpha.class, UselessBean.class)
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(Alpha.class, UselessBean.class)
             .beanRegistrars(new TestRegistrar())
             .removeUnusedBeans(true)
             .beanDeploymentValidators(new TestValidator()).build();

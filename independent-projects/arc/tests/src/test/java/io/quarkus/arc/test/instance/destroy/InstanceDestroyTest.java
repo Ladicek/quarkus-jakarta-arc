@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InstanceDestroyTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Alpha.class, Washcloth.class, Knight.class);
+    public static ArcTestContainer container = new ArcTestContainer(Alpha.class, Washcloth.class, Knight.class);
 
     @Test
     public void testDestroy() {

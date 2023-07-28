@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class EnumBeanTypesTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(ExtendedBooleanProducer.class);
+    static ArcTestContainer container = new ArcTestContainer(ExtendedBooleanProducer.class);
 
     @Test
     public void test() {

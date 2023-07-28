@@ -27,7 +27,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ScopeInheritanceTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(SuperBean.class, SubBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(SuperBean.class, SubBean.class,
             RequestScopedSubBean.class,
             InheritedScopeSubBean.class, JustSomeBeanDefiningAnnotation.class);
 

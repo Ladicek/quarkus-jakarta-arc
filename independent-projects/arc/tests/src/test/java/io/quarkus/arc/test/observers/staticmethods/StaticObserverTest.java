@@ -22,7 +22,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class StaticObserverTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(StringObserver.class, Fool.class);
+    public static ArcTestContainer container = new ArcTestContainer(StringObserver.class, Fool.class);
 
     @Test
     public void testObserver() {

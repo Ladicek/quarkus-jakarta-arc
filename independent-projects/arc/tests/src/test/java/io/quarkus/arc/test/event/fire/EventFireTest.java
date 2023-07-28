@@ -10,7 +10,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class EventFireTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer();
+    public static ArcTestContainer container = new ArcTestContainer();
 
     @Test
     public <T> void testEventFireThrowsExceptionIfEventTypeHasTypeVariable() {

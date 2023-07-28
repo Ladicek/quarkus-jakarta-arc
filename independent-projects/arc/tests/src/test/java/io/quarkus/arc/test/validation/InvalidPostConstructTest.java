@@ -17,7 +17,7 @@ import io.smallrye.mutiny.Uni;
 public class InvalidPostConstructTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(InvalidBean.class).shouldFail().build();
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(InvalidBean.class).shouldFail().build();
 
     @Test
     public void testFailure() {

@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class CircularStaticProducerTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyBean.class, MyQualifier.class);
+    public static ArcTestContainer container = new ArcTestContainer(MyBean.class, MyQualifier.class);
 
     @Test
     public void test() {

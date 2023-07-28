@@ -14,7 +14,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class SelfInvocationTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Nok.class, Ok.class,
+    public static ArcTestContainer container = new ArcTestContainer(Nok.class, Ok.class,
             NokInterceptor.class, OkInterceptor.class, InterceptedBean.class, DependentInterceptedBean.class);
 
     @Test

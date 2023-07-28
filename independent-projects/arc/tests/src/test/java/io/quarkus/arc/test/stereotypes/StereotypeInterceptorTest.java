@@ -22,7 +22,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class StereotypeInterceptorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(BeIntercepted.class, IamIntercepted.class,
+    public static ArcTestContainer container = new ArcTestContainer(BeIntercepted.class, IamIntercepted.class,
             SimpleBinding.class,
             SimpleInterceptor.class);
 

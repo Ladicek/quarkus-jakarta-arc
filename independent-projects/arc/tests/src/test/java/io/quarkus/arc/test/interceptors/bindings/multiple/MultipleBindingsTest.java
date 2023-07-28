@@ -13,7 +13,7 @@ import io.quarkus.arc.test.ArcTestContainer;
  */
 public class MultipleBindingsTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(BarBinding.class, FooBinding.class,
+    public static ArcTestContainer container = new ArcTestContainer(BarBinding.class, FooBinding.class,
             MyBean.class, MyInterceptor.class, MyOtherBean.class);
 
     @Test

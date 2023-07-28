@@ -21,7 +21,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class DisabledInterceptorInStrictModeTest {
     @RegisterExtension
-    ArcTestContainer container = ArcTestContainer.builder()
+    static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyBean.class, MyInterceptorBinding.class, MyInterceptor.class)
             .strictCompatibility(true)
             .build();

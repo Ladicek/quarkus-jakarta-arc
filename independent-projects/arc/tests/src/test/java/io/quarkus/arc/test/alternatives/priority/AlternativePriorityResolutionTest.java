@@ -18,7 +18,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class AlternativePriorityResolutionTest {
     @RegisterExtension
-    ArcTestContainer testContainer = new ArcTestContainer(NoParentAlternativePriorityProducer1.class,
+    static ArcTestContainer testContainer = new ArcTestContainer(NoParentAlternativePriorityProducer1.class,
             NoParentAlternativePriorityProducer2.class, ParentAlternativePriorityProducer3.class,
             PrioritizedConsumer.class, MessageBean.class);
 

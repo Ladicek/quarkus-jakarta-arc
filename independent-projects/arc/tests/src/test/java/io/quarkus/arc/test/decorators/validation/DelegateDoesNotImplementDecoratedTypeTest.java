@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class DelegateDoesNotImplementDecoratedTypeTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Converter.class, TrimConverterDecorator.class, MyBean.class).shouldFail().build();
 
     @Test

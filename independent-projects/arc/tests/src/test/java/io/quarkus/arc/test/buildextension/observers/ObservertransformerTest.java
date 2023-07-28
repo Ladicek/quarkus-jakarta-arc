@@ -34,7 +34,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ObservertransformerTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(MyObserver.class, AlphaQualifier.class)
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(MyObserver.class, AlphaQualifier.class)
             .observerTransformers(new ObserverTransformer() {
 
                 @Override

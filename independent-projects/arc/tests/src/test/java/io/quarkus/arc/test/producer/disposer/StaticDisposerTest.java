@@ -21,7 +21,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class StaticDisposerTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(Producers.class, Dependency.class);
+    static ArcTestContainer container = new ArcTestContainer(Producers.class, Dependency.class);
 
     @Test
     public void testProducersDisposers() {

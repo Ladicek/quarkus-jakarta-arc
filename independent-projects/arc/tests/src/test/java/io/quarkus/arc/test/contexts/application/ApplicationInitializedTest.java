@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ApplicationInitializedTest {
 
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(Observer.class);
+    static ArcTestContainer container = new ArcTestContainer(Observer.class);
 
     @Test
     public void testEventWasFired() {

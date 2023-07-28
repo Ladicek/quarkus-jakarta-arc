@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class UnusedDisposerTest {
     @RegisterExtension
-    ArcTestContainer container = ArcTestContainer.builder()
+    static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Producer.class)
             .shouldFail()
             .build();

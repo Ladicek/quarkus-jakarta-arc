@@ -19,7 +19,7 @@ import io.quarkus.arc.test.interceptors.Simple;
 public class FinalInterceptedMethodTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(Simple.class, SimpleBean.class,
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(Simple.class, SimpleBean.class,
             SimpleInterceptor.class).shouldFail().build();
 
     @Test

@@ -22,7 +22,7 @@ public class NormalScopedSyntheticBeanProducedNullTest {
     public static volatile boolean beanDestroyerInvoked = false;
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanRegistrars(new TestRegistrar()).build();
+    public static ArcTestContainer container = ArcTestContainer.builder().beanRegistrars(new TestRegistrar()).build();
 
     @Test
     public void testCreationException() {

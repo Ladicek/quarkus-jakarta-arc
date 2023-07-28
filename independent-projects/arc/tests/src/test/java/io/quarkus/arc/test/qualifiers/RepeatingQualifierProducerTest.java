@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class RepeatingQualifierProducerTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Location.class, Locations.class, NotAQualifier.class,
+    public static ArcTestContainer container = new ArcTestContainer(Location.class, Locations.class, NotAQualifier.class,
             SomePlace.class, ProducerBean.class);
 
     @Test

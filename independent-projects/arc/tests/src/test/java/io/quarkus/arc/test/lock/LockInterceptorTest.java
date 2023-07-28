@@ -47,9 +47,8 @@ public class LockInterceptorTest {
     }
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(SimpleSingletonBean.class, SimpleDependentBean.class,
-            SimpleApplicationScopedBean.class, Lock.class,
-            LockInterceptor.class);
+    public static ArcTestContainer container = new ArcTestContainer(SimpleSingletonBean.class, SimpleDependentBean.class,
+            SimpleApplicationScopedBean.class, Lock.class, LockInterceptor.class);
 
     @Test
     public void testSingletonBean() throws Exception {

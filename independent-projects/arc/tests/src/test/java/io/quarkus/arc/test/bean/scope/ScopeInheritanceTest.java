@@ -23,7 +23,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class ScopeInheritanceTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(MyScope.class, MyStereotype.class, MyBean1.class, MyBean2.class);
+    static ArcTestContainer container = new ArcTestContainer(MyScope.class, MyStereotype.class, MyBean1.class, MyBean2.class);
 
     @Test
     public void nonInheritedScopeOnDirectSuperclass() {

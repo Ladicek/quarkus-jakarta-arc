@@ -22,7 +22,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class RuntimeResolutionTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyList.class, ArrayProducer.class);
+    public static ArcTestContainer container = new ArcTestContainer(MyList.class, ArrayProducer.class);
 
     @SuppressWarnings("serial")
     @Test

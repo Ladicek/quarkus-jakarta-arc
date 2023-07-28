@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class StereotypeNamedTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(BeNamed.class, IamNamed.class);
+    public static ArcTestContainer container = new ArcTestContainer(BeNamed.class, IamNamed.class);
 
     @Test
     public void testStereotype() {

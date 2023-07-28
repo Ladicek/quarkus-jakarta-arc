@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ParamInterceptorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(SimpleBean.class, Simple.class, FirstParamInterceptor.class,
+    public static ArcTestContainer container = new ArcTestContainer(SimpleBean.class, Simple.class, FirstParamInterceptor.class,
             SecondParamInterceptor.class, ThirdParamInterceptor.class);
 
     @Test

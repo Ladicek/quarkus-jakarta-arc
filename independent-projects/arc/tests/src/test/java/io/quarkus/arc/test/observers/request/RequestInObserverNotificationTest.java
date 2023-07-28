@@ -28,7 +28,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class RequestInObserverNotificationTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(RequestFoo.class, MyObserver.class);
+    public static ArcTestContainer container = new ArcTestContainer(RequestFoo.class, MyObserver.class);
 
     @Test
     public void testObserverNotification() {

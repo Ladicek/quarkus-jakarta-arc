@@ -17,7 +17,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class DisposerMethodEventRawTypeTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(DisposerMethodInjectionBean.class).shouldFail()
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(DisposerMethodInjectionBean.class)
+            .shouldFail()
             .build();
 
     @Test

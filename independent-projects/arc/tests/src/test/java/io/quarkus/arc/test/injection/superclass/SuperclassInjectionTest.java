@@ -24,7 +24,7 @@ import io.quarkus.arc.test.injection.superclass.foo.FooHarvester;
 public class SuperclassInjectionTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Head.class, CombineHarvester.class,
+    public static ArcTestContainer container = new ArcTestContainer(Head.class, CombineHarvester.class,
             SuperCombineHarvester.class);
 
     @Test

@@ -15,7 +15,7 @@ import io.quarkus.arc.test.interceptors.SimpleInterceptor;
 public class SubclassLimitsTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleInterceptor.class, Counter.class,
+    public static ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleInterceptor.class, Counter.class,
             LargeBean.class);
 
     @Test

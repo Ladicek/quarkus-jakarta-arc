@@ -29,8 +29,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class TransientReferenceDestroyedTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Controller.class, InterceptedController.class, BeerProducer.class,
-            Beer.class);
+    public static ArcTestContainer container = new ArcTestContainer(Controller.class, InterceptedController.class,
+            BeerProducer.class, Beer.class);
 
     @Test
     public void testTransientReferences() {

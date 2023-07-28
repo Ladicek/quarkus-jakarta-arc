@@ -46,7 +46,7 @@ public class SyntheticBeanParamsTest {
     }
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .additionalClasses(SimpleEnum.class, AnotherEnum.class, SimpleAnnotation.class, AnotherAnnotation.class,
                     Verification.class)
             .beanRegistrars(new BeanRegistrar() {

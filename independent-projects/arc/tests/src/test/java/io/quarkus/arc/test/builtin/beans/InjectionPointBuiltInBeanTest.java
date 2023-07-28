@@ -22,7 +22,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class InjectionPointBuiltInBeanTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyProducer.class, MyService.class)
             .additionalClasses(MyPojo.class)
             .build();

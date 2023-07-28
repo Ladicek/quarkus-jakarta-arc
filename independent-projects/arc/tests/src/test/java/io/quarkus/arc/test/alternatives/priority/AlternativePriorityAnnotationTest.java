@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AlternativePriorityAnnotationTest {
 
     @RegisterExtension
-    ArcTestContainer testContainer = new ArcTestContainer(MyInterface.class, Foo.class, AlternativeClassBean.class,
+    static ArcTestContainer testContainer = new ArcTestContainer(MyInterface.class, Foo.class, AlternativeClassBean.class,
             MyProducer.class, AlternativeProducerFieldBean.class, AlternativeProducerMethodBean.class,
             ProducerWithClashingAnnotations.class, TheUltimateImpl.class);
 

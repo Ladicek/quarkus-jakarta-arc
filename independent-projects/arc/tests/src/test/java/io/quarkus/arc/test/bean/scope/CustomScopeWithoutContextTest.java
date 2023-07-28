@@ -20,7 +20,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class CustomScopeWithoutContextTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(MyScope.class, MyNormalScope.class, MyBean.class, MyNormalBean.class);
+    static ArcTestContainer container = new ArcTestContainer(MyScope.class, MyNormalScope.class, MyBean.class,
+            MyNormalBean.class);
 
     @Test
     public void pseudoScope() {

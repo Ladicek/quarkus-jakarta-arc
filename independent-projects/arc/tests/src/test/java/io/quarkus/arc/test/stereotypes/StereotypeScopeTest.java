@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class StereotypeScopeTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(ModelBean.class, ApplicationModelBean.class);
+    public static ArcTestContainer container = new ArcTestContainer(ModelBean.class, ApplicationModelBean.class);
 
     @Test
     public void testStereotype() {

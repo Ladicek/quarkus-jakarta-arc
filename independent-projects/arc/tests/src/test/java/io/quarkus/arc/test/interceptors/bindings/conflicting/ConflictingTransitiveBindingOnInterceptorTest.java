@@ -23,7 +23,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class ConflictingTransitiveBindingOnInterceptorTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyInterceptor.class, FooBinding.class, BarBinding.class)
             .shouldFail()
             .build();

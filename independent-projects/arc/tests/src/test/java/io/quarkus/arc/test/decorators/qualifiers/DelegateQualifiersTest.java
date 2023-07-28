@@ -19,7 +19,7 @@ import io.quarkus.arc.test.MyQualifier;
 public class DelegateQualifiersTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Converter.class, ToUpperCaseConverter.class,
+    public static ArcTestContainer container = new ArcTestContainer(Converter.class, ToUpperCaseConverter.class,
             TrimConverterDecorator.class, MyQualifier.class);
 
     @Test

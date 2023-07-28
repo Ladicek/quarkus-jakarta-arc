@@ -18,7 +18,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ComputedAlternativePriorityTest {
 
     @RegisterExtension
-    ArcTestContainer testContainer = ArcTestContainer.builder().beanClasses(MyInterface.class, Foo.class, Producers.class)
+    static ArcTestContainer testContainer = ArcTestContainer.builder()
+            .beanClasses(MyInterface.class, Foo.class, Producers.class)
             .alternativePriorities((target, stereotypes) -> {
                 if (target.kind() == AnnotationTarget.Kind.CLASS) {
                     if (target.asClass().name().toString().equals(Foo.class.getName())) {

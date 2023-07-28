@@ -22,7 +22,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AroundConstructAppliedViaConstructorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyTransactional.class,
+    public static ArcTestContainer container = new ArcTestContainer(MyTransactional.class,
             MyOtherTransactional.class,
             SimpleBean_ConstructorWithInject.class,
             SimpleBean_NoArgsConstructor.class,

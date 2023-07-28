@@ -25,7 +25,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class SimpleObserverTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(StringProducer.class, StringObserver.class);
+    public static ArcTestContainer container = new ArcTestContainer(StringProducer.class, StringObserver.class);
 
     @Test
     public void testObserver() {

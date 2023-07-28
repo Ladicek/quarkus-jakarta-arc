@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class DisabledDecoratorInStrictModeTest {
     @RegisterExtension
-    ArcTestContainer container = ArcTestContainer.builder()
+    static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Converter.class, ToUpperCaseConverter.class, TrimConverterDecorator.class)
             .strictCompatibility(true)
             .build();

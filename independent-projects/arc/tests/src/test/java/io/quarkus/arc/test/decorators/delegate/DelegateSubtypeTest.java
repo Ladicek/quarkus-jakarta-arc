@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class DelegateSubtypeTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(A.class, B.class, C.class, D.class);
+    public static ArcTestContainer container = new ArcTestContainer(A.class, B.class, C.class, D.class);
 
     @Test
     public void testDecoration() {

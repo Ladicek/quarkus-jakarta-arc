@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AbstractDecoratorWithAbstractMethodTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Converter.class, DecoratorWithAbstractMethod.class).shouldFail().build();
 
     @Test

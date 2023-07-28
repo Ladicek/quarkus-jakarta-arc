@@ -32,7 +32,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class RemoveUnusedBeansTest extends RemoveUnusedComponentsTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(HasObserver.class, Foo.class, FooAlternative.class, HasName.class, UnusedProducers.class,
                     InjectedViaInstance.class, InjectedViaInstanceWithWildcard.class, InjectedViaProvider.class, Excluded.class,
                     UsedProducers.class, UnusedProducerButInjected.class, UsedViaInstanceWithUnusedProducer.class,

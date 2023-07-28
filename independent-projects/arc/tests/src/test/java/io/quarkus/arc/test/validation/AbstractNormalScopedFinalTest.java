@@ -9,20 +9,16 @@ import jakarta.enterprise.inject.Vetoed;
 import jakarta.enterprise.inject.spi.DeploymentException;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.quarkus.arc.test.ArcTestContainer;
 
 public abstract class AbstractNormalScopedFinalTest {
 
-    @RegisterExtension
-    public ArcTestContainer container = createTestContainer();
-
-    protected abstract ArcTestContainer createTestContainer();
+    protected abstract ArcTestContainer getContainer();
 
     @Test
     public void testFailure() {
-        Throwable error = container.getFailure();
+        Throwable error = getContainer().getFailure();
         assertNotNull(error);
         assertTrue(error instanceof DeploymentException);
     }

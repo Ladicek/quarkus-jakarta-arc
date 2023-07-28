@@ -18,7 +18,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class FinalMethodIgnoredTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Moo.class);
+    public static ArcTestContainer container = new ArcTestContainer(Moo.class);
 
     @Test
     public void testProducer() throws IOException {

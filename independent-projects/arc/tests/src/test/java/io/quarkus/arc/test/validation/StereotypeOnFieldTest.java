@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class StereotypeOnFieldTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(BeanWithStereotypeOnField.class, Audited.class)
             .shouldFail()
             .build();

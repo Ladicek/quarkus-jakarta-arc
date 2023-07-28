@@ -15,9 +15,11 @@ import java.util.Locale
 import kotlin.test.assertFailsWith
 
 class KotlinInterceptorTest {
-    @RegisterExtension
-    val container = ArcTestContainer(Converter::class.java, ToUpperCaseConverter::class.java,
-            FailingInterceptor::class.java, AlwaysFail::class.java)
+    companion object {
+        @RegisterExtension
+        val container = ArcTestContainer(Converter::class.java, ToUpperCaseConverter::class.java,
+                FailingInterceptor::class.java, AlwaysFail::class.java)
+    }
 
     @Test
     fun testInterceptionThrowsUnwrapped() {

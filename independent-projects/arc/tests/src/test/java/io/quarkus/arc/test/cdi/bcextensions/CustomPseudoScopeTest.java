@@ -34,7 +34,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class CustomPseudoScopeTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(SingletonBean.class, ApplicationScopedBean.class, RequestScopedBean.class, DependentBean.class,
                     PrototypeBean.class)
             .buildCompatibleExtensions(new MyExtension())

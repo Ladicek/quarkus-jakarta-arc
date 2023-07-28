@@ -18,7 +18,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class SimpleBeanTypesTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(MyBean.class);
+    static ArcTestContainer container = new ArcTestContainer(MyBean.class);
 
     @Test
     public void test() {

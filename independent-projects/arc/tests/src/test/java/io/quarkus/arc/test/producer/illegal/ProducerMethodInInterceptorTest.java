@@ -27,7 +27,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ProducerMethodInInterceptorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(BadInterceptor.class, FooBean.class, MyBinding.class).shouldFail()
             .build();
 

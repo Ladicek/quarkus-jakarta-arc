@@ -36,7 +36,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class BuiltInBeansAreResolvableTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(DummyBean.class, DummyQualifier.class)
             .build();
 

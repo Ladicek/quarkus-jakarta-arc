@@ -22,7 +22,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class MultipleDecoratorsWithTypeVariablesTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(StringFunction.class,
+    public static ArcTestContainer container = new ArcTestContainer(StringFunction.class,
             FunctionDecorator1.class, FunctionDecorator2.class, StringConsumer.class, ConsumerDecorator1.class,
             ConsumerDecorator2.class, StringSupplier.class, SupplierDecorator1.class, SupplierDecorator2.class);
 

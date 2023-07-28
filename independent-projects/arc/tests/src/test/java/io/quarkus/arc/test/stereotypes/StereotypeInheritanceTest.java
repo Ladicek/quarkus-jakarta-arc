@@ -29,7 +29,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class StereotypeInheritanceTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyStereotype.class, MyBeanDefiningAnnotation.class,
+    public static ArcTestContainer container = new ArcTestContainer(MyStereotype.class, MyBeanDefiningAnnotation.class,
             MySuperclass.class, MyBean.class);
 
     @Test

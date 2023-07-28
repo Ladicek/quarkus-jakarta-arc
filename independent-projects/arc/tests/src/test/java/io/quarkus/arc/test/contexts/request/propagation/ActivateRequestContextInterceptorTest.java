@@ -39,7 +39,7 @@ import io.smallrye.mutiny.Uni;
 public class ActivateRequestContextInterceptorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(FakeSessionProducer.class, SessionClient.class,
+    public static ArcTestContainer container = new ArcTestContainer(FakeSessionProducer.class, SessionClient.class,
             ExecutorProducer.class, SessionClientCompletingOnDifferentThread.class);
 
     @Nested

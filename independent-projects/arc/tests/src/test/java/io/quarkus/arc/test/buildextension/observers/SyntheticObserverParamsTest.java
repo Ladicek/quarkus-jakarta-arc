@@ -45,7 +45,7 @@ public class SyntheticObserverParamsTest {
     }
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .additionalClasses(SimpleEnum.class, AnotherEnum.class, SimpleAnnotation.class, AnotherAnnotation.class)
             .observerRegistrars(new ObserverRegistrar() {
                 @Override

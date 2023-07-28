@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AlternativesPriorityTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Alpha.class, Bravo.class, Charlie.class,
+    public static ArcTestContainer container = new ArcTestContainer(Alpha.class, Bravo.class, Charlie.class,
             Consumer.class);
 
     @SuppressWarnings("serial")

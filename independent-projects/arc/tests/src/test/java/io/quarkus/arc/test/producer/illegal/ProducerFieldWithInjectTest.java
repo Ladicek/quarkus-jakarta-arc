@@ -18,7 +18,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ProducerFieldWithInjectTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(IllegalProducer.class).shouldFail()
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(IllegalProducer.class).shouldFail()
             .build();
 
     @Test

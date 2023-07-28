@@ -32,7 +32,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class MemberLevelInheritanceTest {
 
     @RegisterExtension
-    ArcTestContainer testContainer = new ArcTestContainer(Foo.class, FooExtended.class, DummyBean.class,
+    static ArcTestContainer testContainer = new ArcTestContainer(Foo.class, FooExtended.class, DummyBean.class,
             MyBinding.class, MyInterceptor.class);
 
     @Test

@@ -31,7 +31,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class EventMetadataTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(BigObserver.class, Emitter.class);
+    public static ArcTestContainer container = new ArcTestContainer(BigObserver.class, Emitter.class);
 
     @Test
     public void testMetadata() {

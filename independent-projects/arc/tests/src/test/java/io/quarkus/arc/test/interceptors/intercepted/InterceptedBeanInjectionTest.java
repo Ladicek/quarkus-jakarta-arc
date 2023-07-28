@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InterceptedBeanInjectionTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Simple.class,
+    public static ArcTestContainer container = new ArcTestContainer(Simple.class,
             SimpleInterceptor.class, InterceptedBean.class, InterceptedDependent.class);
 
     @Test

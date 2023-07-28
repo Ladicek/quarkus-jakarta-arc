@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class BeanManagerInstanceTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(FuuService.class);
+    public static ArcTestContainer container = new ArcTestContainer(FuuService.class);
 
     @Test
     public void testGetEvent() {

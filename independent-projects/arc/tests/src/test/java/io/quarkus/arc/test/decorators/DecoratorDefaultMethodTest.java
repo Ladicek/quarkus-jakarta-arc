@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class DecoratorDefaultMethodTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Converter.class, ToLengthConverter.class,
+    public static ArcTestContainer container = new ArcTestContainer(Converter.class, ToLengthConverter.class,
             NoopConverterDecorator.class);
 
     @SuppressWarnings("serial")

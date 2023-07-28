@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ObservesAsyncParamConstructorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyBean.class)
             .shouldFail()
             .build();

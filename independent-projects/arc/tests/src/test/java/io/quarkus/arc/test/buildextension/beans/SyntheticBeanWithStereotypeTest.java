@@ -39,7 +39,7 @@ import io.quarkus.gizmo.MethodDescriptor;
 
 public class SyntheticBeanWithStereotypeTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(ToBeStereotype.class, SimpleBinding.class, SimpleInterceptor.class)
             .additionalClasses(SomeBean.class)
             .stereotypeRegistrars(new MyStereotypeRegistrar())

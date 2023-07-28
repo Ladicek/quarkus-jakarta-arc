@@ -21,7 +21,7 @@ public class FinalNonInterceptedMethodTest {
     static final String VAL = "ping";
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleBean.class,
             SimpleInterceptor.class);
 
     @Test

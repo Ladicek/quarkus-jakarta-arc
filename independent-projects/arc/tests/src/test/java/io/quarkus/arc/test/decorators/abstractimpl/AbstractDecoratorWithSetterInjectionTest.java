@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class AbstractDecoratorWithSetterInjectionTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Converter.class, ToUpperCaseConverter.class,
+    public static ArcTestContainer container = new ArcTestContainer(Converter.class, ToUpperCaseConverter.class,
             TrimConverterDecorator.class, Trimmer.class);
 
     @Test

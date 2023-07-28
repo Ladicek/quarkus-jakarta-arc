@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InterceptorWithNoPriorityTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Simple.class, AverageBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(Simple.class, AverageBean.class,
             SimpleInterceptorWithNoPriority.class);
 
     @Test

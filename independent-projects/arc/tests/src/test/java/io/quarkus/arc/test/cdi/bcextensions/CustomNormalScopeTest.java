@@ -49,7 +49,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 // this test is basically a copy of https://github.com/weld/command-context-example
 public class CustomNormalScopeTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(TestCommand.class, MyService.class, IdService.class)
             .buildCompatibleExtensions(new MyExtension())
             .build();

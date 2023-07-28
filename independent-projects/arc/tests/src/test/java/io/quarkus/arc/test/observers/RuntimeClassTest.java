@@ -21,7 +21,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class RuntimeClassTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(NumberProducer.class, NumberObserver.class);
+    public static ArcTestContainer container = new ArcTestContainer(NumberProducer.class, NumberObserver.class);
 
     @Test
     public void testObserver() {

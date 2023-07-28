@@ -21,7 +21,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class QualifiersInheritanceTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().removeUnusedBeans(false)
+    public static ArcTestContainer container = ArcTestContainer.builder().removeUnusedBeans(false)
             .beanClasses(SuperBean.class, Alpha.class, Bravo.class, InheritedQualifier.class, NonInheritedQualifier.class)
             .build();
 

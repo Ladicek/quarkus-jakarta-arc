@@ -31,7 +31,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AdditionalQualifiersTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(ToBeQualifier.class,
                     ToBeQualifierWithBindingField.class,
                     ToBeQualifierWithNonBindingField.class, Alpha.class, Bravo.class, Charlie.class)

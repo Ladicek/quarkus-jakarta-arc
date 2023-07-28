@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class RequestContextTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Controller.class, ControllerClient.class,
+    public static ArcTestContainer container = new ArcTestContainer(Controller.class, ControllerClient.class,
             ContextObserver.class, Boom.class);
 
     @Test

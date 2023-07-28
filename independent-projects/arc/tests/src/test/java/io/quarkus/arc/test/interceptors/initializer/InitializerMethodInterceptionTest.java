@@ -28,8 +28,8 @@ import io.quarkus.arc.test.interceptors.initializer.subpkg.MySuperclass;
 
 public class InitializerMethodInterceptionTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyDependency.class, MyBean.class, MyInterceptorBinding.class,
-            MyInterceptor.class);
+    public static ArcTestContainer container = new ArcTestContainer(MyDependency.class, MyBean.class,
+            MyInterceptorBinding.class, MyInterceptor.class);
 
     @Test
     public void testInterception() {

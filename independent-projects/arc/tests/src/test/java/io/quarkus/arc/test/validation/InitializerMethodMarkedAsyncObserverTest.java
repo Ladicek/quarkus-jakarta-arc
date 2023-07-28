@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class InitializerMethodMarkedAsyncObserverTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(MyBean.class).shouldFail().build();
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(MyBean.class).shouldFail().build();
 
     @Test
     public void testFailure() {

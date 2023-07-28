@@ -36,7 +36,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class AdditionalStereotypesTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(ToBeStereotype.class, SimpleBinding.class, SimpleInterceptor.class, SomeBean.class)
             .stereotypeRegistrars(new MyStereotypeRegistrar())
             .annotationsTransformers(new MyAnnotationTrasnformer())

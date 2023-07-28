@@ -15,7 +15,7 @@ import io.quarkus.arc.test.lifecyclecallbacks.inherited.subpackage.AlternativeBe
 public class PackagePrivateCallbackInheritanceTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(AlternativeBean.class, OriginalBean.class);
+    public static ArcTestContainer container = new ArcTestContainer(AlternativeBean.class, OriginalBean.class);
 
     @Test
     public void testCallbacks() {

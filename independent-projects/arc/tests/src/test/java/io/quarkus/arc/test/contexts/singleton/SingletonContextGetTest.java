@@ -21,7 +21,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class SingletonContextGetTest {
 
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(Boom.class);
+    static ArcTestContainer container = new ArcTestContainer(Boom.class);
 
     @Test
     public void testGet() {

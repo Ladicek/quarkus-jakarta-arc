@@ -14,7 +14,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class MultipleBoundsTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(BazImpl.class, Consumer.class);
+    static ArcTestContainer container = new ArcTestContainer(BazImpl.class, Consumer.class);
 
     @Test
     public void multipleBounds() {

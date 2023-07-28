@@ -10,8 +10,10 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.test.assertEquals
 
 class NotInterceptedSuspendMethodTest {
-    @RegisterExtension
-    val container = ArcTestContainer(MyService::class.java)
+    companion object {
+        @RegisterExtension
+        val container = ArcTestContainer(MyService::class.java)
+    }
 
     @Test
     fun test() {

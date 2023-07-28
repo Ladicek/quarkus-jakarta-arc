@@ -25,7 +25,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class ArrayTypeTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyAnn1.class, MyAnn2.class, MyAnn3.class, MyAnn4.class, MyService.class)
             .buildCompatibleExtensions(new MyExtension())
             .build();

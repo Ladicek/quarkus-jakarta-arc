@@ -26,7 +26,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class SyntheticBeanInjectionPointTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyBean.class)
             .buildCompatibleExtensions(new MyExtension())
             .build();

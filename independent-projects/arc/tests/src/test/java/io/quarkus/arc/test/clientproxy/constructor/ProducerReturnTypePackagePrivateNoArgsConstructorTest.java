@@ -23,7 +23,7 @@ import io.quarkus.arc.test.clientproxy.constructor.some.Resource;
 public class ProducerReturnTypePackagePrivateNoArgsConstructorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(ResourceProducer.class);
+    public static ArcTestContainer container = new ArcTestContainer(ResourceProducer.class);
 
     @Test
     public void testProducer() throws IOException {

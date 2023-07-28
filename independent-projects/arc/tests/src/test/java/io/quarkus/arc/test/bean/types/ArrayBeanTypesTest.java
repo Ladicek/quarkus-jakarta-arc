@@ -22,7 +22,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class ArrayBeanTypesTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(Producer.class);
+    static ArcTestContainer container = new ArcTestContainer(Producer.class);
 
     @Test
     public <T> void test() {

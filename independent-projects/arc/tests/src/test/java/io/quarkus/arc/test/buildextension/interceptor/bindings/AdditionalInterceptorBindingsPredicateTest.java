@@ -30,7 +30,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AdditionalInterceptorBindingsPredicateTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(SomeBean.class, SomeOtherBean.class,
                     MyInterceptor.class, ToBeBinding.class,
                     ToBeBindingWithBindingField.class, MyInterceptorForBindingField.class,

@@ -31,7 +31,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class InterceptorBindingOnStereotypeTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyBean.class, MyStereotype.class,
+    public static ArcTestContainer container = new ArcTestContainer(MyBean.class, MyStereotype.class,
             MyInterceptorBinding.class, MyInterceptor.class);
 
     @Test

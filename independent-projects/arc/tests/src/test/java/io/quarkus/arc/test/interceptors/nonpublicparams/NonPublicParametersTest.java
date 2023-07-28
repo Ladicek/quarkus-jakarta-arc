@@ -20,7 +20,7 @@ import io.quarkus.arc.test.interceptors.nonpublicparams.charlie.Charlie;
 public class NonPublicParametersTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleBean.class,
             SimpleInterceptor.class);
 
     @Test

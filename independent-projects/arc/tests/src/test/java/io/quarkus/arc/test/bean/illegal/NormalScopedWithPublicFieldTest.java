@@ -14,7 +14,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class NormalScopedWithPublicFieldTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(IllegalBean.class)
             .strictCompatibility(true)
             .shouldFail()

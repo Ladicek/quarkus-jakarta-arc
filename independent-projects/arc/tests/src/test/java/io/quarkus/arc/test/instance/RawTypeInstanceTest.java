@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class RawTypeInstanceTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(Alpha.class).shouldFail().build();
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(Alpha.class).shouldFail().build();
 
     @Test
     public void testDefinitionError() {

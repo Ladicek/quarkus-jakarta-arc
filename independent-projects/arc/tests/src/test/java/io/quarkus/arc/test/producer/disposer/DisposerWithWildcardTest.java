@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class DisposerWithWildcardTest {
 
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(Producers.class);
+    static ArcTestContainer container = new ArcTestContainer(Producers.class);
 
     @Test
     public void testDisposers() {

@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class DuplicateBindingsResolutionTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(BindingTypeA.class, BindingTypeA.BindingTypeABinding.class,
+    public static ArcTestContainer container = new ArcTestContainer(BindingTypeA.class, BindingTypeA.BindingTypeABinding.class,
             AnEventType.class, AnObserver.class);
 
     @Test

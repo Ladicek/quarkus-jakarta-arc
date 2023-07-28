@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class RawTypeAssignabilityTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyProducer.class, MyConsumer.class, Foo.class);
+    public static ArcTestContainer container = new ArcTestContainer(MyProducer.class, MyConsumer.class, Foo.class);
 
     @Test
     public void testAssignabilityWithRawType() {

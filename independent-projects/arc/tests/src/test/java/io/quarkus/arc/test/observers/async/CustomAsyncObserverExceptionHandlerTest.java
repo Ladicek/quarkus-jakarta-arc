@@ -29,7 +29,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class CustomAsyncObserverExceptionHandlerTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(StringProducer.class, StringObserver.class,
+    public static ArcTestContainer container = new ArcTestContainer(StringProducer.class, StringObserver.class,
             MyAsyncObserverExceptionHandler.class);
 
     @Test

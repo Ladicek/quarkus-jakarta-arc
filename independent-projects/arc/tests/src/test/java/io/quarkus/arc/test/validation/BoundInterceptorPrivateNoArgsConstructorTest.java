@@ -14,7 +14,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class BoundInterceptorPrivateNoArgsConstructorTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Unproxyable.class, Simple.class, SimpleInterceptor.class).shouldFail().build();
 
     @Test

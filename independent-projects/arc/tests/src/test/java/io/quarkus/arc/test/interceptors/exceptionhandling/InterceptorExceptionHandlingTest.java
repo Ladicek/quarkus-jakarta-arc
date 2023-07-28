@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InterceptorExceptionHandlingTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(ExceptionHandlingBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(ExceptionHandlingBean.class,
             ExceptionHandlingInterceptor.class, ExceptionHandlingInterceptorBinding.class);
 
     @Test

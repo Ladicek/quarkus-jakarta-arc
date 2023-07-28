@@ -14,7 +14,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ClientProxyContextNotActiveTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(RequestFoo.class);
+    public static ArcTestContainer container = new ArcTestContainer(RequestFoo.class);
 
     @Test
     public void testToStringIsDelegated() {

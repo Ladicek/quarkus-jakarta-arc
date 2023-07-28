@@ -10,7 +10,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ClientProxyToStringDelegatedTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Foo.class);
+    public static ArcTestContainer container = new ArcTestContainer(Foo.class);
 
     @Test
     public void testToStringIsDelegated() {

@@ -13,7 +13,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AbstractClassIgnoredTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Foo.class, Bar.class);
+    public static ArcTestContainer container = new ArcTestContainer(Foo.class, Bar.class);
 
     @Test
     public void testBeans() {

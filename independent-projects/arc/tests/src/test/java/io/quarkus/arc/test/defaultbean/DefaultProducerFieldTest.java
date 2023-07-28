@@ -23,7 +23,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class DefaultProducerFieldTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Producer.class,
+    public static ArcTestContainer container = new ArcTestContainer(Producer.class,
             GreetingBean.class, Hello.class, Fantasy.class);
 
     @Test

@@ -11,7 +11,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class MultipleInterceptionTypesTogetherTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyBinding.class, SomeBean.class, MyInterceptor.class);
+    public static ArcTestContainer container = new ArcTestContainer(MyBinding.class, SomeBean.class, MyInterceptor.class);
 
     @Test
     public void testInterceptionIsInvokedWhenAppropriate() {

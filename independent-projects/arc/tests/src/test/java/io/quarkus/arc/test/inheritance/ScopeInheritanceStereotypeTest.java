@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ScopeInheritanceStereotypeTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(SuperBean.class, SubBean.class);
+    public static ArcTestContainer container = new ArcTestContainer(SuperBean.class, SubBean.class);
 
     @Test
     public void testExplicitScopeTakesPrecedence() {

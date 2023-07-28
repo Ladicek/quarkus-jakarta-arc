@@ -33,7 +33,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class TransitiveStereotypeTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyStereotype.class, MyOtherStereotype.class, MyBean.class);
+    public static ArcTestContainer container = new ArcTestContainer(MyStereotype.class, MyOtherStereotype.class, MyBean.class);
 
     @Test
     public void test() {

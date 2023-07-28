@@ -26,7 +26,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class DependentCreationalContextTest {
 
     @RegisterExtension
-    ArcTestContainer container = ArcTestContainer.builder()
+    static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(NoPreDestroy.class, HasDestroy.class, HasDependency.class,
                     ProducerNoDisposer.class, ProducerWithDisposer.class, String.class, Boolean.class)
             .beanRegistrars(new BeanRegistrar() {

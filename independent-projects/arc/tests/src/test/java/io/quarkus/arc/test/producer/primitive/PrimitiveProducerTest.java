@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class PrimitiveProducerTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(IntProducer.class, LongProducer.class,
+    public static ArcTestContainer container = new ArcTestContainer(IntProducer.class, LongProducer.class,
             StringArrayProducer.class,
             PrimitiveConsumer.class);
 

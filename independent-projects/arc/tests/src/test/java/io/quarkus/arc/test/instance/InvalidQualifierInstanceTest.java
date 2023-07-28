@@ -16,7 +16,7 @@ import io.quarkus.arc.test.TestLiteral;
 public class InvalidQualifierInstanceTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Alpha.class);
+    public static ArcTestContainer container = new ArcTestContainer(Alpha.class);
 
     @SuppressWarnings("serial")
     @Test

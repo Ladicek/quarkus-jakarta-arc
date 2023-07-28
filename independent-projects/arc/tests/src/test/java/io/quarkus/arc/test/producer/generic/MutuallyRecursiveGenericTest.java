@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class MutuallyRecursiveGenericTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Producer.class, Target.class)
             .additionalClasses(Graph.class, Edge.class, Node.class, Map.class, Route.class, City.class)
             .build();

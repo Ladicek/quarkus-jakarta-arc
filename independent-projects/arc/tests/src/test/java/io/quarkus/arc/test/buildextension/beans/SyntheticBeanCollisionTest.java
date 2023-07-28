@@ -19,7 +19,7 @@ public class SyntheticBeanCollisionTest {
     public static volatile boolean beanDestroyerInvoked = false;
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanRegistrars(new TestRegistrar()).shouldFail().build();
 
     @Test

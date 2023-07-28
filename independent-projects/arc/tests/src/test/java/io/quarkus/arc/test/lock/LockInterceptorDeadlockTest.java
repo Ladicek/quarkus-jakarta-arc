@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class LockInterceptorDeadlockTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(SimpleApplicationScopedBean.class, Lock.class,
+    public static ArcTestContainer container = new ArcTestContainer(SimpleApplicationScopedBean.class, Lock.class,
             LockInterceptor.class);
 
     @Test

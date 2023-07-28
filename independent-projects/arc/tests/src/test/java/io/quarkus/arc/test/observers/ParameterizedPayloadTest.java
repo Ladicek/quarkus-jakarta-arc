@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ParameterizedPayloadTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(ListObserver.class, ListProducer.class);
+    public static ArcTestContainer container = new ArcTestContainer(ListObserver.class, ListProducer.class);
 
     @Test
     public void testObservers() {

@@ -36,7 +36,7 @@ import io.quarkus.arc.test.MyQualifier;
 public class InjectionPointTransformerTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(SimpleProducer.class, SimpleConsumer.class, MyQualifier.class, CasualObserver.class,
                     AnotherQualifier.class)
             .injectionPointsTransformers(new MyTransformer())

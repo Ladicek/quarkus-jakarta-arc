@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class DefaultProducerMethodTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Producer1.class, Producer2.class, Producer3.class,
+    public static ArcTestContainer container = new ArcTestContainer(Producer1.class, Producer2.class, Producer3.class,
             GreetingBean.class, GreetingService.class);
 
     @Test

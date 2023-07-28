@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class InconsistentPriorityStereotypesOverriddenOnBeanTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Stereotype1.class, Stereotype2.class, Stereotype3.class,
+    public static ArcTestContainer container = new ArcTestContainer(Stereotype1.class, Stereotype2.class, Stereotype3.class,
             MyBean.class);
 
     @Test

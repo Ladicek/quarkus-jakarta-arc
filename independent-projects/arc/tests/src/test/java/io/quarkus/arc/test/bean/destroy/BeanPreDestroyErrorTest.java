@@ -26,7 +26,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class BeanPreDestroyErrorTest {
 
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(DestroyBean.class, DestroyProducerBean.class);
+    static ArcTestContainer container = new ArcTestContainer(DestroyBean.class, DestroyProducerBean.class);
 
     @BeforeEach
     public void setup() {

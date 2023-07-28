@@ -37,7 +37,7 @@ public class SyntheticInterceptorTest {
     static final List<String> EVENTS = new CopyOnWriteArrayList<>();
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyBean.class, SimpleBinding.class, TestAroundInvoke.class)
             .beanRegistrars(new TestRegistrar()).build();
 

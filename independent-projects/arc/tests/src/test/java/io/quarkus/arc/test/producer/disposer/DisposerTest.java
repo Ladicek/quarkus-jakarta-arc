@@ -31,7 +31,7 @@ import io.quarkus.arc.test.MyQualifier;
 public class DisposerTest {
 
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(StringProducer.class, LongProducer.class, BigDecimalProducer.class,
+    static ArcTestContainer container = new ArcTestContainer(StringProducer.class, LongProducer.class, BigDecimalProducer.class,
             MyQualifier.class, Pong.class);
 
     @AfterAll

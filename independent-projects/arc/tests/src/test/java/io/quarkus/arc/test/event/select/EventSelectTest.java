@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class EventSelectTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(BreakInEvent.class, NotABindingType.class,
+    public static ArcTestContainer container = new ArcTestContainer(BreakInEvent.class, NotABindingType.class,
             SecurityEvent.class, SecurityEvent_Illegal.class,
             SecuritySensor.class, SystemTest.class);
 

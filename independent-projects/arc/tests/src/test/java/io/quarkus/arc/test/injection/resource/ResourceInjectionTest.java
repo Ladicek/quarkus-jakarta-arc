@@ -50,7 +50,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ResourceInjectionTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(EEResourceField.class, JpaClient.class)
             .resourceReferenceProviders(EntityManagerProvider.class, DummyProvider.class)
             .resourceAnnotations(PersistenceContext.class, Dummy.class)

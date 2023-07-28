@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class NonPublicJdkBeanTypesTest {
 
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(StringBuilderProducer.class);
+    static ArcTestContainer container = new ArcTestContainer(StringBuilderProducer.class);
 
     @Test
     public void test() {

@@ -25,7 +25,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class StereotypeAlternativeTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(BeAlternative.class, BeAlternativeWithPriority.class,
+    public static ArcTestContainer container = new ArcTestContainer(BeAlternative.class, BeAlternativeWithPriority.class,
             NonAlternative.class, IamAlternative.class, NotAtAllAlternative.class, IamAlternativeWithPriority.class,
             ToBeOverridenFoo.class, MockedFoo.class, MockedFooWithExplicitPriority.class, Mock.class);
 

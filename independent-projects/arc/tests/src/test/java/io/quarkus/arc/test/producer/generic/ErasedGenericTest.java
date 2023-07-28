@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
  */
 public class ErasedGenericTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(ErasedTypeProducer.class, Claim.class, Target.class);
+    public static ArcTestContainer container = new ArcTestContainer(ErasedTypeProducer.class, Claim.class, Target.class);
 
     @Test
     public void testPrimitiveProducers() {

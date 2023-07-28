@@ -16,11 +16,13 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 
 class NoninterceptableSuspendMethodTest {
-    @RegisterExtension
-    val container = ArcTestContainer.builder()
-            .beanClasses(MyInterceptorBinding::class.java, MyInterceptor::class.java, MyService::class.java)
-            .shouldFail()
-            .build()
+    companion object {
+        @RegisterExtension
+        val container = ArcTestContainer.builder()
+                .beanClasses(MyInterceptorBinding::class.java, MyInterceptor::class.java, MyService::class.java)
+                .shouldFail()
+                .build()
+    }
 
     @Test
     fun trigger() {

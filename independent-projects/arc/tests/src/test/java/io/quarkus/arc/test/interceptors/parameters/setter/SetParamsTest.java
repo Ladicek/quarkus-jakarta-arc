@@ -11,7 +11,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class SetParamsTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(TheBean.class, Setter.class, FirstSetterInterceptor.class,
+    public static ArcTestContainer container = new ArcTestContainer(TheBean.class, Setter.class, FirstSetterInterceptor.class,
             SecondSetterInterceptor.class);
 
     @Test

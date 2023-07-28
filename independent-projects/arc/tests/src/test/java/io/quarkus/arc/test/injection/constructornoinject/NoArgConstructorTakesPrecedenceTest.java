@@ -13,7 +13,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class NoArgConstructorTakesPrecedenceTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(CombineHarvester.class);
+    public static ArcTestContainer container = new ArcTestContainer(CombineHarvester.class);
 
     @Test
     public void testInjection() {

@@ -40,7 +40,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class TypeLevelInheritanceTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().removeUnusedBeans(false)
+    public static ArcTestContainer container = ArcTestContainer.builder().removeUnusedBeans(false)
             .beanClasses(BasicBean.class, SubBean.class, FirstInterceptor.class, SecondInterceptor.class,
                     ThirdInterceptor.class, MyBinding.class, MyStereotype.class, MyStereotype2.class,
                     SecondaryBinding.class, MyQualifier.class, ThirdBinding.class, MyQualifier2.class)

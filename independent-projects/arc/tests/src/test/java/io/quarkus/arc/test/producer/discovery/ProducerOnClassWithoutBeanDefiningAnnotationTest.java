@@ -13,7 +13,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ProducerOnClassWithoutBeanDefiningAnnotationTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(StringProducerMethod.class,
+    public static ArcTestContainer container = new ArcTestContainer(StringProducerMethod.class,
             IntegerProducerField.class);
 
     @Test

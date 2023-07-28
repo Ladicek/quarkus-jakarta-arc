@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class PrivateConstructorInjectionTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Head.class, CombineHarvester.class);
+    public static ArcTestContainer container = new ArcTestContainer(Head.class, CombineHarvester.class);
 
     @Test
     public void testInjection() {

@@ -17,7 +17,7 @@ import io.quarkus.arc.test.MyQualifier;
 
 public class AlternativeProducerPriorityOnClassTest {
     @RegisterExtension
-    ArcTestContainer testContainer = new ArcTestContainer(Producer.class, Consumer.class);
+    static ArcTestContainer testContainer = new ArcTestContainer(Producer.class, Consumer.class);
 
     @Test
     public void testAlternativePriorityResolution() {

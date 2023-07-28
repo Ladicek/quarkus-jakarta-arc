@@ -26,7 +26,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class InheritedBindingOnInterceptorTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyBean.class, FooBinding.class, BarBinding.class,
+    public static ArcTestContainer container = new ArcTestContainer(MyBean.class, FooBinding.class, BarBinding.class,
             BarBindingUnused.class, FooInterceptor.class, BarInterceptor.class);
 
     @Test

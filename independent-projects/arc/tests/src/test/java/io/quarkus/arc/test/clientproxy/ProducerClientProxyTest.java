@@ -19,7 +19,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ProducerClientProxyTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Producer.class, Product.class, Product2.class);
+    public static ArcTestContainer container = new ArcTestContainer(Producer.class, Product.class, Product2.class);
 
     @Test
     public void testProducer() throws IOException {

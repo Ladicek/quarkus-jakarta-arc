@@ -27,7 +27,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InterceptedBeanNotUnboundWildcardTest {
 
     @RegisterExtension
-    ArcTestContainer container = ArcTestContainer.builder().beanClasses(InterceptedBeanNotUnboundWildcardTest.class,
+    static ArcTestContainer container = ArcTestContainer.builder().beanClasses(InterceptedBeanNotUnboundWildcardTest.class,
             MyInterceptor.class, Binding.class).shouldFail().build();
 
     @Test

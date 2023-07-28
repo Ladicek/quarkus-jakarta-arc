@@ -26,7 +26,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AssignabilityWithGenericsTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Car.class, Engine.class, PetrolEngine.class,
+    public static ArcTestContainer container = new ArcTestContainer(Car.class, Engine.class, PetrolEngine.class,
             Vehicle.class,
             StringListConsumer.class, ListConsumer.class, ProducerBean.class, DefinitelyNotBar.class,
             Bar.class, GenericInterface.class, AlmostCompleteBean.class, ActualBean.class,

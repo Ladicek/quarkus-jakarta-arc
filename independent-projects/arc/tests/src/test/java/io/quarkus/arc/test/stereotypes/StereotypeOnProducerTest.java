@@ -21,7 +21,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class StereotypeOnProducerTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(StereotypeOnProducerTest.class,
                     BeNamed.class, A.class, B.class)
             .build();

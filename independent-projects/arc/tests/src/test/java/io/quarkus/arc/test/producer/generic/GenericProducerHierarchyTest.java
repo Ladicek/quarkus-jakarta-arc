@@ -18,7 +18,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class GenericProducerHierarchyTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Producer.class, Registry.class);
+    public static ArcTestContainer container = new ArcTestContainer(Producer.class, Registry.class);
 
     @Test
     public void testGenericProducers() {

@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InvalidNamedInjectionPointTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Foo.class, Consumer.class)
             .shouldFail()
             .build();

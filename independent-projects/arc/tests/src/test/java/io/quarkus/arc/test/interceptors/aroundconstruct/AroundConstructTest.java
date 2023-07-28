@@ -23,7 +23,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AroundConstructTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyTransactional.class, SimpleBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(MyTransactional.class, SimpleBean.class,
             SimpleInterceptor.class, MyDependency.class, SomeAroundInvokeInterceptor.class);
 
     public static AtomicBoolean INTERCEPTOR_CALLED = new AtomicBoolean(false);

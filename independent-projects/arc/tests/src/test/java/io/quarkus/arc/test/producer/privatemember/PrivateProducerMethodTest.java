@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class PrivateProducerMethodTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(HeadProducer.class);
+    public static ArcTestContainer container = new ArcTestContainer(HeadProducer.class);
 
     @Test
     public void testInjection() {

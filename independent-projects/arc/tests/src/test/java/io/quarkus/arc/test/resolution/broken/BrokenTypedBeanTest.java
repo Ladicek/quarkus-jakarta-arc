@@ -13,7 +13,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class BrokenTypedBeanTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder().beanClasses(MyBean.class, MyOtherBean.class).shouldFail()
+    public static ArcTestContainer container = ArcTestContainer.builder().beanClasses(MyBean.class, MyOtherBean.class)
+            .shouldFail()
             .build();
 
     @Test

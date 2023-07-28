@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class InstanceFromBeanTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Alpha.class);
+    public static ArcTestContainer container = new ArcTestContainer(Alpha.class);
 
     @SuppressWarnings("unchecked")
     @Test

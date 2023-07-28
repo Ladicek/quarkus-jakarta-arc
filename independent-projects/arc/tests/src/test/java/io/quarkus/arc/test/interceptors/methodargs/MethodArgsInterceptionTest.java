@@ -15,8 +15,8 @@ import io.quarkus.arc.test.interceptors.Counter;
 public class MethodArgsInterceptionTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleInterceptor.class, ExampleResource.class,
-            CustomExecutor.class, Counter.class);
+    public static ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleInterceptor.class,
+            ExampleResource.class, CustomExecutor.class, Counter.class);
 
     @Test
     public void testInterception() {

@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class NamePrefixCollisionTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Alpha.class, Bravo.class)
             .strictCompatibility(true)
             .shouldFail()

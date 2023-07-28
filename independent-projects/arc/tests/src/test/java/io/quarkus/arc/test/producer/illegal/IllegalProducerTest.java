@@ -19,7 +19,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class IllegalProducerTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(IllegalProducer.class);
+    public static ArcTestContainer container = new ArcTestContainer(IllegalProducer.class);
 
     @Test
     public void testNormalScopedProducerMethodReturnsNull() {

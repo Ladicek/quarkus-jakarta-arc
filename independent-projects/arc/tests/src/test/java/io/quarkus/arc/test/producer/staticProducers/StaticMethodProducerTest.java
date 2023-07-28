@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class StaticMethodProducerTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(StaticMethodProducerTest.class, SomeProducer.class,
+    public static ArcTestContainer container = new ArcTestContainer(StaticMethodProducerTest.class, SomeProducer.class,
             MyQualifier.class);
 
     @Test

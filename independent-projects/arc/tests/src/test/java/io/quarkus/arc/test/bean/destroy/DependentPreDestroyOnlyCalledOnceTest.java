@@ -27,7 +27,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class DependentPreDestroyOnlyCalledOnceTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(MyDependency.class, MyBean.class, MyInterceptedBean.class,
+    static ArcTestContainer container = new ArcTestContainer(MyDependency.class, MyBean.class, MyInterceptedBean.class,
             MyInterceptorBinding.class, MyInterceptor.class);
 
     @BeforeEach

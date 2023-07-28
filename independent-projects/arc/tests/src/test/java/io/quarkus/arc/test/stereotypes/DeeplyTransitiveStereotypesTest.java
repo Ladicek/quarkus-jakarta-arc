@@ -25,7 +25,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class DeeplyTransitiveStereotypesTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(
+    public static ArcTestContainer container = new ArcTestContainer(
             Stereotype1.class,
             Stereotype2.class,
             Stereotype3.class,

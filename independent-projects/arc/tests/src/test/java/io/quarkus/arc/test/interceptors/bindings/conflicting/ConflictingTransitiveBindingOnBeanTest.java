@@ -20,7 +20,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class ConflictingTransitiveBindingOnBeanTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyBean.class, FooBinding.class, BarBinding.class)
             .shouldFail()
             .build();

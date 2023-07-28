@@ -26,7 +26,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class AroundConstructWithClassAndConstructorLevelBindingTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyBinding.class, MyInterceptor1.class,
+    public static ArcTestContainer container = new ArcTestContainer(MyBinding.class, MyInterceptor1.class,
             MyInterceptor2.class, MyBean.class);
 
     @Test

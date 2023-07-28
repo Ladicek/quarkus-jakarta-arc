@@ -21,7 +21,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class ChangeFieldThroughClassTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(MyQualifier.class, MyService.class, MyFooService.class, MyBarService.class, MyServiceConsumer.class)
             .buildCompatibleExtensions(new MyExtension())
             .build();

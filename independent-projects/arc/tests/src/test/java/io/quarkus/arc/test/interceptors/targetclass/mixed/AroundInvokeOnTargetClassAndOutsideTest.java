@@ -24,7 +24,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class AroundInvokeOnTargetClassAndOutsideTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyBean.class, MyInterceptorBinding.class, MyInterceptor.class);
+    public static ArcTestContainer container = new ArcTestContainer(MyBean.class, MyInterceptorBinding.class,
+            MyInterceptor.class);
 
     @Test
     public void test() {

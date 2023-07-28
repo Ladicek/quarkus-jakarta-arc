@@ -13,7 +13,7 @@ import io.quarkus.arc.test.clientproxy.packageprivate.foo.Producer;
 public class PackagePrivateInterfaceInHierarchyTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(BaseInterface.class, MyInterface.class, MyInterface2.class,
+    public static ArcTestContainer container = new ArcTestContainer(BaseInterface.class, MyInterface.class, MyInterface2.class,
             Producer.class);
 
     @Test

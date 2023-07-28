@@ -27,7 +27,7 @@ import io.quarkus.arc.test.interceptors.Simple;
 public class AsyncContinuationTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(Simple.class, SimpleBean.class,
             AlphaInterceptor.class, BravoInterceptor.class, CharlieInterceptor.class);
 
     private static ExecutorService executor;

@@ -21,7 +21,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class CircularProducerTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer.Builder()
+    public static ArcTestContainer container = new ArcTestContainer.Builder()
             .beanClasses(MyBean.class, MyQualifier.class)
             .shouldFail()
             .build();

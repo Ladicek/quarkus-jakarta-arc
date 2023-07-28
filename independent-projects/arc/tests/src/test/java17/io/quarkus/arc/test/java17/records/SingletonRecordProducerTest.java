@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SingletonRecordProducerTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Producer.class);
+    public static ArcTestContainer container = new ArcTestContainer(Producer.class);
 
     @Test
     public void test() {

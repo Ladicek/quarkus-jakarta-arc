@@ -28,7 +28,7 @@ public class TypedTest {
     static final AtomicReference<String> EVENT = new AtomicReference<String>();
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyBean.class, MyOtherBean.class, Stage.class);
+    public static ArcTestContainer container = new ArcTestContainer(MyBean.class, MyOtherBean.class, Stage.class);
 
     @Test
     public void testEmptyTyped() throws IOException {

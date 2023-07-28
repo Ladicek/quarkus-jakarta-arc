@@ -23,7 +23,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class GenericBeanTypesTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(MyBean.class, Producer.class);
+    static ArcTestContainer container = new ArcTestContainer(MyBean.class, Producer.class);
 
     @Test
     public void recursiveGeneric() {

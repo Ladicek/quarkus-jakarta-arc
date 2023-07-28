@@ -13,7 +13,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class MultipleDecoratorsTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Converter.class, ToUpperCaseConverter.class,
+    public static ArcTestContainer container = new ArcTestContainer(Converter.class, ToUpperCaseConverter.class,
             AlphaConverterDecorator.class, BravoConverterDecorator.class);
 
     @Test

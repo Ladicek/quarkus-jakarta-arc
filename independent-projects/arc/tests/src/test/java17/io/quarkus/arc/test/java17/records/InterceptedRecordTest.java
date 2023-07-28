@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InterceptedRecordTest {
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(DependentRecord.class, MyInterceptorBinding.class, MyInterceptor.class)
             .shouldFail()
             .build();

@@ -13,7 +13,7 @@ import io.quarkus.arc.test.ArcTestContainer;
  */
 public class NoClassInterceptorsTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(ClassLevel.class, ClassLevelInterceptor.class,
+    public static ArcTestContainer container = new ArcTestContainer(ClassLevel.class, ClassLevelInterceptor.class,
             InheritedClassLevel.class, InheritedClassLevelInterceptor.class,
             MethodLevel.class, MethodLevelInterceptor.class,
             SuperclassWithInterceptor.class, InterceptedBean.class);

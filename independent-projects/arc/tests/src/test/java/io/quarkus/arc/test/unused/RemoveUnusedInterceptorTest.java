@@ -16,7 +16,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class RemoveUnusedInterceptorTest extends RemoveUnusedComponentsTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(HasObserver.class, Alpha.class, AlphaInterceptor.class, Counter.class, Bravo.class,
                     BravoInterceptor.class)
             .removeUnusedBeans(true)

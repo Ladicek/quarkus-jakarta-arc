@@ -17,7 +17,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class NonDependentScopeTest {
 
     @RegisterExtension
-    public ArcTestContainer container = ArcTestContainer.builder()
+    public static ArcTestContainer container = ArcTestContainer.builder()
             .beanClasses(Converter.class, DecoratorWithWrongScope.class).shouldFail().build();
 
     @Test

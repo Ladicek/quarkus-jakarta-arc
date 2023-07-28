@@ -30,7 +30,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class AsyncObserverTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(StringProducer.class, StringObserver.class,
+    public static ArcTestContainer container = new ArcTestContainer(StringProducer.class, StringObserver.class,
             ThreadNameProvider.class);
 
     @Test

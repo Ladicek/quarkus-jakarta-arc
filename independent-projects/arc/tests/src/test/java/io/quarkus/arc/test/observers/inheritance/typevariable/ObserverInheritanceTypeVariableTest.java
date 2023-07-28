@@ -22,8 +22,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ObserverInheritanceTypeVariableTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyEvent.class, MyAEvent.class, MyBEvent.class, MyAService.class,
-            MyBService.class, EventSource.class);
+    public static ArcTestContainer container = new ArcTestContainer(MyEvent.class, MyAEvent.class, MyBEvent.class,
+            MyAService.class, MyBService.class, EventSource.class);
 
     @Test
     public void testNotification() {

@@ -19,7 +19,7 @@ public class SuperclassInterceptorMethodsTest {
     static final List<String> LIFECYCLE_CALLBACKS = new CopyOnWriteArrayList<>();
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(AlphaInterceptor.class, Bravo.class, AlphaBinding.class,
+    public static ArcTestContainer container = new ArcTestContainer(AlphaInterceptor.class, Bravo.class, AlphaBinding.class,
             Fool.class);
 
     @Test

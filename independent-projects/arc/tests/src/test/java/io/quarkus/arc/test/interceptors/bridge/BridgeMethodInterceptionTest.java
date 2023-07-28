@@ -17,7 +17,7 @@ import io.quarkus.arc.test.interceptors.Counter;
 public class BridgeMethodInterceptionTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Base.class, Submarine.class, Ubot.class, Ponorka.class,
+    public static ArcTestContainer container = new ArcTestContainer(Base.class, Submarine.class, Ubot.class, Ponorka.class,
             Counter.class, Simple.class, SimpleInterceptor.class, ExampleApi.class, ExampleResource.class,
             AbstractResource.class, NextBase.class, NextSubmarine.class);
 

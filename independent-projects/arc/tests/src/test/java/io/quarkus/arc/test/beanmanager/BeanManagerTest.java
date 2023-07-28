@@ -70,7 +70,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class BeanManagerTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer.Builder()
+    public static ArcTestContainer container = new ArcTestContainer.Builder()
             .beanClasses(Legacy.class, AlternativeLegacy.class, Fool.class, LowFool.class, DummyInterceptor.class,
                     DummyBinding.class, UselessBinding.class, CustomBinding.class,
                     LowPriorityInterceptor.class, WithInjectionPointMetadata.class, High.class, Low.class, Observers.class,

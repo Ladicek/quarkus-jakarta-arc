@@ -29,7 +29,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class PreDestroyInterceptorAndClientProxyTest {
     @RegisterExtension
-    ArcTestContainer container = new ArcTestContainer(MyBean.class, MyInterceptorBinding.class, MyInterceptor.class);
+    static ArcTestContainer container = new ArcTestContainer(MyBean.class, MyInterceptorBinding.class, MyInterceptor.class);
 
     @Test
     public void test() {

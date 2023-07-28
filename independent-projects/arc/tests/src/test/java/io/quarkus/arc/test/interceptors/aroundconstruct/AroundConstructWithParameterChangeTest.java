@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 
 public class AroundConstructWithParameterChangeTest {
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(SimpleBean.class, MyDependency.class,
+    public static ArcTestContainer container = new ArcTestContainer(SimpleBean.class, MyDependency.class,
             MyInterceptorBinding.class, MyInterceptor.class);
 
     @Test

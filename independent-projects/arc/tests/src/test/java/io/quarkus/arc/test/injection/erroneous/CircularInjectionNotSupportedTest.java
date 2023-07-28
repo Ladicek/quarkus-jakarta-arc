@@ -13,7 +13,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class CircularInjectionNotSupportedTest {
 
     @RegisterExtension
-    ArcTestContainer container = ArcTestContainer.builder().beanClasses(Foo.class, AbstractServiceImpl.class,
+    static ArcTestContainer container = ArcTestContainer.builder().beanClasses(Foo.class, AbstractServiceImpl.class,
             ActualServiceImpl.class).shouldFail().build();
 
     @Test

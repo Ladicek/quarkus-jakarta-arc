@@ -21,7 +21,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class SlightlyMoreComplexDecoratorWithTypeVariableTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Fun.class,
+    public static ArcTestContainer container = new ArcTestContainer(Fun.class,
             FunctionDecorator1.class, FunctionDecorator2.class, FunctionDecorator3.class);
 
     @Test

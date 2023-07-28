@@ -15,7 +15,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class ArcInvocationContextTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Foo.class, SomeBinding.class,
+    public static ArcTestContainer container = new ArcTestContainer(Foo.class, SomeBinding.class,
             ArcContextInterceptor.class, ArcContextInterceptorPrivate.class, ArcContextLifecycleInterceptor.class,
             ArcContextLifecycleInterceptorPrivate.class);
 

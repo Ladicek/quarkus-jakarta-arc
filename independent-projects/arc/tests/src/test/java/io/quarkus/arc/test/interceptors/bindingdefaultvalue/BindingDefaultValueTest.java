@@ -18,7 +18,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class BindingDefaultValueTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(MyTransactional.class, SimpleBean.class,
+    public static ArcTestContainer container = new ArcTestContainer(MyTransactional.class, SimpleBean.class,
             AlphaInterceptor.class,
             BravoInterceptor.class);
 

@@ -24,7 +24,7 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class DeclaringBeanTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(ListProducer.class, StringProducer.class,
+    public static ArcTestContainer container = new ArcTestContainer(ListProducer.class, StringProducer.class,
             LongProducer.class);
 
     @SuppressWarnings("serial")

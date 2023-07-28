@@ -19,8 +19,8 @@ import io.quarkus.arc.test.ArcTestContainer;
 public class RepeatingQualifierClassTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Location.class, Locations.class, SomePlace.class, Home.class,
-            FarAway.class, Work.class, NotAQualifier.class, InjectingBean.class);
+    public static ArcTestContainer container = new ArcTestContainer(Location.class, Locations.class, SomePlace.class,
+            Home.class, FarAway.class, Work.class, NotAQualifier.class, InjectingBean.class);
 
     @Test
     public void testRepeatingQualifiers() {

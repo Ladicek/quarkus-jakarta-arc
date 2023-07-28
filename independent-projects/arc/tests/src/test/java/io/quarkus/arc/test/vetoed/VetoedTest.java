@@ -25,8 +25,8 @@ import io.quarkus.arc.test.vetoed.subpkg.PackageVetoed;
 public class VetoedTest {
 
     @RegisterExtension
-    public ArcTestContainer container = new ArcTestContainer(Seven.class, One.class, VetoedInterceptor.class, Logging.class,
-            PackageVetoed.class);
+    public static ArcTestContainer container = new ArcTestContainer(Seven.class, One.class, VetoedInterceptor.class,
+            Logging.class, PackageVetoed.class);
 
     @Test
     public void testVetoed() {

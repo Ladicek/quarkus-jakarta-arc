@@ -126,6 +126,10 @@ public class BeanProcessor {
         this.injectionPointAnnotationsPredicate = Predicate.not(DotNames.DEPRECATED::equals);
     }
 
+    public String getName() {
+        return name;
+    }
+
     public ContextRegistrar.RegistrationContext registerCustomContexts() {
         return beanDeployment.registerCustomContexts(contextRegistrars);
     }
@@ -455,21 +459,25 @@ public class BeanProcessor {
     }
 
     public BeanDeployment process() throws IOException, InterruptedException, ExecutionException {
-        Consumer<BytecodeTransformer> unsupportedBytecodeTransformer = new Consumer<BytecodeTransformer>() {
+        return process(new Consumer<BytecodeTransformer>() {
             @Override
             public void accept(BytecodeTransformer transformer) {
                 throw new UnsupportedOperationException();
             }
-        };
+        });
+    }
+
+    public BeanDeployment process(Consumer<BytecodeTransformer> bytecodeTransformer)
+            throws IOException, InterruptedException, ExecutionException {
         registerCustomContexts();
         registerScopes();
         registerBeans();
         beanDeployment.initBeanByTypeMap();
         registerSyntheticObservers();
-        initialize(unsupportedBytecodeTransformer, Collections.emptyList());
-        ValidationContext validationContext = validate(unsupportedBytecodeTransformer);
+        initialize(bytecodeTransformer, Collections.emptyList());
+        ValidationContext validationContext = validate(bytecodeTransformer);
         processValidationErrors(validationContext);
-        generateResources(null, new HashSet<>(), unsupportedBytecodeTransformer, true, null);
+        generateResources(null, new HashSet<>(), bytecodeTransformer, true, null);
         return beanDeployment;
     }
 

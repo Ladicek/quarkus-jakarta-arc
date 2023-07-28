@@ -5,15 +5,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -24,9 +33,19 @@ import org.jboss.jandex.DotName;
 import org.jboss.jandex.Index;
 import org.jboss.jandex.IndexView;
 import org.jboss.jandex.Indexer;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.DynamicTestInvocationContext;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.InvocationInterceptor;
+import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
 
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.ArcInitConfig;
@@ -39,6 +58,7 @@ import io.quarkus.arc.processor.BeanDeploymentValidator;
 import io.quarkus.arc.processor.BeanInfo;
 import io.quarkus.arc.processor.BeanProcessor;
 import io.quarkus.arc.processor.BeanRegistrar;
+import io.quarkus.arc.processor.BytecodeTransformer;
 import io.quarkus.arc.processor.ContextRegistrar;
 import io.quarkus.arc.processor.InjectionPointsTransformer;
 import io.quarkus.arc.processor.InterceptorBindingRegistrar;
@@ -50,19 +70,22 @@ import io.quarkus.arc.processor.StereotypeRegistrar;
 import io.quarkus.arc.processor.bcextensions.ExtensionsEntryPoint;
 
 /**
- * Junit5 extension for Arc bootstrap/shutdown.
- * Designed to be used via {code @RegisterExtension} fields in tests.
- *
- * It bootstraps Arc before each test method and shuts down afterwards.
- * Leverages root {@code ExtensionContext.Store} to store and retrieve some variables.
+ * JUnit5 extension for ArC bootstrap/shutdown.
+ * Must be used via {@code @RegisterExtension static} fields in tests.
+ * <p>
+ * It bootstraps ArC before each test method and shuts down afterwards.
+ * Leverages root {@code ExtensionContext.Store} to store some state.
  */
-public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
+public class ArcTestContainer
+        implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback, InvocationInterceptor {
 
     // our specific namespace for storing anything into ExtensionContext.Store
     private static ExtensionContext.Namespace EXTENSION_NAMESPACE;
 
     // Strings used as keys in ExtensionContext.Store
     private static final String KEY_OLD_TCCL = "arcExtensionOldTccl";
+    private static final String KEY_TEST_INSTANCES = "arcExtensionTestInstanceStack";
+    private static final String KEY_FAILURE = "arcExtensionFailure";
 
     private static final String TARGET_TEST_CLASSES = "target/test-classes";
 
@@ -90,6 +113,7 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
         private boolean removeUnusedBeans = false;
         private final List<Predicate<BeanInfo>> exclusions;
         private AlternativePriorities alternativePriorities;
+        private boolean transformUnproxyableClasses = false;
         private final List<BuildCompatibleExtension> buildCompatibleExtensions;
         private boolean strictCompatibility = false;
 
@@ -203,6 +227,11 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
             return this;
         }
 
+        public Builder transformUnproxyableClasses(boolean transformUnproxyableClasses) {
+            this.transformUnproxyableClasses = transformUnproxyableClasses;
+            return this;
+        }
+
         public final Builder buildCompatibleExtensions(BuildCompatibleExtension... extensions) {
             Collections.addAll(this.buildCompatibleExtensions, extensions);
             return this;
@@ -245,6 +274,8 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
 
     private final AlternativePriorities alternativePriorities;
 
+    private final boolean transformUnproxyableClasses;
+
     private final List<BuildCompatibleExtension> buildCompatibleExtensions;
 
     private final boolean strictCompatibility;
@@ -269,6 +300,7 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
         this.removeUnusedBeans = false;
         this.exclusions = Collections.emptyList();
         this.alternativePriorities = null;
+        this.transformUnproxyableClasses = false;
         this.buildCompatibleExtensions = Collections.emptyList();
         this.strictCompatibility = false;
     }
@@ -293,22 +325,251 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
         this.removeUnusedBeans = builder.removeUnusedBeans;
         this.exclusions = builder.exclusions;
         this.alternativePriorities = builder.alternativePriorities;
+        this.transformUnproxyableClasses = builder.transformUnproxyableClasses;
         this.buildCompatibleExtensions = builder.buildCompatibleExtensions;
         this.strictCompatibility = builder.strictCompatibility;
     }
 
-    // this is where we start Arc, we operate on a per-method basis
+    // set up a classloader, which is per top-level test class
     @Override
-    public void beforeEach(ExtensionContext extensionContext) throws Exception {
-        getRootExtensionStore(extensionContext).put(KEY_OLD_TCCL, init(extensionContext));
+    public void beforeAll(ExtensionContext context) {
+        if (context.getRequiredTestClass().isAnnotationPresent(Nested.class)) {
+            return;
+        }
+
+        initTestInstanceStack(context);
+
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        getRootExtensionStore(context).put(KEY_OLD_TCCL, tccl);
+
+        ArcTestClassLoader newTccl = init(context);
+        Thread.currentThread().setContextClassLoader(newTccl);
+
+        Throwable failure = getRootExtensionStore(context).get(KEY_FAILURE, Throwable.class);
+        if (failure != null) {
+            try {
+                Class<?> atcClass = newTccl.loadClass(ArcTestContainer.class.getName());
+                Class<?> clazz = newTccl.loadClass(context.getRequiredTestClass().getName());
+                for (Field field : clazz.getDeclaredFields()) {
+                    if (field.isAnnotationPresent(RegisterExtension.class) && field.getType().equals(atcClass)) {
+                        field.setAccessible(true);
+                        Object atc = field.get(null); // we know it's `static`
+                        Method setFailure = atcClass.getDeclaredMethod("setFailure", Throwable.class);
+                        setFailure.setAccessible(true);
+                        setFailure.invoke(atc, failure);
+                        break;
+                    }
+                }
+            } catch (ReflectiveOperationException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
     }
 
-    // this is where we shutdown Arc
+    // start ArC, which is per test method
     @Override
-    public void afterEach(ExtensionContext extensionContext) throws Exception {
-        ClassLoader oldTccl = getRootExtensionStore(extensionContext).get(KEY_OLD_TCCL, ClassLoader.class);
+    public void beforeEach(ExtensionContext extensionContext) {
+        // prevent non-`static` declaration of `@RegisterExtension ArcTestContainer`
+        if (!(Thread.currentThread().getContextClassLoader() instanceof ArcTestClassLoader)) {
+            throw new IllegalStateException("The `@RegisterExtension` field of type `ArcTestContainer` must be `static` in "
+                    + extensionContext.getRequiredTestClass());
+        }
+
+        if (getRootExtensionStore(extensionContext).get(KEY_FAILURE) != null) {
+            return;
+        }
+
+        try {
+            Class<?> clazz = ArcTestClassLoader.inTCCL().loadClass(ArcTestContainer.class.getName());
+            Method method = clazz.getDeclaredMethod("tcclBeforeEach", boolean.class);
+            method.setAccessible(true);
+            method.invoke(null, strictCompatibility);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // shut down Arc
+    @Override
+    public void afterEach(ExtensionContext extensionContext) {
+        if (getRootExtensionStore(extensionContext).get(KEY_FAILURE) != null) {
+            return;
+        }
+
+        try {
+            Class<?> clazz = ArcTestClassLoader.inTCCL().loadClass(ArcTestContainer.class.getName());
+            Method method = clazz.getDeclaredMethod("tcclAfterEach");
+            method.setAccessible(true);
+            method.invoke(null);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // tear down the shared class loader
+    @Override
+    public void afterAll(ExtensionContext context) {
+        popTestInstance(context);
+
+        if (context.getRequiredTestClass().isAnnotationPresent(Nested.class)) {
+            return;
+        }
+
+        getRootExtensionStore(context).remove(KEY_FAILURE);
+
+        destroyTestInstanceStack(context);
+
+        ClassLoader oldTccl = getRootExtensionStore(context).remove(KEY_OLD_TCCL, ClassLoader.class);
         Thread.currentThread().setContextClassLoader(oldTccl);
-        shutdown();
+    }
+
+    private static void tcclBeforeEach(boolean strictCompatibility) {
+        Arc.initialize(ArcInitConfig.builder().setStrictCompatibility(strictCompatibility).build());
+    }
+
+    private static void tcclAfterEach() {
+        Arc.shutdown();
+    }
+
+    @Override
+    public void interceptBeforeAllMethod(Invocation<Void> invocation,
+            ReflectiveInvocationContext<Method> invocationContext,
+            ExtensionContext extensionContext) throws Throwable {
+
+        if (invocationContext.getExecutable().getParameterCount() != 0) {
+            throw new UnsupportedOperationException("@BeforeAll method must have no parameter");
+        }
+
+        ArcTestClassLoader cl = ArcTestClassLoader.inTCCL();
+        Class<?> clazz = cl.loadClass(invocationContext.getTargetClass().getName());
+        Method method = findZeroParamMethod(clazz, invocationContext.getExecutable().getName());
+        method.setAccessible(true);
+        method.invoke(null);
+        invocation.skip();
+    }
+
+    @Override
+    public <T> T interceptTestClassConstructor(Invocation<T> invocation,
+            ReflectiveInvocationContext<Constructor<T>> invocationContext,
+            ExtensionContext extensionContext) throws Throwable {
+
+        ArcTestClassLoader cl = ArcTestClassLoader.inTCCL();
+
+        Class<?>[] parameterTypes = invocationContext.getExecutable().getParameterTypes();
+        Class<?>[] translatedParameterTypes = new Class<?>[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            translatedParameterTypes[i] = cl.loadClass(parameterTypes[i].getName());
+        }
+
+        Object[] arguments = new Object[translatedParameterTypes.length];
+        for (int i = 0; i < translatedParameterTypes.length; i++) {
+            arguments[i] = findTestInstanceOnStack(extensionContext, translatedParameterTypes[i]);
+        }
+
+        Class<?> clazz = cl.loadClass(invocationContext.getTargetClass().getName());
+        Constructor<?> ctor = clazz.getDeclaredConstructor(translatedParameterTypes);
+        ctor.setAccessible(true);
+        Object testInstance = ctor.newInstance(arguments);
+        pushTestInstance(extensionContext, testInstance);
+        return invocation.proceed();
+    }
+
+    @Override
+    public void interceptBeforeEachMethod(Invocation<Void> invocation,
+            ReflectiveInvocationContext<Method> invocationContext,
+            ExtensionContext extensionContext) throws Throwable {
+
+        if (invocationContext.getExecutable().getParameterCount() != 0) {
+            throw new UnsupportedOperationException("@BeforeEach method must have no parameter");
+        }
+
+        Object testInstance = topTestInstanceOnStack(extensionContext);
+        Class<?> clazz = testInstance.getClass();
+        Method method = findZeroParamMethod(clazz, invocationContext.getExecutable().getName());
+        method.setAccessible(true);
+        method.invoke(testInstance);
+        invocation.skip();
+    }
+
+    @Override
+    public void interceptTestMethod(Invocation<Void> invocation,
+            ReflectiveInvocationContext<Method> invocationContext,
+            ExtensionContext extensionContext) throws Throwable {
+
+        if (invocationContext.getExecutable().getParameterCount() != 0) {
+            throw new UnsupportedOperationException("@Test method must have no parameter");
+        }
+
+        Object testInstance = topTestInstanceOnStack(extensionContext);
+        Class<?> clazz = testInstance.getClass();
+        Method method = findZeroParamMethod(clazz, invocationContext.getExecutable().getName());
+        method.setAccessible(true);
+        method.invoke(testInstance);
+        invocation.skip();
+    }
+
+    @Override
+    public <T> T interceptTestFactoryMethod(Invocation<T> invocation, ReflectiveInvocationContext<Method> invocationContext,
+            ExtensionContext extensionContext) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void interceptTestTemplateMethod(Invocation<Void> invocation, ReflectiveInvocationContext<Method> invocationContext,
+            ExtensionContext extensionContext) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void interceptDynamicTest(Invocation<Void> invocation, DynamicTestInvocationContext invocationContext,
+            ExtensionContext extensionContext) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void interceptAfterEachMethod(Invocation<Void> invocation,
+            ReflectiveInvocationContext<Method> invocationContext,
+            ExtensionContext extensionContext) throws Throwable {
+
+        if (invocationContext.getExecutable().getParameterCount() != 0) {
+            throw new UnsupportedOperationException("@AfterEach method must have no parameter");
+        }
+
+        Object testInstance = topTestInstanceOnStack(extensionContext);
+        Class<?> clazz = testInstance.getClass();
+        Method method = findZeroParamMethod(clazz, invocationContext.getExecutable().getName());
+        method.setAccessible(true);
+        method.invoke(testInstance);
+        invocation.skip();
+    }
+
+    @Override
+    public void interceptAfterAllMethod(Invocation<Void> invocation,
+            ReflectiveInvocationContext<Method> invocationContext,
+            ExtensionContext extensionContext) throws Throwable {
+
+        if (invocationContext.getExecutable().getParameterCount() != 0) {
+            throw new UnsupportedOperationException("@AfterAll method must have no parameter");
+        }
+
+        ArcTestClassLoader cl = ArcTestClassLoader.inTCCL();
+        Class<?> clazz = cl.loadClass(invocationContext.getTargetClass().getName());
+        Method method = findZeroParamMethod(clazz, invocationContext.getExecutable().getName());
+        method.setAccessible(true);
+        method.invoke(null);
+        invocation.skip();
+    }
+
+    private static Method findZeroParamMethod(Class<?> clazz, String name) throws NoSuchMethodException {
+        if (clazz == null) {
+            throw new NoSuchMethodException(name);
+        }
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (name.equals(method.getName()) && method.getParameterCount() == 0) {
+                return method;
+            }
+        }
+        return findZeroParamMethod(clazz.getSuperclass(), name);
     }
 
     private static synchronized ExtensionContext.Store getRootExtensionStore(ExtensionContext context) {
@@ -318,6 +579,39 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
         return context.getRoot().getStore(EXTENSION_NAMESPACE);
     }
 
+    private static void initTestInstanceStack(ExtensionContext context) {
+        getRootExtensionStore(context).put(KEY_TEST_INSTANCES, new ArrayDeque<>());
+    }
+
+    private static void pushTestInstance(ExtensionContext context, Object testInstance) {
+        Deque<Object> stack = getRootExtensionStore(context).get(KEY_TEST_INSTANCES, Deque.class);
+        stack.push(testInstance);
+    }
+
+    private static void popTestInstance(ExtensionContext context) {
+        Deque<Object> stack = getRootExtensionStore(context).get(KEY_TEST_INSTANCES, Deque.class);
+        stack.pop();
+    }
+
+    private static Object topTestInstanceOnStack(ExtensionContext context) {
+        Deque<Object> stack = getRootExtensionStore(context).get(KEY_TEST_INSTANCES, Deque.class);
+        return stack.peek();
+    }
+
+    private static Object findTestInstanceOnStack(ExtensionContext context, Class<?> clazz) {
+        Deque<Object> stack = getRootExtensionStore(context).get(KEY_TEST_INSTANCES, Deque.class);
+        for (Object obj : stack) {
+            if (clazz.equals(obj.getClass())) {
+                return obj;
+            }
+        }
+        return null;
+    }
+
+    private static void destroyTestInstanceStack(ExtensionContext context) {
+        getRootExtensionStore(context).remove(KEY_TEST_INSTANCES);
+    }
+
     /**
      * In case the test is expected to fail, this method will return a {@link Throwable} that caused it.
      */
@@ -325,16 +619,13 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
         return buildFailure.get();
     }
 
-    private void shutdown() {
-        Arc.shutdown();
+    void setFailure(Throwable failure) {
+        buildFailure.set(failure);
     }
 
-    private ClassLoader init(ExtensionContext context) {
+    private ArcTestClassLoader init(ExtensionContext context) {
         // retrieve test class from extension context
         Class<?> testClass = context.getRequiredTestClass();
-
-        // Make sure Arc is down
-        Arc.shutdown();
 
         // Build index
         IndexView immutableBeanArchiveIndex;
@@ -454,26 +745,62 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
                 builder.addRemovalExclusion(exclusion);
             }
             builder.setAlternativePriorities(alternativePriorities);
+            builder.setTransformUnproxyableClasses(transformUnproxyableClasses);
 
             BeanProcessor beanProcessor = builder.build();
 
+            List<BytecodeTransformer> bytecodeTransformers = new ArrayList<>();
             try {
-                beanProcessor.process();
+                beanProcessor.process(bytecodeTransformers::add);
             } catch (IOException e) {
                 throw new IllegalStateException("Error generating resources", e);
             }
 
-            ArcTestClassLoader testClassLoader = new ArcTestClassLoader(old, componentsProviderFile,
+            Map<String, byte[]> transformedClasses = new HashMap<>();
+            Path transformedClassesDirectory = new File(
+                    testClassesRootPath + "target/transformed-classes/" + beanProcessor.getName()).toPath();
+            Files.createDirectories(transformedClassesDirectory);
+            if (!bytecodeTransformers.isEmpty()) {
+                Map<String, List<BiFunction<String, ClassVisitor, ClassVisitor>>> map = bytecodeTransformers.stream()
+                        .collect(Collectors.groupingBy(BytecodeTransformer::getClassToTransform,
+                                Collectors.mapping(BytecodeTransformer::getVisitorFunction, Collectors.toList())));
+
+                for (Map.Entry<String, List<BiFunction<String, ClassVisitor, ClassVisitor>>> entry : map.entrySet()) {
+                    String className = entry.getKey();
+                    List<BiFunction<String, ClassVisitor, ClassVisitor>> transformations = entry.getValue();
+
+                    String classFileName = className.replace('.', '/') + ".class";
+                    byte[] bytecode;
+                    try (InputStream in = old.getResourceAsStream(classFileName)) {
+                        if (in == null) {
+                            throw new IOException("Resource not found: " + classFileName);
+                        }
+                        bytecode = in.readAllBytes();
+                    }
+                    ClassReader reader = new ClassReader(bytecode);
+                    ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+                    ClassVisitor visitor = writer;
+                    for (BiFunction<String, ClassVisitor, ClassVisitor> transformation : transformations) {
+                        visitor = transformation.apply(className, visitor);
+                    }
+                    reader.accept(visitor, 0);
+                    bytecode = writer.toByteArray();
+                    transformedClasses.put(className, bytecode);
+
+                    // these files are not used, we only create them for debugging purposes
+                    // the `/` and `$` chars in the path/name are replaced with `_` so that
+                    // IntelliJ doesn't treat the files as duplicates of classes it already knows
+                    Path classFile = transformedClassesDirectory.resolve(
+                            classFileName.replace('/', '_').replace('$', '_'));
+                    Files.write(classFile, bytecode);
+                }
+            }
+
+            return new ArcTestClassLoader(old, transformedClasses, componentsProviderFile,
                     resourceReferenceProviders.isEmpty() ? null : resourceReferenceProviderFile);
-            Thread.currentThread()
-                    .setContextClassLoader(testClassLoader);
-
-            // Now we are ready to initialize Arc
-            Arc.initialize(ArcInitConfig.builder().setStrictCompatibility(strictCompatibility).build());
-
         } catch (Throwable e) {
             if (shouldFail) {
-                buildFailure.set(e);
+                getRootExtensionStore(context).put(KEY_FAILURE, e);
             } else {
                 if (e instanceof RuntimeException) {
                     throw (RuntimeException) e;
@@ -482,7 +809,7 @@ public class ArcTestContainer implements BeforeEachCallback, AfterEachCallback {
                 }
             }
         }
-        return old;
+        return new ArcTestClassLoader(old, null, null, null);
     }
 
     private Index index(Iterable<Class<?>> classes) throws IOException {

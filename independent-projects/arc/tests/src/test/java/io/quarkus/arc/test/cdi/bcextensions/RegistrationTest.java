@@ -15,9 +15,11 @@ import jakarta.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import jakarta.enterprise.inject.build.compatible.spi.ObserverInfo;
 import jakarta.enterprise.inject.build.compatible.spi.Registration;
 import jakarta.enterprise.inject.build.compatible.spi.Types;
+import jakarta.enterprise.inject.build.compatible.spi.Validation;
 import jakarta.inject.Qualifier;
 import jakarta.inject.Singleton;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -30,11 +32,14 @@ public class RegistrationTest {
             .buildCompatibleExtensions(new MyExtension())
             .build();
 
+    @AfterAll
+    public static void cleanup() {
+        System.clearProperty("arc.test.executed");
+    }
+
     @Test
     public void test() {
-        assertEquals(2, MyExtension.beanCounter.get());
-        assertEquals(1, MyExtension.beanMyQualifierCounter.get());
-        assertEquals(1, MyExtension.observerQualifierCounter.get());
+        assertEquals("yes", System.getProperty("arc.test.executed"));
     }
 
     public static class MyExtension implements BuildCompatibleExtension {
@@ -56,6 +61,15 @@ public class RegistrationTest {
             if (observer.declaringClass().superInterfaces().contains(types.of(MyService.class))) {
                 observerQualifierCounter.addAndGet(observer.qualifiers().size());
             }
+        }
+
+        @Validation
+        public void test() {
+            assertEquals(2, MyExtension.beanCounter.get());
+            assertEquals(1, MyExtension.beanMyQualifierCounter.get());
+            assertEquals(1, MyExtension.observerQualifierCounter.get());
+
+            System.setProperty("arc.test.executed", "yes");
         }
     }
 

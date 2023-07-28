@@ -3,13 +3,13 @@ package io.quarkus.arc.test.cdi.bcextensions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.IOException;
-
 import jakarta.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import jakarta.enterprise.inject.build.compatible.spi.Enhancement;
+import jakarta.enterprise.inject.build.compatible.spi.Validation;
 import jakarta.enterprise.lang.model.declarations.ClassInfo;
 import jakarta.inject.Singleton;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -23,14 +23,17 @@ public class ClassMembersTest {
             .buildCompatibleExtensions(new MyExtension())
             .build();
 
+    @AfterAll
+    public static void cleanup() {
+        System.clearProperty("arc.test.executed");
+    }
+
     @Test
-    public void test() throws IOException {
+    public void test() {
         MyService myService = Arc.container().select(MyService.class).get();
         assertNotNull(myService);
 
-        assertNotNull(MyExtension.clazz);
-        assertEquals(3, MyExtension.clazz.methods().size());
-        assertEquals(2, MyExtension.clazz.superInterfacesDeclarations().get(0).methods().size());
+        assertEquals("yes", System.getProperty("arc.test.executed"));
 
     }
 
@@ -40,6 +43,15 @@ public class ClassMembersTest {
         @Enhancement(types = MyService.class)
         public void service(ClassInfo clazz) {
             MyExtension.clazz = clazz;
+        }
+
+        @Validation
+        public void test() {
+            assertNotNull(MyExtension.clazz);
+            assertEquals(3, MyExtension.clazz.methods().size());
+            assertEquals(2, MyExtension.clazz.superInterfacesDeclarations().get(0).methods().size());
+
+            System.setProperty("arc.test.executed", "yes");
         }
     }
 

@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,10 +12,12 @@ import java.lang.annotation.Target;
 
 import jakarta.enterprise.inject.build.compatible.spi.BuildCompatibleExtension;
 import jakarta.enterprise.inject.build.compatible.spi.Enhancement;
+import jakarta.enterprise.inject.build.compatible.spi.Validation;
 import jakarta.enterprise.lang.model.declarations.ClassInfo;
 import jakarta.enterprise.lang.model.types.Type;
 import jakarta.inject.Singleton;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -30,51 +31,17 @@ public class ArrayTypeTest {
             .buildCompatibleExtensions(new MyExtension())
             .build();
 
+    @AfterAll
+    public static void cleanup() {
+        System.clearProperty("arc.test.executed");
+    }
+
     @Test
-    public void test() throws IOException {
+    public void test() {
         MyService myService = Arc.container().select(MyService.class).get();
         assertNotNull(myService);
 
-        assertNotNull(MyExtension.type);
-
-        // @MyAnn4 String [] @MyAnn1 [][] @MyAnn2 [][] @MyAnn3 []
-        Type type = MyExtension.type;
-        assertTrue(type.isArray());
-        assertTrue(type.annotations().isEmpty());
-
-        // @MyAnn4 String @MyAnn1 [][] @MyAnn2 [][] @MyAnn3 []
-        type = type.asArray().componentType();
-        assertTrue(type.isArray());
-        assertEquals(1, type.annotations().size());
-        assertTrue(type.hasAnnotation(MyAnn1.class));
-
-        // @MyAnn4 String [] @MyAnn2 [][] @MyAnn3 []
-        type = type.asArray().componentType();
-        assertTrue(type.isArray());
-        assertTrue(type.annotations().isEmpty());
-
-        // @MyAnn4 String @MyAnn2 [][] @MyAnn3 []
-        type = type.asArray().componentType();
-        assertTrue(type.isArray());
-        assertEquals(1, type.annotations().size());
-        assertTrue(type.hasAnnotation(MyAnn2.class));
-
-        // @MyAnn4 String [] @MyAnn3 []
-        type = type.asArray().componentType();
-        assertTrue(type.isArray());
-        assertTrue(type.annotations().isEmpty());
-
-        // @MyAnn4 String @MyAnn3 []
-        type = type.asArray().componentType();
-        assertTrue(type.isArray());
-        assertEquals(1, type.annotations().size());
-        assertTrue(type.hasAnnotation(MyAnn3.class));
-
-        // @MyAnn4 String
-        type = type.asArray().componentType();
-        assertFalse(type.isArray());
-        assertEquals(1, type.annotations().size());
-        assertTrue(type.hasAnnotation(MyAnn4.class));
+        assertEquals("yes", System.getProperty("arc.test.executed"));
     }
 
     public static class MyExtension implements BuildCompatibleExtension {
@@ -88,6 +55,52 @@ public class ArrayTypeTest {
                     .forEach(field -> {
                         MyExtension.type = field.type();
                     });
+        }
+
+        @Validation
+        public void test() {
+            assertNotNull(MyExtension.type);
+
+            // @MyAnn4 String [] @MyAnn1 [][] @MyAnn2 [][] @MyAnn3 []
+            Type type = MyExtension.type;
+            assertTrue(type.isArray());
+            assertTrue(type.annotations().isEmpty());
+
+            // @MyAnn4 String @MyAnn1 [][] @MyAnn2 [][] @MyAnn3 []
+            type = type.asArray().componentType();
+            assertTrue(type.isArray());
+            assertEquals(1, type.annotations().size());
+            assertTrue(type.hasAnnotation(MyAnn1.class));
+
+            // @MyAnn4 String [] @MyAnn2 [][] @MyAnn3 []
+            type = type.asArray().componentType();
+            assertTrue(type.isArray());
+            assertTrue(type.annotations().isEmpty());
+
+            // @MyAnn4 String @MyAnn2 [][] @MyAnn3 []
+            type = type.asArray().componentType();
+            assertTrue(type.isArray());
+            assertEquals(1, type.annotations().size());
+            assertTrue(type.hasAnnotation(MyAnn2.class));
+
+            // @MyAnn4 String [] @MyAnn3 []
+            type = type.asArray().componentType();
+            assertTrue(type.isArray());
+            assertTrue(type.annotations().isEmpty());
+
+            // @MyAnn4 String @MyAnn3 []
+            type = type.asArray().componentType();
+            assertTrue(type.isArray());
+            assertEquals(1, type.annotations().size());
+            assertTrue(type.hasAnnotation(MyAnn3.class));
+
+            // @MyAnn4 String
+            type = type.asArray().componentType();
+            assertFalse(type.isArray());
+            assertEquals(1, type.annotations().size());
+            assertTrue(type.hasAnnotation(MyAnn4.class));
+
+            System.setProperty("arc.test.executed", "yes");
         }
     }
 

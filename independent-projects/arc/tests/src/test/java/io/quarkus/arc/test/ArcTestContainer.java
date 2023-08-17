@@ -80,7 +80,7 @@ public class ArcTestContainer
         implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, AfterAllCallback, InvocationInterceptor {
 
     // our specific namespace for storing anything into ExtensionContext.Store
-    private static ExtensionContext.Namespace EXTENSION_NAMESPACE;
+    private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(ArcTestContainer.class);
 
     // Strings used as keys in ExtensionContext.Store
     private static final String KEY_OLD_TCCL = "arcExtensionOldTccl";
@@ -340,12 +340,12 @@ public class ArcTestContainer
         initTestInstanceStack(context);
 
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        getRootExtensionStore(context).put(KEY_OLD_TCCL, tccl);
+        context.getRoot().getStore(NAMESPACE).put(KEY_OLD_TCCL, tccl);
 
         ArcTestClassLoader newTccl = init(context);
         Thread.currentThread().setContextClassLoader(newTccl);
 
-        Throwable failure = getRootExtensionStore(context).get(KEY_FAILURE, Throwable.class);
+        Throwable failure = context.getRoot().getStore(NAMESPACE).get(KEY_FAILURE, Throwable.class);
         if (failure != null) {
             try {
                 Class<?> atcClass = newTccl.loadClass(ArcTestContainer.class.getName());
@@ -375,7 +375,7 @@ public class ArcTestContainer
                     + extensionContext.getRequiredTestClass());
         }
 
-        if (getRootExtensionStore(extensionContext).get(KEY_FAILURE) != null) {
+        if (extensionContext.getRoot().getStore(NAMESPACE).get(KEY_FAILURE) != null) {
             return;
         }
 
@@ -392,7 +392,7 @@ public class ArcTestContainer
     // shut down Arc
     @Override
     public void afterEach(ExtensionContext extensionContext) {
-        if (getRootExtensionStore(extensionContext).get(KEY_FAILURE) != null) {
+        if (extensionContext.getRoot().getStore(NAMESPACE).get(KEY_FAILURE) != null) {
             return;
         }
 
@@ -415,11 +415,11 @@ public class ArcTestContainer
             return;
         }
 
-        getRootExtensionStore(context).remove(KEY_FAILURE);
+        context.getRoot().getStore(NAMESPACE).remove(KEY_FAILURE);
 
         destroyTestInstanceStack(context);
 
-        ClassLoader oldTccl = getRootExtensionStore(context).remove(KEY_OLD_TCCL, ClassLoader.class);
+        ClassLoader oldTccl = context.getRoot().getStore(NAMESPACE).remove(KEY_OLD_TCCL, ClassLoader.class);
         Thread.currentThread().setContextClassLoader(oldTccl);
     }
 
@@ -572,34 +572,27 @@ public class ArcTestContainer
         return findZeroParamMethod(clazz.getSuperclass(), name);
     }
 
-    private static synchronized ExtensionContext.Store getRootExtensionStore(ExtensionContext context) {
-        if (EXTENSION_NAMESPACE == null) {
-            EXTENSION_NAMESPACE = ExtensionContext.Namespace.create(ArcTestContainer.class);
-        }
-        return context.getRoot().getStore(EXTENSION_NAMESPACE);
-    }
-
     private static void initTestInstanceStack(ExtensionContext context) {
-        getRootExtensionStore(context).put(KEY_TEST_INSTANCES, new ArrayDeque<>());
+        context.getRoot().getStore(NAMESPACE).put(KEY_TEST_INSTANCES, new ArrayDeque<>());
     }
 
     private static void pushTestInstance(ExtensionContext context, Object testInstance) {
-        Deque<Object> stack = getRootExtensionStore(context).get(KEY_TEST_INSTANCES, Deque.class);
+        Deque<Object> stack = context.getRoot().getStore(NAMESPACE).get(KEY_TEST_INSTANCES, Deque.class);
         stack.push(testInstance);
     }
 
     private static void popTestInstance(ExtensionContext context) {
-        Deque<Object> stack = getRootExtensionStore(context).get(KEY_TEST_INSTANCES, Deque.class);
+        Deque<Object> stack = context.getRoot().getStore(NAMESPACE).get(KEY_TEST_INSTANCES, Deque.class);
         stack.pop();
     }
 
     private static Object topTestInstanceOnStack(ExtensionContext context) {
-        Deque<Object> stack = getRootExtensionStore(context).get(KEY_TEST_INSTANCES, Deque.class);
+        Deque<Object> stack = context.getRoot().getStore(NAMESPACE).get(KEY_TEST_INSTANCES, Deque.class);
         return stack.peek();
     }
 
     private static Object findTestInstanceOnStack(ExtensionContext context, Class<?> clazz) {
-        Deque<Object> stack = getRootExtensionStore(context).get(KEY_TEST_INSTANCES, Deque.class);
+        Deque<Object> stack = context.getRoot().getStore(NAMESPACE).get(KEY_TEST_INSTANCES, Deque.class);
         for (Object obj : stack) {
             if (clazz.equals(obj.getClass())) {
                 return obj;
@@ -609,7 +602,7 @@ public class ArcTestContainer
     }
 
     private static void destroyTestInstanceStack(ExtensionContext context) {
-        getRootExtensionStore(context).remove(KEY_TEST_INSTANCES);
+        context.getRoot().getStore(NAMESPACE).remove(KEY_TEST_INSTANCES);
     }
 
     /**
@@ -800,7 +793,7 @@ public class ArcTestContainer
                     resourceReferenceProviders.isEmpty() ? null : resourceReferenceProviderFile);
         } catch (Throwable e) {
             if (shouldFail) {
-                getRootExtensionStore(context).put(KEY_FAILURE, e);
+                context.getRoot().getStore(NAMESPACE).put(KEY_FAILURE, e);
             } else {
                 if (e instanceof RuntimeException) {
                     throw (RuntimeException) e;

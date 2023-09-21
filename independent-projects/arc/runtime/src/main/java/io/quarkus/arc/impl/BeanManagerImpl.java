@@ -3,6 +3,8 @@ package io.quarkus.arc.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -224,6 +226,11 @@ public class BeanManagerImpl implements BeanManager {
             throw new ContextNotActiveException("No active context found for: " + scopeType);
         }
         return context;
+    }
+
+    @Override
+    public Collection<Context> getContexts(Class<? extends Annotation> scopeType) {
+        return Collections.unmodifiableList(Arc.container().getContexts(scopeType));
     }
 
     @Override

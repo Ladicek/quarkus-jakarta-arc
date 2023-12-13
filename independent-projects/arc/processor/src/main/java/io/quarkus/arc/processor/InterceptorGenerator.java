@@ -131,7 +131,7 @@ public class InterceptorGenerator extends BeanGenerator {
         MethodCreator constructor = createConstructor(classOutput, interceptorBean, interceptor, injectionPointToProviderField,
                 bindings.getFieldDescriptor(), reflectionRegistration, isApplicationClass, providerType);
         SyntheticComponentsUtil.addParamsFieldAndInit(interceptorBean, constructor, interceptor.getParams(), annotationLiterals,
-                interceptor.getDeployment().getBeanArchiveIndex());
+                interceptor.getDeployment().getBeanArchiveIndex(), classOutput);
         constructor.returnValue(null);
 
         implementGetIdentifier(interceptor, interceptorBean);

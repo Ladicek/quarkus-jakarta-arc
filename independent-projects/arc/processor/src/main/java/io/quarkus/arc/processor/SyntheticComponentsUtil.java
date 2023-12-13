@@ -6,12 +6,18 @@ import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
+
+import jakarta.enterprise.invoke.Invoker;
 
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.IndexView;
 
+import io.quarkus.arc.impl.DelegatingInvoker;
+import io.quarkus.gizmo.BytecodeCreator;
 import io.quarkus.gizmo.ClassCreator;
+import io.quarkus.gizmo.ClassOutput;
 import io.quarkus.gizmo.FieldCreator;
 import io.quarkus.gizmo.MethodCreator;
 import io.quarkus.gizmo.MethodDescriptor;
@@ -28,9 +34,10 @@ final class SyntheticComponentsUtil {
      * @param params the parameter map, will be "copied" to the {@code params} field
      * @param annotationLiterals to allow creating annotation literals
      * @param beanArchiveIndex to find annotation types when generating annotation literal classes
+     * @param classOutput output to which new classes may be generated if necessary
      */
     static void addParamsFieldAndInit(ClassCreator classCreator, MethodCreator constructor, Map<String, Object> params,
-            AnnotationLiteralProcessor annotationLiterals, IndexView beanArchiveIndex) {
+            AnnotationLiteralProcessor annotationLiterals, IndexView beanArchiveIndex, ClassOutput classOutput) {
 
         FieldCreator field = classCreator.getFieldCreator(FIELD_NAME_PARAMS, Map.class)
                 .setModifiers(ACC_PRIVATE | ACC_FINAL);
@@ -177,6 +184,15 @@ final class SyntheticComponentsUtil {
                                 annotationInstance);
                         constructor.writeArrayValue(valHandle, i, elementHandle);
                     }
+                } else if (entry.getValue() instanceof InvokerInfo) {
+                    InvokerInfo invoker = (InvokerInfo) entry.getValue();
+                    valHandle = newDelegatingInvoker(constructor, invoker, classOutput);
+                } else if (entry.getValue() instanceof InvokerInfo[]) {
+                    InvokerInfo[] array = (InvokerInfo[]) entry.getValue();
+                    valHandle = constructor.newArray(Invoker.class, array.length);
+                    for (int i = 0; i < array.length; i++) {
+                        constructor.writeArrayValue(valHandle, i, newDelegatingInvoker(constructor, array[i], classOutput));
+                    }
                 }
 
                 constructor.invokeInterfaceMethod(MethodDescriptors.MAP_PUT, paramsHandle,
@@ -185,5 +201,23 @@ final class SyntheticComponentsUtil {
         }
 
         constructor.writeInstanceField(field.getFieldDescriptor(), constructor.getThis(), paramsHandle);
+    }
+
+    private static ResultHandle newDelegatingInvoker(BytecodeCreator bytecode, InvokerInfo invoker, ClassOutput classOutput) {
+        String name = invoker.className + "_Supplier";
+        try (ClassCreator clazz = ClassCreator.builder()
+                .classOutput(classOutput)
+                .className(name)
+                .interfaces(Supplier.class)
+                .build()) {
+
+            MethodCreator get = clazz.getMethodCreator("get", Object.class);
+            ResultHandle result = get.invokeStaticMethod(
+                    MethodDescriptor.ofMethod(invoker.getClassName(), "get", Invoker.class));
+            get.returnValue(result);
+        }
+
+        ResultHandle supplier = bytecode.newInstance(MethodDescriptor.ofConstructor(name));
+        return bytecode.newInstance(MethodDescriptor.ofConstructor(DelegatingInvoker.class, Supplier.class), supplier);
     }
 }

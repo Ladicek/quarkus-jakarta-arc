@@ -18,6 +18,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.spi.Contextual;
+import jakarta.enterprise.context.spi.CreationalContext;
 import jakarta.enterprise.invoke.Invoker;
 
 import org.jboss.jandex.ClassInfo;
@@ -290,8 +291,8 @@ public class InvokerGenerator extends AbstractGenerator {
                 catchBlock.invokeVirtualMethod(MethodDescriptor.ofMethod(InvokerCleanupTasks.class, "finish", void.class),
                         finisher.getOrCreate());
             }
-            if (lookup != null && lookup.needsDestroy()) {
-                catchBlock.invokeInterfaceMethod(MethodDescriptors.CREATIONAL_CTX_RELEASE, lookup.rootCreationalContext());
+            if (lookup != null) {
+                lookup.destroyIfNecessary(catchBlock, null);
             }
 
             if (invoker.exceptionTransformer != null) {
@@ -323,8 +324,8 @@ public class InvokerGenerator extends AbstractGenerator {
                 tryBlock.invokeVirtualMethod(MethodDescriptor.ofMethod(InvokerCleanupTasks.class, "finish", void.class),
                         finisher.getOrCreate());
             }
-            if (lookup != null && lookup.needsDestroy()) {
-                tryBlock.invokeInterfaceMethod(MethodDescriptors.CREATIONAL_CTX_RELEASE, lookup.rootCreationalContext());
+            if (lookup != null) {
+                result = lookup.destroyIfNecessary(tryBlock, result);
             }
             tryBlock.returnValue(result);
 
@@ -588,8 +589,22 @@ public class InvokerGenerator extends AbstractGenerator {
                     MethodDescriptors.INJECTABLE_REF_PROVIDER_GET, injectableReferenceProvider, creationalContext);
         }
 
-        boolean needsDestroy() {
-            return rootCreationalContext != null;
+        ResultHandle destroyIfNecessary(BytecodeCreator bytecode, ResultHandle returnValue) {
+            if (rootCreationalContext == null) {
+                return returnValue;
+            }
+
+            // `returnValue` is `null` when the target method has thrown an exception;
+            // we're going to rethrow it, so we need to release the `CreationalContext` immediately
+            if (returnValue != null && invoker.isAsynchronous()) {
+                String asyncType = invoker.method.returnType().name().toString();
+                return bytecode.invokeStaticMethod(MethodDescriptor.ofMethod(InvokerCleanupTasks.class,
+                        "deferRelease", asyncType, CreationalContext.class, asyncType),
+                        rootCreationalContext(), returnValue);
+            } else {
+                bytecode.invokeInterfaceMethod(MethodDescriptors.CREATIONAL_CTX_RELEASE, rootCreationalContext());
+                return returnValue;
+            }
         }
     }
 

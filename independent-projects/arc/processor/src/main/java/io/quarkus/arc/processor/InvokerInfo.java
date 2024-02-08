@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jboss.jandex.ClassInfo;
+import org.jboss.jandex.DotName;
 import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.Type;
 
@@ -125,5 +126,14 @@ public class InvokerInfo implements InjectionTargetInfo {
             }
         }
         return result;
+    }
+
+    boolean isAsynchronous() {
+        // TODO also Kotlin suspend functions, but that requires more elaborate code
+        DotName returnType = method.returnType().name();
+        return DotNames.COMPLETION_STAGE.equals(returnType)
+                || DotNames.UNI.equals(returnType)
+                || DotNames.MULTI.equals(returnType);
+
     }
 }
